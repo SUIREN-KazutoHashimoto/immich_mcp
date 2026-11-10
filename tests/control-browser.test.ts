@@ -29,7 +29,8 @@ test("native browser key forms preserve same-origin Origin and still enforce CSR
   }) as typeof fetch);
   const control=new Control(access,vault,executor,key);
   const browser=await chromium.launch({headless:true,timeout:45000,...(process.env.MCP_TEST_BROWSER_CHANNEL?{channel:process.env.MCP_TEST_BROWSER_CHANNEL}:process.platform==="win32"?{channel:"msedge"}:{})});
-  const context=await browser.newContext(),page=await context.newPage(),origins:string[]=[];
+  const context=await browser.newContext(),origins:string[]=[];
+  let page=await context.newPage();
   try{
     await context.route("**/*",async route=>{
       const request=route.request();
@@ -45,8 +46,9 @@ test("native browser key forms preserve same-origin Origin and still enforce CSR
     const savedResponse=page.waitForResponse(response=>response.request().method()==="POST"&&new URL(response.url()).pathname==="/connect/key");
     await page.getByRole("button",{name:"Validate and save key",exact:true}).click();
     assert.equal((await savedResponse).status(),303,"Native form Origin: "+origins[0]);
-    // Playwright only routes the initial URL in a redirect chain. Open the
-    // destination explicitly to inspect the persisted binding in this fixture.
+    // Redirects bypass Playwright routing and would reach the fixture's fake
+    // hostname. Close that navigation before inspecting the saved binding.
+    await page.close();page=await context.newPage();
     await page.goto(config.publicOrigin+"/connect");
     await page.getByText("Status: active",{exact:true}).waitFor();
     assert.deepEqual(origins,[config.publicOrigin]);assert.equal(registrations,1);

@@ -33,6 +33,8 @@ jobs:
         run: |
           npm install --global pnpm@11.25.0
           pnpm install --frozen-lockfile --ignore-scripts
+      - name: Install the browser required by regression fixtures
+        run: pnpm exec playwright install --with-deps chromium
       - name: Generate, build and run the full regression suite
         run: pnpm check
       - name: Read the beta version

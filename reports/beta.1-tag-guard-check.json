@@ -1,0 +1,24 @@
+{
+  "observed_at": "2026-11-10T13:34:46.598310+00:00",
+  "failure_fixed": "GitHub commits/<missing-tag> returns422; use git/ref/tags/<tag> with explicit404 handling",
+  "tests": 6,
+  "pass": 6,
+  "fail": 0,
+  "new_tag_guard_cases": 4,
+  "beta_metadata_cases": 2,
+  "duration_ms": 400.3336,
+  "command": "node --import tsx --test --test-concurrency=2 tests/release-tag-guard.test.ts tests/beta-deployment.test.ts",
+  "native_node_live_reference_check": true,
+  "build": {
+    "exit_code": 0,
+    "runtime_assets": 7,
+    "integrity": "ok"
+  },
+  "source_sha256": {
+    "scripts/release-tag-guard.ts": "10f12ce7f80b20ace5b20be215baf4c45c75c1d63d774b4d930d654c1fa50b75",
+    "tests/release-tag-guard.test.ts": "554d483dff65b152cd403d97f03c055211d7fb9495e845dc603b08a7733dc02c",
+    ".github/workflows/beta-docker.yml": "9adae12ecb76036dcbd88408d2e3620232f7b1a1b79c8e38c4ac790f23a4528c"
+  },
+  "actual_immich_verified": false,
+  "full_acceptance": false
+}

@@ -34,7 +34,6 @@
   "transport_assertion_inverse_exact": true,
   "registry_sha256": "871d98963afa469d2ac441a2243cca075b96be1ca4c7b37cb9edf436d152ac7d",
   "original_specification_files_byte_identical": 23,
-  "full707_rerun": false,
   "container_smoke": {
     "result_asset": "immich-mcp-1.0.0-beta.1-linux-amd64.smoke.json",
     "workflow": ".github/workflows/beta-docker.yml",
@@ -50,5 +49,13 @@
       ".editorconfig"
     ],
     "reason": "Restore exact original GitHub blob bytes for LICENSE/editor configuration; text content and application code unchanged"
+  },
+  "full_beta_regression_rerun": false,
+  "ci_guard_followup": {
+    "report": "reports/beta.1-tag-guard-check.json",
+    "new_guard_tests": 4,
+    "pass": 4,
+    "live_reference_guard": true,
+    "source_scope": "release CI helper only; application behavior unchanged"
   }
 }

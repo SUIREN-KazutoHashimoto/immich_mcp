@@ -1,0 +1,69 @@
+name: Publish container to GHCR
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-ghcr-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: write
+    env:
+      IMAGE: ghcr.io/suiren-kazutohashimoto/immich-mcp
+    steps:
+      - name: Check out the selected revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Set up Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: 24.22.2
+      - name: Read the beta version
+        id: metadata
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          import assert from 'node:assert/strict';
+          const {version}=JSON.parse(fs.readFileSync('package.json','utf8'));
+          assert.match(version,/^\d+\.\d+\.\d+-beta\.[1-9]\d*$/);
+          fs.appendFileSync(process.env.GITHUB_OUTPUT,`version=${version}\nimage=${process.env.IMAGE}:${version}\n`);
+          NODE
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069
+      - name: Build Linux amd64 image
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc
+        with:
+          context: .
+          file: Dockerfile
+          platforms: linux/amd64
+          load: true
+          tags: ${{ steps.metadata.outputs.image }}
+          labels: |
+            org.opencontainers.image.source=https://github.com/SUIREN-KazutoHashimoto/immich_mcp
+            org.opencontainers.image.revision=${{ github.sha }}
+          provenance: false
+      - name: Run real-container smoke and restart
+        env:
+          PUBLISH_IMAGE: ${{ steps.metadata.outputs.image }}
+        run: node scripts/container-smoke.mjs "$PUBLISH_IMAGE" "$RUNNER_TEMP/ghcr-container-smoke.json"
+      - name: Authenticate to GHCR
+        env:
+          GHCR_TOKEN: ${{ github.token }}
+        run: printf '%s' "$GHCR_TOKEN" | docker login ghcr.io --username "$GITHUB_ACTOR" --password-stdin
+      - name: Publish the versioned image
+        env:
+          PUBLISH_IMAGE: ${{ steps.metadata.outputs.image }}
+        run: |
+          docker push "$PUBLISH_IMAGE"
+          printf 'Published `%s` from `%s` after the container smoke and restart checks.\n' "$PUBLISH_IMAGE" "$GITHUB_SHA" >> "$GITHUB_STEP_SUMMARY"

@@ -1,0 +1,154 @@
+{
+  "format": "immich-mcp-transport-corrections",
+  "version": 1,
+  "immich_version": "3.3.5",
+  "source_commit": "8303cb117e197c700332b33b61b45314c9cc5bb4",
+  "openapi_sha256": "632700b84590f6b197fe6ef9a8486db19d08a31a03cf10bc780925e8a32b6bb9",
+  "evidence_scope": "fixed_source_and_local_harness_only; actual Immich Range acceptance remains unverified",
+  "source_observations": [
+    {
+      "path": "server/src/controllers/asset-media.controller.ts",
+      "url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/asset-media.controller.ts",
+      "http_status": 200,
+      "sha256": "a4d16981f825e5f7389e218761ba17f2bf7d33363a501426d454693c5f1086d8"
+    },
+    {
+      "path": "server/src/utils/file.ts",
+      "url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/utils/file.ts",
+      "http_status": 200,
+      "sha256": "d7d52489f2dda5fcbe2c23dfdfe56fcd3e025e16ed9f57e62733c52985586915"
+    },
+    {
+      "path": "server/src/utils/logger.ts",
+      "url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/utils/logger.ts",
+      "http_status": 200,
+      "sha256": "6a51b61859b03e99eb625d6d003b4ec6284525b59d7c8394c56cf9a1654c68db"
+    },
+    {
+      "path": "server/src/controllers/asset-file.controller.ts",
+      "url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/asset-file.controller.ts",
+      "http_status": 200,
+      "sha256": "119866466baa8abcb2592c2264a571702fc7ea047b7efabcbe78d3ee69612f10"
+    },
+    {
+      "path": "server/src/services/asset-file.service.ts",
+      "url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/asset-file.service.ts",
+      "http_status": 200,
+      "sha256": "2181574b9ff4e57c756ce1f2fabb2814805a71682f1def46ebb21c0aa32f9cb8"
+    }
+  ],
+  "operation_overrides": [
+    {
+      "operation_id": "downloadAsset",
+      "http_method": "GET",
+      "api_relative_path": "/assets/{id}/original",
+      "openapi_operation_pointer": "#/paths/~1assets~1{id}~1original/get",
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/asset-media.controller.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/utils/file.ts",
+        "https://expressjs.com/en/5x/api/response/#res.sendFile",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/utils/logger.ts"
+      ],
+      "facts": [
+        {
+          "fact_id": "original_asset_byte_range_support",
+          "evidence_level": "source_verified",
+          "value": {
+            "request_header": "Range",
+            "controller_handler": "downloadAsset delegates to sendFile",
+            "file_handler": "Express res.sendFile called with dotfiles only; acceptRanges uses its enabled default",
+            "runtime_verified": false,
+            "out_of_range_status_expected_from_fixed_handler": 404,
+            "out_of_range_explanation": "Express sendFile reports the range error to its callback. The fixed Immich helper calls onRouteError and forwards NotFoundException when the response can still be written. Real runtime verification remains required."
+          },
+          "source_urls": [
+            "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/asset-media.controller.ts",
+            "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/utils/file.ts",
+            "https://expressjs.com/en/5x/api/response/#res.sendFile",
+            "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/utils/logger.ts"
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "requirement_id": "range_forwarding",
+          "evidence_level": "design_requirement",
+          "value": {
+            "request_headers": [
+              "Range"
+            ],
+            "response_headers": [
+              "Content-Range",
+              "Accept-Ranges",
+              "Content-Length"
+            ],
+            "preserve_status_codes": [
+              200,
+              206,
+              404,
+              416
+            ]
+          },
+          "rationale": "Forward the explicit original-file Range header and retain the received status, bytes and range metadata. This does not certify the real server's error status behavior."
+        }
+      ]
+    },
+    {
+      "operation_id": "downloadAssetFile",
+      "http_method": "GET",
+      "api_relative_path": "/asset-files/{id}/download",
+      "openapi_operation_pointer": "#/paths/~1asset-files~1{id}~1download/get",
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/asset-file.controller.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/asset-file.service.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/utils/file.ts",
+        "https://expressjs.com/en/5x/api/response/#res.sendFile",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/utils/logger.ts"
+      ],
+      "facts": [
+        {
+          "fact_id": "asset_file_byte_range_support",
+          "evidence_level": "source_verified",
+          "value": {
+            "request_header": "Range",
+            "controller_handler": "downloadAssetFile delegates to the same sendFile helper after owner-scoped AssetFileDownload authorization",
+            "file_handler": "Express res.sendFile called with dotfiles only; acceptRanges uses its enabled default",
+            "runtime_verified": false,
+            "out_of_range_status_expected_from_fixed_handler": 404,
+            "out_of_range_explanation": "Express sendFile reports the range error to its callback. The fixed Immich helper calls onRouteError and forwards NotFoundException when the response can still be written. Real runtime verification remains required."
+          },
+          "source_urls": [
+            "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/asset-file.controller.ts",
+            "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/asset-file.service.ts",
+            "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/utils/file.ts",
+            "https://expressjs.com/en/5x/api/response/#res.sendFile",
+            "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/utils/logger.ts"
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "requirement_id": "range_forwarding",
+          "evidence_level": "design_requirement",
+          "value": {
+            "request_headers": [
+              "Range"
+            ],
+            "response_headers": [
+              "Content-Range",
+              "Accept-Ranges",
+              "Content-Length"
+            ],
+            "preserve_status_codes": [
+              200,
+              206,
+              404,
+              416
+            ]
+          },
+          "rationale": "Forward the explicit asset-file Range header and retain the received status, bytes and range metadata. The fixed helper is shared with original-file download; actual Immich runtime acceptance remains unverified."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "format": "immich-mcp-timeline-status-response-correction",
+  "version": 1,
+  "immich_version": "3.3.5",
+  "source_commit": "8303cb117e197c700332b33b61b45314c9cc5bb4",
+  "openapi_sha256": "632700b84590f6b197fe6ef9a8486db19d08a31a03cf10bc780925e8a32b6bb9",
+  "operation_id": "getTimeBucket",
+  "http_method": "GET",
+  "api_relative_path": "/timeline/bucket",
+  "openapi_operation_pointer": "#/paths/~1timeline~1bucket/get",
+  "status_code": 200,
+  "content_type": "application/json",
+  "expected_schema": {
+    "$ref": "#/components/schemas/TimeBucketAssetResponseDto"
+  },
+  "component_name": "TimeBucketAssetResponseDto",
+  "component_sha256": "121723224c5281e18d421708757b61e2510451d7ad1f9d79ec418e447e0eb1c4",
+  "property_name": "status",
+  "property_schema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "enum": [
+        "active",
+        "trashed",
+        "deleted"
+      ]
+    }
+  },
+  "fact_id": "time_bucket_asset_status_column",
+  "source_urls": [
+    "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/repositories/asset.repository.ts",
+    "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/dtos/time-bucket.dto.ts",
+    "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/enum.ts"
+  ],
+  "evidence_scope": "Fixed SQL aggregate, original DTO and AssetStatus enum; independent compiled-executor/native HTTP reproduction. No actual Immich acceptance."
+}

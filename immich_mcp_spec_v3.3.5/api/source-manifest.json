@@ -1,0 +1,22 @@
+{
+  "product": "Immich",
+  "version": "3.3.5",
+  "git_tag": "v3.3.5",
+  "commit_sha": "8303cb117e197c700332b33b61b45314c9cc5bb4",
+  "source_url": "https://raw.githubusercontent.com/immich-app/immich/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json",
+  "source_repository_path": "open-api/immich-openapi-specs.json",
+  "local_filename": "immich-openapi-v3.3.5.json",
+  "size_bytes": 953386,
+  "git_blob_sha1": "52e3820ef6fd3e6165cb70a7b91596a9366670aa",
+  "sha256": "632700b84590f6b197fe6ef9a8486db19d08a31a03cf10bc780925e8a32b6bb9",
+  "verification": "Local bytes reproduce GitHub Git blob SHA exactly.",
+  "license": {
+    "upstream_path": "LICENSE",
+    "local_filename": "LICENSE.immich",
+    "source_url": "https://raw.githubusercontent.com/immich-app/immich/8303cb117e197c700332b33b61b45314c9cc5bb4/LICENSE",
+    "git_blob_sha1": "94ae15a0fcbd45872c6d01efe11b6ed2a5746b37",
+    "sha256": "a3bad629f67f442b23b5224419e49edafc32e6b9c876b89464f7aafe6091ccde",
+    "size_bytes": 32388,
+    "license_title": "GNU AFFERO GENERAL PUBLIC LICENSE Version 3, 19 November 2007"
+  }
+}

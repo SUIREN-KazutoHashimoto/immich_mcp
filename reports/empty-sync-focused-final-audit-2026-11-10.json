@@ -1,0 +1,12 @@
+{
+  "observed_at": "2026-11-10T08:47:06.398891+00:00",
+  "focused_report": "reports/empty-sync-focused-check-2026-11-10.json",
+  "focused_report_sha256": "6f2a81f07c9ce6fbbc5e22c16e2e3d1a6109e1be092cda2f73798fbe581f77b9",
+  "tests": 36,
+  "suites": 1,
+  "pass": 36,
+  "all190_selected_inputs_unchanged": true,
+  "production_reversals_exact": true,
+  "actual_immich_verified": false,
+  "full_acceptance": false
+}

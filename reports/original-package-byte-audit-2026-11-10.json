@@ -1,0 +1,101 @@
+{
+  "observed_at": "2026-11-10T09:05:25.058479+00:00",
+  "attached_package_sha256": "369f3f55ba548fdfa98cf1ed443b3b22cac8e7d92bcd1d8adbe691a1e73753ce",
+  "checked_files": 23,
+  "all_original_bytes_identical": true,
+  "files": {
+    "immich_mcp_spec_v3.3.5/CODEX_HANDOFF.md": {
+      "bytes": 6086,
+      "sha256": "9e9650c38f59ad941f3b5d8a5bbd2c7474a5aab6213f8e718c4e3b3457e541a2"
+    },
+    "immich_mcp_spec_v3.3.5/Immich_MCP_v3.3.5_Specification.md": {
+      "bytes": 75965,
+      "sha256": "cb587103a9503a8381818e86166fd6466727bd8bd9d34c22f90e275315448aaf"
+    },
+    "immich_mcp_spec_v3.3.5/README.md": {
+      "bytes": 2990,
+      "sha256": "4800ad674f3eebddb44a79bc5e0dc58af439651ecad8ff45a4e563d5f13c4da5"
+    },
+    "immich_mcp_spec_v3.3.5/SHA256SUMS": {
+      "bytes": 2095,
+      "sha256": "16dc0d33b01165b35fcd9a5825e63e7390ef0610dcebdc70b8aa467dcfa13d82"
+    },
+    "immich_mcp_spec_v3.3.5/api/LICENSE.immich": {
+      "bytes": 32388,
+      "sha256": "a3bad629f67f442b23b5224419e49edafc32e6b9c876b89464f7aafe6091ccde"
+    },
+    "immich_mcp_spec_v3.3.5/api/build_inventory.py": {
+      "bytes": 18356,
+      "sha256": "7bfdc24e1877ad1f846883d7d63cf80b8db789ffb11d8c9fb2b6e1f4d5bba288"
+    },
+    "immich_mcp_spec_v3.3.5/api/controller-auth-index.json": {
+      "bytes": 195685,
+      "sha256": "8431e03b100b2cda056eab45169de650df861d2847e9f64cbb0eea4a56e2fba4"
+    },
+    "immich_mcp_spec_v3.3.5/api/controllers-manifest.json": {
+      "bytes": 20718,
+      "sha256": "f3c52fca152bd9680b5bc9007f511e9c14a4606ea807313048c7e24ad5d82d00"
+    },
+    "immich_mcp_spec_v3.3.5/api/immich-openapi-v3.3.5.json": {
+      "bytes": 953386,
+      "sha256": "632700b84590f6b197fe6ef9a8486db19d08a31a03cf10bc780925e8a32b6bb9"
+    },
+    "immich_mcp_spec_v3.3.5/api/inventory-summary.json": {
+      "bytes": 2179,
+      "sha256": "68a952729f17069d849070cbde101c79cfcb2386a8c9dd1cc9c24f11aad19bc9"
+    },
+    "immich_mcp_spec_v3.3.5/api/operation-inventory.json": {
+      "bytes": 764156,
+      "sha256": "8c3df7f9099b8f3a8da56b3547994fe0ff33d1df08c6e994f06432f3963f3ea2"
+    },
+    "immich_mcp_spec_v3.3.5/api/operation-inventory.md": {
+      "bytes": 38441,
+      "sha256": "6f37bd6ee609146e085c7549a5878c759e24e1be96eba61025a385660f2b4aca"
+    },
+    "immich_mcp_spec_v3.3.5/api/permission-enum.json": {
+      "bytes": 6462,
+      "sha256": "e2db7d089e05d2bbd25bd4b90b8486f5eba0d187f1f4f3c34eae4dc73aa58c8f"
+    },
+    "immich_mcp_spec_v3.3.5/api/source-manifest.json": {
+      "bytes": 1104,
+      "sha256": "bdb8a9dddbdfde8d910eeffc9429e06a5c933b8b6386e7634c75577adbac2101"
+    },
+    "immich_mcp_spec_v3.3.5/api/supplemental-hidden-routes.json": {
+      "bytes": 12505,
+      "sha256": "f325e105738dce14f4cf96aa49335035c25826a1e8b9758571275226dc63f79c"
+    },
+    "immich_mcp_spec_v3.3.5/api/verify_openapi_inventory.py": {
+      "bytes": 4862,
+      "sha256": "32146218a74d79ff9a93716d859b17c972909ee6c1755868c64031b7176bc12c"
+    },
+    "immich_mcp_spec_v3.3.5/contracts/auth-contexts.v3.3.5.json": {
+      "bytes": 80226,
+      "sha256": "1816e704cb8882ce379bc1b4cc29f19470a2c3f7919ca29a67bd68d6f6eb85e9"
+    },
+    "immich_mcp_spec_v3.3.5/contracts/mcp-tool-contracts.json": {
+      "bytes": 61311,
+      "sha256": "8f524434178dc4ee9b4565b89a05f4389e2620c5c24d11488d50ff94d012097c"
+    },
+    "immich_mcp_spec_v3.3.5/contracts/operation-overrides.v3.3.5.json": {
+      "bytes": 163682,
+      "sha256": "1a138e1a64400b12547ce92d5f5f0cc305316c0792bf1cb1fd955e2aa50469fb"
+    },
+    "immich_mcp_spec_v3.3.5/verification/README.md": {
+      "bytes": 2142,
+      "sha256": "11370c083e2da8dd1135557bde83ff839815201a9981c3d519d834ba926de920"
+    },
+    "immich_mcp_spec_v3.3.5/verification/inventory-verification.json": {
+      "bytes": 279,
+      "sha256": "eb266ecbbf50d83d201b3385f4c243cd1ffaf20e2b00722e4a46a825b36f850f"
+    },
+    "immich_mcp_spec_v3.3.5/verification/package-verification.json": {
+      "bytes": 791,
+      "sha256": "3065dee5481fab9f2c647dcda4ba4057d2fb56b0b21440f6929f79422eebe6e1"
+    },
+    "immich_mcp_spec_v3.3.5/verification/verify_package.py": {
+      "bytes": 9324,
+      "sha256": "4bb8fb90a12b4412dc0d337e26dce43fc62b77ae1ce6d657e2702959b0360b0e"
+    }
+  },
+  "scope": "Attached specification bytes only; not application/runtime/actual-server acceptance"
+}

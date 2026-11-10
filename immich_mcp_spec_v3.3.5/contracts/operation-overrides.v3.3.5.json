@@ -1,0 +1,4047 @@
+{
+  "artifact_type": "implementation_specification_overrides",
+  "artifact_schema_version": "1.0.0",
+  "language": "ja",
+  "created_on": "2026-11-05",
+  "status": "specification_data_not_application_implementation",
+  "notice": "このJSONはCodexへの実装指示を補う仕様データであり、MCPアプリケーション実装済み・runtimeテスト済みを意味しない。",
+  "scope": {
+    "coverage_claim": "known_overrides_not_exhaustive",
+    "inventory_baseline": "all_279_official_openapi_operations",
+    "contains": [
+      "declared_non_json_media_handlers",
+      "source_verified_schema_gaps",
+      "redirect_and_status_handling",
+      "known_secret_schema_fields",
+      "known_cookie_secrets"
+    ],
+    "absence_semantics": "ここにoperationがないことは、除外・禁止・対応不要を意味しない。汎用executorは全279operationを実装する。",
+    "auth_context_policy": {
+      "delegated": true,
+      "companion_contract": "auth-contexts.v3.3.5.json",
+      "rule": "認証文脈の選択・本人確認・特殊認証条件は別契約に従う。この補正JSONは権限やfallbackを付与しない。"
+    },
+    "no_feature_acl": true,
+    "live_immich_instance_tested": false,
+    "secrets_audit_complete": false,
+    "controller_audit_complete": false
+  },
+  "pinned_upstream": {
+    "project": "immich-app/immich",
+    "tag": "v3.3.5",
+    "commit": "8303cb117e197c700332b33b61b45314c9cc5bb4",
+    "openapi_version": "3.0.0",
+    "api_version": "3.3.5",
+    "openapi_sha256": "632700b84590f6b197fe6ef9a8486db19d08a31a03cf10bc780925e8a32b6bb9",
+    "server_prefix": "/api",
+    "operation_count": 279,
+    "path_count": 193,
+    "source_urls": [
+      "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+    ]
+  },
+  "evidence_levels": {
+    "openapi_verified": "固定commitのOpenAPI定義のfield・operation・media typeを直接照合した事実。実稼働確認ではない。",
+    "source_verified": "固定commitのcontroller/service/DTO/utilityのコードを読んで確認した事実。実稼働確認ではない。",
+    "design_requirement": "本MCPの実装で要求する振る舞い。Immich公式の保証や既存実装の動作と混同しない。"
+  },
+  "pointer_conventions": {
+    "schema_property_pointer": "RFC 6901 JSON Pointer。先頭#は固定OpenAPI文書内のfragment。~0と~1のescapeを適用する。",
+    "instance_pointer_pattern": "schemaを解決したJSON値またはdecoded form上のpointer。JSONLは各行を独立したrootとする。",
+    "array_wildcard": {
+      "token": "*",
+      "meaning": "このセグメントだけ、直前の値がarrayの場合に各0-based indexへ展開する。object keyのglobや任意の深さには一致しない。",
+      "example": {
+        "pattern": "/*/key",
+        "matches": [
+          "/0/key",
+          "/1/key"
+        ],
+        "does_not_match": [
+          "/key",
+          "/items/0/key"
+        ]
+      }
+    },
+    "wildcard_standard_status": "array wildcardは本契約の拡張であり、RFC 6901そのものの構文とは主張しない。",
+    "type_mismatch": "想定外の型はマッチしていない扱いで黙って出力せず、投影エラーとしてrawを隔離する。",
+    "null_or_absent": "上流がnullまたは省略を許すfieldはその区別を保持する。"
+  },
+  "global_requirements": [
+    {
+      "requirement_id": "preserve_upstream_semantics",
+      "evidence_level": "design_requirement",
+      "value": "status・実Content-Type・必要なheader・完全bytesを保存する。204/redirect/部分成功/non-JSON errorをJSON成功へ強制変換しない。"
+    },
+    {
+      "requirement_id": "secret_projection_is_not_feature_denial",
+      "evidence_level": "design_requirement",
+      "value": "秘密を含むAPIも実行可能にし、本人control-planeで完全結果を受け取る。モデル表示だけはsecret_refへ投影する。"
+    },
+    {
+      "requirement_id": "raw_result_separation",
+      "evidence_level": "design_requirement",
+      "value": "暗号化原本とモデル表示を区別する。read_result/resource/preview/pointer/rangeは表示側を通し、原本秘密への迂回路を作らない。"
+    },
+    {
+      "requirement_id": "no_secret_result_channels",
+      "evidence_level": "design_requirement",
+      "value": "秘密をモデル向けtext/structuredContent/_meta/URL、ログ、trace、公開リンク、メトリクスラベルに露出させない。_metaはsecret storeではない。本人control-planeと上流プロトコル上必要な通信は別の保護された経路として扱う。"
+    },
+    {
+      "requirement_id": "protocol_required_upstream_query",
+      "evidence_level": "design_requirement",
+      "value": "上流の共有リンク認証やOAuthプロトコルがquery値を必要とする場合は、明示的な専用adapter内で本人の検証済みworkflowから復元し、設定済みの正当な宛先へだけ送信する。この許可は通常api_callの任意query入力、モデル向けURL、ログへの秘密露出を許可しない。"
+    },
+    {
+      "requirement_id": "upstream_vs_mcp_auth_error",
+      "evidence_level": "design_requirement",
+      "value": "Immich401/403はMCP tool error内のupstream_statusで返す。外側MCPのOAuth401へ変換しない。"
+    },
+    {
+      "requirement_id": "auth_context_delegation",
+      "evidence_level": "design_requirement",
+      "value": "通常呼出しは本人APIkey固定。Cookie/query認証材料やsecret_refを解決できても、別の認証文脈への自動切替えは許可されない。"
+    }
+  ],
+  "operation_overrides": [
+    {
+      "operation_id": "changePassword",
+      "http_method": "POST",
+      "api_relative_path": "/auth/change-password",
+      "openapi_operation_pointer": "#/paths/~1auth~1change-password/post",
+      "implementation_status": "required_not_implemented",
+      "runtime_verified": false,
+      "facts": [],
+      "requirements": [],
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+      ],
+      "secret_field_rule_ids": [
+        "ChangePasswordDto.password",
+        "ChangePasswordDto.newPassword"
+      ]
+    },
+    {
+      "operation_id": "changePinCode",
+      "http_method": "PUT",
+      "api_relative_path": "/auth/pin-code",
+      "openapi_operation_pointer": "#/paths/~1auth~1pin-code/put",
+      "implementation_status": "required_not_implemented",
+      "runtime_verified": false,
+      "facts": [],
+      "requirements": [],
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+      ],
+      "secret_field_rule_ids": [
+        "PinCodeChangeDto.newPinCode",
+        "PinCodeChangeDto.password",
+        "PinCodeChangeDto.pinCode"
+      ]
+    },
+    {
+      "operation_id": "createApiKey",
+      "http_method": "POST",
+      "api_relative_path": "/api-keys",
+      "openapi_operation_pointer": "#/paths/~1api-keys/post",
+      "implementation_status": "required_not_implemented",
+      "runtime_verified": false,
+      "facts": [],
+      "requirements": [],
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+      ],
+      "secret_field_rule_ids": [
+        "ApiKeyCreateResponseDto.secret"
+      ]
+    },
+    {
+      "operation_id": "createProfileImage",
+      "http_method": "POST",
+      "api_relative_path": "/users/profile-image",
+      "openapi_operation_pointer": "#/paths/~1users~1profile-image/post",
+      "implementation_status": "required_not_implemented",
+      "runtime_verified": false,
+      "facts": [
+        {
+          "fact_id": "multipart_request",
+          "evidence_level": "openapi_verified",
+          "value": {
+            "content_type": "multipart/form-data",
+            "schema": {
+              "$ref": "#/components/schemas/CreateProfileImageDto"
+            },
+            "binary_parts": [
+              {
+                "part_name": "file",
+                "required": true,
+                "format": "binary",
+                "type": "string"
+              }
+            ]
+          },
+          "source_urls": [
+            "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "requirement_id": "request_body_handler",
+          "evidence_level": "design_requirement",
+          "value": "streaming_multipart_from_file_refs",
+          "rationale": "各partは本人のfile_refから解決し、part名・filename・MIME・他のDTO fieldを維持する。"
+        }
+      ],
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+      ],
+      "secret_field_rule_ids": []
+    },
+    {
+      "operation_id": "createSession",
+      "http_method": "POST",
+      "api_relative_path": "/sessions",
+      "openapi_operation_pointer": "#/paths/~1sessions/post",
+      "implementation_status": "required_not_implemented",
+      "runtime_verified": false,
+      "facts": [],
+      "requirements": [],
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+      ],
+      "secret_field_rule_ids": [
+        "SessionCreateResponseDto.token"
+      ]
+    },
+    {
+      "operation_id": "createSharedLink",
+      "http_method": "POST",
+      "api_relative_path": "/shared-links",
+      "openapi_operation_pointer": "#/paths/~1shared-links/post",
+      "implementation_status": "required_not_implemented",
+      "runtime_verified": false,
+      "facts": [],
+      "requirements": [],
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/dtos/shared-link.dto.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/auth.service.ts"
+      ],
+      "secret_field_rule_ids": [
+        "SharedLinkCreateDto.password",
+        "SharedLinkCreateDto.slug",
+        "SharedLinkResponseDto.key",
+        "SharedLinkResponseDto.password",
+        "SharedLinkResponseDto.slug"
+      ]
+    },
+    {
+      "operation_id": "createUserAdmin",
+      "http_method": "POST",
+      "api_relative_path": "/admin/users",
+      "openapi_operation_pointer": "#/paths/~1admin~1users/post",
+      "implementation_status": "required_not_implemented",
+      "runtime_verified": false,
+      "facts": [],
+      "requirements": [],
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+      ],
+      "secret_field_rule_ids": [
+        "UserAdminCreateDto.password",
+        "UserAdminCreateDto.pinCode"
+      ]
+    },
+    {
+      "operation_id": "downloadArchive",
+      "http_method": "POST",
+      "api_relative_path": "/download/archive",
+      "openapi_operation_pointer": "#/paths/~1download~1archive/post",
+      "implementation_status": "required_not_implemented",
+      "runtime_verified": false,
+      "facts": [
+        {
+          "fact_id": "declared_non_json_responses",
+          "evidence_level": "openapi_verified",
+          "value": [
+            {
+              "status_code": 200,
+              "content_type": "application/octet-stream",
+              "body_schema": {
+                "format": "binary",
+                "type": "string"
+              }
+            }
+          ],
+          "source_urls": [
+            "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+          ]
+        },
+        {
+          "fact_id": "archive_workflow",
+          "evidence_level": "source_verified",
+          "value": {
+            "file_format": "ZIP",
+            "predecessor_operation": "getDownloadInfo",
+            "http_method": "POST"
+          },
+          "source_urls": [
+            "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/download.controller.ts",
+            "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "requirement_id": "response_body_handler",
+          "evidence_level": "design_requirement",
+          "value": "binary_stream",
+          "rationale": "原本bytesと実Content-Typeを保存し、JSON parse・UTF-8変換・会話への巨大base64展開をしない。"
+        },
+        {
+          "requirement_id": "result_storage",
+          "evidence_level": "design_requirement",
+          "value": "principal_scoped_artifact",
+          "rationale": "ユーザー別認証・期限・サイズ・SHA-256を持つartifactを返す。原本を切り詰めない。"
+        },
+        {
+          "requirement_id": "method_is_not_semantic_classification",
+          "evidence_level": "design_requirement",
+          "value": true,
+          "rationale": "POSTだからという理由で機能を除外せず、binary ZIPをそのまま転送する。"
+        }
+      ],
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/download.controller.ts"
+      ],
+      "secret_field_rule_ids": []
+    },
+    {
+      "operation_id": "downloadAsset",
+      "http_method": "GET",
+      "api_relative_path": "/assets/{id}/original",
+      "openapi_operation_pointer": "#/paths/~1assets~1{id}~1original/get",
+      "implementation_status": "required_not_implemented",
+      "runtime_verified": false,
+      "facts": [
+        {
+          "fact_id": "declared_non_json_responses",
+          "evidence_level": "openapi_verified",
+          "value": [
+            {
+              "status_code": 200,
+              "content_type": "application/octet-stream",
+              "body_schema": {
+                "format": "binary",
+                "type": "string"
+              }
+            }
+          ],
+          "source_urls": [
+            "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "requirement_id": "response_body_handler",
+          "evidence_level": "design_requirement",
+          "value": "binary_stream",
+          "rationale": "原本bytesと実Content-Typeを保存し、JSON parse・UTF-8変換・会話への巨大base64展開をしない。"
+        },
+        {
+          "requirement_id": "result_storage",
+          "evidence_level": "design_requirement",
+          "value": "principal_scoped_artifact",
+          "rationale": "ユーザー別認証・期限・サイズ・SHA-256を持つartifactを返す。原本を切り詰めない。"
+        }
+      ],
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+      ],
+      "secret_field_rule_ids": []
+    },
+    {
+      "operation_id": "downloadAssetFile",
+      "http_method": "GET",
+      "api_relative_path": "/asset-files/{id}/download",
+      "openapi_operation_pointer": "#/paths/~1asset-files~1{id}~1download/get",
+      "implementation_status": "required_not_implemented",
+      "runtime_verified": false,
+      "facts": [
+        {
+          "fact_id": "declared_non_json_responses",
+          "evidence_level": "openapi_verified",
+          "value": [
+            {
+              "status_code": 200,
+              "content_type": "application/octet-stream",
+              "body_schema": {
+                "format": "binary",
+                "type": "string"
+              }
+            }
+          ],
+          "source_urls": [
+            "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "requirement_id": "response_body_handler",
+          "evidence_level": "design_requirement",
+          "value": "binary_stream",
+          "rationale": "原本bytesと実Content-Typeを保存し、JSON parse・UTF-8変換・会話への巨大base64展開をしない。"
+        },
+        {
+          "requirement_id": "result_storage",
+          "evidence_level": "design_requirement",
+          "value": "principal_scoped_artifact",
+          "rationale": "ユーザー別認証・期限・サイズ・SHA-256を持つartifactを返す。原本を切り詰めない。"
+        }
+      ],
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+      ],
+      "secret_field_rule_ids": []
+    },
+    {
+      "operation_id": "downloadDatabaseBackup",
+      "http_method": "GET",
+      "api_relative_path": "/admin/database-backups/{filename}",
+      "openapi_operation_pointer": "#/paths/~1admin~1database-backups~1{filename}/get",
+      "implementation_status": "required_not_implemented",
+      "runtime_verified": false,
+      "facts": [
+        {
+          "fact_id": "declared_non_json_responses",
+          "evidence_level": "openapi_verified",
+          "value": [
+            {
+              "status_code": 200,
+              "content_type": "application/octet-stream",
+              "body_schema": {
+                "format": "binary",
+                "type": "string"
+              }
+            }
+          ],
+          "source_urls": [
+            "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "requirement_id": "response_body_handler",
+          "evidence_level": "design_requirement",
+          "value": "binary_stream",
+          "rationale": "原本bytesと実Content-Typeを保存し、JSON parse・UTF-8変換・会話への巨大base64展開をしない。"
+        },
+        {
+          "requirement_id": "result_storage",
+          "evidence_level": "design_requirement",
+          "value": "principal_scoped_artifact",
+          "rationale": "ユーザー別認証・期限・サイズ・SHA-256を持つartifactを返す。原本を切り詰めない。"
+        }
+      ],
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+      ],
+      "secret_field_rule_ids": []
+    },
+    {
+      "operation_id": "endSession",
+      "http_method": "DELETE",
+      "api_relative_path": "/assets/{id}/video/stream/{sessionId}",
+      "openapi_operation_pointer": "#/paths/~1assets~1{id}~1video~1stream~1{sessionId}/delete",
+      "implementation_status": "required_not_implemented",
+      "runtime_verified": false,
+      "facts": [
+        {
+          "fact_id": "hls_side_effects",
+          "evidence_level": "source_verified",
+          "value": [
+            "emits HlsSessionEnd to release server resources"
+          ],
+          "source_urls": [
+            "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/video-stream.controller.ts",
+            "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/hls.service.ts"
+          ]
+        },
+        {
+          "fact_id": "success_status",
+          "evidence_level": "source_verified",
+          "value": 204,
+          "source_urls": [
+            "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/video-stream.controller.ts"
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "requirement_id": "typed_tool_read_only_hint",
+          "evidence_level": "design_requirement",
+          "value": false,
+          "rationale": "HTTP methodやasset.view permissionだけでreadOnlyと分類しない。"
+        },
+        {
+          "requirement_id": "hls_context_scope",
+          "evidence_level": "design_requirement",
+          "value": "principal_and_playback_session",
+          "rationale": "HLSのsessionIdはMCP transport sessionやImmichログインsessionとは別に管理する。"
+        }
+      ],
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/video-stream.controller.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/hls.service.ts"
+      ],
+      "secret_field_rule_ids": []
+    },
+    {
+      "operation_id": "finishOAuth",
+      "http_method": "POST",
+      "api_relative_path": "/oauth/callback",
+      "openapi_operation_pointer": "#/paths/~1oauth~1callback/post",
+      "implementation_status": "required_not_implemented",
+      "runtime_verified": false,
+      "facts": [
+        {
+          "fact_id": "secret_cookie_names",
+          "evidence_level": "source_verified",
+          "value": [
+            "immich_access_token"
+          ],
+          "source_urls": [
+            "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/oauth.controller.ts",
+            "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/enum.ts"
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "requirement_id": "cookie_handling",
+          "evidence_level": "design_requirement",
+          "value": "principal_and_workflow_scoped_secure_cookie_jar",
+          "rationale": "Set-Cookie値はモデルへ返さない。別ユーザーと共有せず、適用先auth-contextは別契約に従う。"
+        }
+      ],
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/oauth.controller.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/enum.ts"
+      ],
+      "secret_field_rule_ids": [
+        "LoginResponseDto.accessToken",
+        "OAuthCallbackDto.codeVerifier",
+        "OAuthCallbackDto.state",
+        "OAuthCallbackDto.url"
+      ]
+    },
+    {
+      "operation_id": "getAdminConfig",
+      "http_method": "GET",
+      "api_relative_path": "/admin/config",
+      "openapi_operation_pointer": "#/paths/~1admin~1config/get",
+      "implementation_status": "required_not_implemented",
+      "runtime_verified": false,
+      "facts": [],
+      "requirements": [],
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+      ],
+      "secret_field_rule_ids": [
+        "AdminConfigOAuthDto.clientSecret",
+        "AdminConfigSmtpTransportDto.password"
+      ]
+    },
+    {
+      "operation_id": "getAdminConfigDefaults",
+      "http_method": "GET",
+      "api_relative_path": "/admin/config/defaults",
+      "openapi_operation_pointer": "#/paths/~1admin~1config~1defaults/get",
+      "implementation_status": "required_not_implemented",
+      "runtime_verified": false,
+      "facts": [],
+      "requirements": [],
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+      ],
+      "secret_field_rule_ids": [
+        "AdminConfigOAuthDto.clientSecret",
+        "AdminConfigSmtpTransportDto.password"
+      ]
+    },
+    {
+      "operation_id": "getAllSharedLinks",
+      "http_method": "GET",
+      "api_relative_path": "/shared-links",
+      "openapi_operation_pointer": "#/paths/~1shared-links/get",
+      "implementation_status": "required_not_implemented",
+      "runtime_verified": false,
+      "facts": [],
+      "requirements": [],
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/dtos/shared-link.dto.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/auth.service.ts"
+      ],
+      "secret_field_rule_ids": [
+        "SharedLinkResponseDto.key",
+        "SharedLinkResponseDto.password",
+        "SharedLinkResponseDto.slug"
+      ]
+    },
+    {
+      "operation_id": "getConfig",
+      "http_method": "GET",
+      "api_relative_path": "/system-config",
+      "openapi_operation_pointer": "#/paths/~1system-config/get",
+      "implementation_status": "required_not_implemented",
+      "runtime_verified": false,
+      "facts": [],
+      "requirements": [],
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+      ],
+      "secret_field_rule_ids": [
+        "AdminConfigOAuthDto.clientSecret",
+        "AdminConfigSmtpTransportDto.password"
+      ]
+    },
+    {
+      "operation_id": "getConfigDefaults",
+      "http_method": "GET",
+      "api_relative_path": "/system-config/defaults",
+      "openapi_operation_pointer": "#/paths/~1system-config~1defaults/get",
+      "implementation_status": "required_not_implemented",
+      "runtime_verified": false,
+      "facts": [],
+      "requirements": [],
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+      ],
+      "secret_field_rule_ids": [
+        "AdminConfigOAuthDto.clientSecret",
+        "AdminConfigSmtpTransportDto.password"
+      ]
+    },
+    {
+      "operation_id": "getIntegrityReportCsv",
+      "http_method": "GET",
+      "api_relative_path": "/admin/integrity/report/{type}/csv",
+      "openapi_operation_pointer": "#/paths/~1admin~1integrity~1report~1{type}~1csv/get",
+      "implementation_status": "required_not_implemented",
+      "runtime_verified": false,
+      "facts": [
+        {
+          "fact_id": "declared_non_json_responses",
+          "evidence_level": "openapi_verified",
+          "value": [
+            {
+              "status_code": 200,
+              "content_type": "application/octet-stream",
+              "body_schema": {
+                "format": "binary",
+                "type": "string"
+              }
+            }
+          ],
+          "source_urls": [
+            "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "requirement_id": "response_body_handler",
+          "evidence_level": "design_requirement",
+          "value": "binary_stream",
+          "rationale": "原本bytesと実Content-Typeを保存し、JSON parse・UTF-8変換・会話への巨大base64展開をしない。"
+        },
+        {
+          "requirement_id": "result_storage",
+          "evidence_level": "design_requirement",
+          "value": "principal_scoped_artifact",
+          "rationale": "ユーザー別認証・期限・サイズ・SHA-256を持つartifactを返す。原本を切り詰めない。"
+        }
+      ],
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+      ],
+      "secret_field_rule_ids": []
+    },
+    {
+      "operation_id": "getIntegrityReportFile",
+      "http_method": "GET",
+      "api_relative_path": "/admin/integrity/report/{id}/file",
+      "openapi_operation_pointer": "#/paths/~1admin~1integrity~1report~1{id}~1file/get",
+      "implementation_status": "required_not_implemented",
+      "runtime_verified": false,
+      "facts": [
+        {
+          "fact_id": "declared_non_json_responses",
+          "evidence_level": "openapi_verified",
+          "value": [
+            {
+              "status_code": 200,
+              "content_type": "application/octet-stream",
+              "body_schema": {
+                "format": "binary",
+                "type": "string"
+              }
+            }
+          ],
+          "source_urls": [
+            "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "requirement_id": "response_body_handler",
+          "evidence_level": "design_requirement",
+          "value": "binary_stream",
+          "rationale": "原本bytesと実Content-Typeを保存し、JSON parse・UTF-8変換・会話への巨大base64展開をしない。"
+        },
+        {
+          "requirement_id": "result_storage",
+          "evidence_level": "design_requirement",
+          "value": "principal_scoped_artifact",
+          "rationale": "ユーザー別認証・期限・サイズ・SHA-256を持つartifactを返す。原本を切り詰めない。"
+        }
+      ],
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+      ],
+      "secret_field_rule_ids": []
+    },
+    {
+      "operation_id": "getMainPlaylist",
+      "http_method": "GET",
+      "api_relative_path": "/assets/{id}/video/stream/main.m3u8",
+      "openapi_operation_pointer": "#/paths/~1assets~1{id}~1video~1stream~1main.m3u8/get",
+      "implementation_status": "required_not_implemented",
+      "runtime_verified": false,
+      "facts": [
+        {
+          "fact_id": "declared_non_json_responses",
+          "evidence_level": "openapi_verified",
+          "value": [
+            {
+              "status_code": 200,
+              "content_type": "application/vnd.apple.mpegurl",
+              "body_schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "source_urls": [
+            "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+          ]
+        },
+        {
+          "fact_id": "hls_side_effects",
+          "evidence_level": "source_verified",
+          "value": [
+            "creates random session UUID",
+            "emits HlsSessionRequest",
+            "tracks session"
+          ],
+          "source_urls": [
+            "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/video-stream.controller.ts",
+            "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/hls.service.ts"
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "requirement_id": "response_body_handler",
+          "evidence_level": "design_requirement",
+          "value": "hls_playlist_text_and_raw_bytes",
+          "rationale": "playlistの順序と改行を保持する。再生relay用の書換え結果は原本と別に保存する。"
+        },
+        {
+          "requirement_id": "result_storage",
+          "evidence_level": "design_requirement",
+          "value": "principal_scoped_artifact",
+          "rationale": "ユーザー別認証・期限・サイズ・SHA-256を持つartifactを返す。原本を切り詰めない。"
+        },
+        {
+          "requirement_id": "typed_tool_read_only_hint",
+          "evidence_level": "design_requirement",
+          "value": false,
+          "rationale": "HTTP methodやasset.view permissionだけでreadOnlyと分類しない。"
+        },
+        {
+          "requirement_id": "hls_context_scope",
+          "evidence_level": "design_requirement",
+          "value": "principal_and_playback_session",
+          "rationale": "HLSのsessionIdはMCP transport sessionやImmichログインsessionとは別に管理する。"
+        }
+      ],
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/video-stream.controller.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/hls.service.ts"
+      ],
+      "secret_field_rule_ids": []
+    },
+    {
+      "operation_id": "getMediaPlaylist",
+      "http_method": "GET",
+      "api_relative_path": "/assets/{id}/video/stream/{sessionId}/{variantIndex}/playlist.m3u8",
+      "openapi_operation_pointer": "#/paths/~1assets~1{id}~1video~1stream~1{sessionId}~1{variantIndex}~1playlist.m3u8/get",
+      "implementation_status": "required_not_implemented",
+      "runtime_verified": false,
+      "facts": [
+        {
+          "fact_id": "declared_non_json_responses",
+          "evidence_level": "openapi_verified",
+          "value": [
+            {
+              "status_code": 200,
+              "content_type": "application/vnd.apple.mpegurl",
+              "body_schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "source_urls": [
+            "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+          ]
+        },
+        {
+          "fact_id": "hls_side_effects",
+          "evidence_level": "source_verified",
+          "value": [
+            "may prewarm a variant by emitting HlsSegmentRequest"
+          ],
+          "source_urls": [
+            "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/video-stream.controller.ts",
+            "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/hls.service.ts"
+          ]
+        },
+        {
+          "fact_id": "hls_request_header",
+          "evidence_level": "openapi_verified",
+          "value": {
+            "name": "x-immich-hls-pos",
+            "type": "number",
+            "minimum": 0
+          },
+          "source_urls": [
+            "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "requirement_id": "response_body_handler",
+          "evidence_level": "design_requirement",
+          "value": "hls_playlist_text_and_raw_bytes",
+          "rationale": "playlistの順序と改行を保持する。再生relay用の書換え結果は原本と別に保存する。"
+        },
+        {
+          "requirement_id": "result_storage",
+          "evidence_level": "design_requirement",
+          "value": "principal_scoped_artifact",
+          "rationale": "ユーザー別認証・期限・サイズ・SHA-256を持つartifactを返す。原本を切り詰めない。"
+        },
+        {
+          "requirement_id": "typed_tool_read_only_hint",
+          "evidence_level": "design_requirement",
+          "value": false,
+          "rationale": "HTTP methodやasset.view permissionだけでreadOnlyと分類しない。"
+        },
+        {
+          "requirement_id": "hls_context_scope",
+          "evidence_level": "design_requirement",
+          "value": "principal_and_playback_session",
+          "rationale": "HLSのsessionIdはMCP transport sessionやImmichログインsessionとは別に管理する。"
+        }
+      ],
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/video-stream.controller.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/hls.service.ts"
+      ],
+      "secret_field_rule_ids": []
+    },
+    {
+      "operation_id": "getMySharedLink",
+      "http_method": "GET",
+      "api_relative_path": "/shared-links/me",
+      "openapi_operation_pointer": "#/paths/~1shared-links~1me/get",
+      "implementation_status": "required_not_implemented",
+      "runtime_verified": false,
+      "facts": [],
+      "requirements": [],
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/dtos/shared-link.dto.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/auth.service.ts"
+      ],
+      "secret_field_rule_ids": [
+        "SharedLinkResponseDto.key",
+        "SharedLinkResponseDto.password",
+        "SharedLinkResponseDto.slug"
+      ]
+    },
+    {
+      "operation_id": "getPersonThumbnail",
+      "http_method": "GET",
+      "api_relative_path": "/people/{id}/thumbnail",
+      "openapi_operation_pointer": "#/paths/~1people~1{id}~1thumbnail/get",
+      "implementation_status": "required_not_implemented",
+      "runtime_verified": false,
+      "facts": [
+        {
+          "fact_id": "declared_non_json_responses",
+          "evidence_level": "openapi_verified",
+          "value": [
+            {
+              "status_code": 200,
+              "content_type": "application/octet-stream",
+              "body_schema": {
+                "format": "binary",
+                "type": "string"
+              }
+            }
+          ],
+          "source_urls": [
+            "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "requirement_id": "response_body_handler",
+          "evidence_level": "design_requirement",
+          "value": "binary_stream",
+          "rationale": "原本bytesと実Content-Typeを保存し、JSON parse・UTF-8変換・会話への巨大base64展開をしない。"
+        },
+        {
+          "requirement_id": "result_storage",
+          "evidence_level": "design_requirement",
+          "value": "principal_scoped_artifact",
+          "rationale": "ユーザー別認証・期限・サイズ・SHA-256を持つartifactを返す。原本を切り詰めない。"
+        }
+      ],
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+      ],
+      "secret_field_rule_ids": []
+    },
+    {
+      "operation_id": "getProfileImage",
+      "http_method": "GET",
+      "api_relative_path": "/users/{id}/profile-image",
+      "openapi_operation_pointer": "#/paths/~1users~1{id}~1profile-image/get",
+      "implementation_status": "required_not_implemented",
+      "runtime_verified": false,
+      "facts": [
+        {
+          "fact_id": "declared_non_json_responses",
+          "evidence_level": "openapi_verified",
+          "value": [
+            {
+              "status_code": 200,
+              "content_type": "application/octet-stream",
+              "body_schema": {
+                "format": "binary",
+                "type": "string"
+              }
+            }
+          ],
+          "source_urls": [
+            "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "requirement_id": "response_body_handler",
+          "evidence_level": "design_requirement",
+          "value": "binary_stream",
+          "rationale": "原本bytesと実Content-Typeを保存し、JSON parse・UTF-8変換・会話への巨大base64展開をしない。"
+        },
+        {
+          "requirement_id": "result_storage",
+          "evidence_level": "design_requirement",
+          "value": "principal_scoped_artifact",
+          "rationale": "ユーザー別認証・期限・サイズ・SHA-256を持つartifactを返す。原本を切り詰めない。"
+        }
+      ],
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+      ],
+      "secret_field_rule_ids": []
+    },
+    {
+      "operation_id": "getSegment",
+      "http_method": "GET",
+      "api_relative_path": "/assets/{id}/video/stream/{sessionId}/{variantIndex}/{filename}",
+      "openapi_operation_pointer": "#/paths/~1assets~1{id}~1video~1stream~1{sessionId}~1{variantIndex}~1{filename}/get",
+      "implementation_status": "required_not_implemented",
+      "runtime_verified": false,
+      "facts": [
+        {
+          "fact_id": "declared_non_json_responses",
+          "evidence_level": "openapi_verified",
+          "value": [
+            {
+              "status_code": 200,
+              "content_type": "application/octet-stream",
+              "body_schema": {
+                "format": "binary",
+                "type": "string"
+              }
+            }
+          ],
+          "source_urls": [
+            "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+          ]
+        },
+        {
+          "fact_id": "hls_side_effects",
+          "evidence_level": "source_verified",
+          "value": [
+            "tracks session",
+            "emits HlsHeartbeat",
+            "may emit HlsSegmentRequest"
+          ],
+          "source_urls": [
+            "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/video-stream.controller.ts",
+            "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/hls.service.ts"
+          ]
+        },
+        {
+          "fact_id": "hls_request_header",
+          "evidence_level": "openapi_verified",
+          "value": {
+            "name": "x-immich-hls-msn",
+            "type": "integer",
+            "minimum": 0
+          },
+          "source_urls": [
+            "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+          ]
+        },
+        {
+          "fact_id": "runtime_response_content_type",
+          "evidence_level": "source_verified",
+          "value": "video/mp4",
+          "source_urls": [
+            "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/hls.service.ts"
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "requirement_id": "response_body_handler",
+          "evidence_level": "design_requirement",
+          "value": "binary_stream",
+          "rationale": "原本bytesと実Content-Typeを保存し、JSON parse・UTF-8変換・会話への巨大base64展開をしない。"
+        },
+        {
+          "requirement_id": "result_storage",
+          "evidence_level": "design_requirement",
+          "value": "principal_scoped_artifact",
+          "rationale": "ユーザー別認証・期限・サイズ・SHA-256を持つartifactを返す。原本を切り詰めない。"
+        },
+        {
+          "requirement_id": "typed_tool_read_only_hint",
+          "evidence_level": "design_requirement",
+          "value": false,
+          "rationale": "HTTP methodやasset.view permissionだけでreadOnlyと分類しない。"
+        },
+        {
+          "requirement_id": "hls_context_scope",
+          "evidence_level": "design_requirement",
+          "value": "principal_and_playback_session",
+          "rationale": "HLSのsessionIdはMCP transport sessionやImmichログインsessionとは別に管理する。"
+        }
+      ],
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/video-stream.controller.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/hls.service.ts"
+      ],
+      "secret_field_rule_ids": []
+    },
+    {
+      "operation_id": "getSharedLinkById",
+      "http_method": "GET",
+      "api_relative_path": "/shared-links/{id}",
+      "openapi_operation_pointer": "#/paths/~1shared-links~1{id}/get",
+      "implementation_status": "required_not_implemented",
+      "runtime_verified": false,
+      "facts": [],
+      "requirements": [],
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/dtos/shared-link.dto.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/auth.service.ts"
+      ],
+      "secret_field_rule_ids": [
+        "SharedLinkResponseDto.key",
+        "SharedLinkResponseDto.password",
+        "SharedLinkResponseDto.slug"
+      ]
+    },
+    {
+      "operation_id": "getSyncStream",
+      "http_method": "POST",
+      "api_relative_path": "/sync/stream",
+      "openapi_operation_pointer": "#/paths/~1sync~1stream/post",
+      "implementation_status": "required_not_implemented",
+      "runtime_verified": false,
+      "facts": [
+        {
+          "fact_id": "missing_openapi_response_content",
+          "evidence_level": "openapi_verified",
+          "value": {
+            "status_code": 200,
+            "declared_content": null
+          },
+          "source_urls": [
+            "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+          ]
+        },
+        {
+          "fact_id": "jsonl_wire_format",
+          "evidence_level": "source_verified",
+          "value": {
+            "status_code": 200,
+            "content_type": "application/jsonlines+json",
+            "record_properties": [
+              "type",
+              "data",
+              "ack"
+            ],
+            "line_terminator": "\n",
+            "serializer": "JSON.stringify(record) + newline"
+          },
+          "source_urls": [
+            "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/sync.controller.ts",
+            "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/sync.service.ts",
+            "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/utils/sync.ts"
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "requirement_id": "response_body_handler",
+          "evidence_level": "design_requirement",
+          "value": "jsonl_stream",
+          "rationale": "OpenAPIのcontent欠落を空bodyと解釈しない。行境界とUTF-8境界を独立して逐次処理する。"
+        },
+        {
+          "requirement_id": "storage_and_model_projection",
+          "evidence_level": "design_requirement",
+          "value": {
+            "raw": "encrypted_principal_control_plane_only",
+            "model": "per_record_secret_redacted"
+          },
+          "rationale": "AuthUserV1/V2の/data/pinCodeを、原本保持と両立させてモデル表示から除外する。"
+        },
+        {
+          "requirement_id": "completion",
+          "evidence_level": "design_requirement",
+          "value": "explicit_end_or_error_state",
+          "rationale": "途中切断・壊れたJSON行・上流例外を正常完了に変換しない。"
+        }
+      ],
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/sync.controller.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/sync.service.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/utils/sync.ts"
+      ],
+      "secret_field_rule_ids": [
+        "SyncAuthUserV1.pinCode",
+        "SyncAuthUserV2.pinCode"
+      ]
+    },
+    {
+      "operation_id": "linkOAuthAccount",
+      "http_method": "POST",
+      "api_relative_path": "/oauth/link",
+      "openapi_operation_pointer": "#/paths/~1oauth~1link/post",
+      "implementation_status": "required_not_implemented",
+      "runtime_verified": false,
+      "facts": [],
+      "requirements": [],
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+      ],
+      "secret_field_rule_ids": [
+        "OAuthCallbackDto.codeVerifier",
+        "OAuthCallbackDto.state",
+        "OAuthCallbackDto.url"
+      ]
+    },
+    {
+      "operation_id": "login",
+      "http_method": "POST",
+      "api_relative_path": "/auth/login",
+      "openapi_operation_pointer": "#/paths/~1auth~1login/post",
+      "implementation_status": "required_not_implemented",
+      "runtime_verified": false,
+      "facts": [
+        {
+          "fact_id": "secret_cookie_names",
+          "evidence_level": "source_verified",
+          "value": [
+            "immich_access_token"
+          ],
+          "source_urls": [
+            "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/auth.controller.ts",
+            "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/enum.ts"
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "requirement_id": "cookie_handling",
+          "evidence_level": "design_requirement",
+          "value": "principal_and_workflow_scoped_secure_cookie_jar",
+          "rationale": "Set-Cookie値はモデルへ返さない。別ユーザーと共有せず、適用先auth-contextは別契約に従う。"
+        }
+      ],
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/auth.controller.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/enum.ts"
+      ],
+      "secret_field_rule_ids": [
+        "LoginResponseDto.accessToken",
+        "LoginCredentialDto.password"
+      ]
+    },
+    {
+      "operation_id": "logout",
+      "http_method": "POST",
+      "api_relative_path": "/auth/logout",
+      "openapi_operation_pointer": "#/paths/~1auth~1logout/post",
+      "implementation_status": "required_not_implemented",
+      "runtime_verified": false,
+      "facts": [
+        {
+          "fact_id": "secret_cookie_names",
+          "evidence_level": "source_verified",
+          "value": [
+            "immich_access_token"
+          ],
+          "source_urls": [
+            "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/auth.controller.ts",
+            "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/enum.ts"
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "requirement_id": "cookie_handling",
+          "evidence_level": "design_requirement",
+          "value": "principal_and_workflow_scoped_secure_cookie_jar",
+          "rationale": "Set-Cookie値はモデルへ返さない。別ユーザーと共有せず、適用先auth-contextは別契約に従う。"
+        }
+      ],
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/auth.controller.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/enum.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/auth.service.ts"
+      ],
+      "secret_field_rule_ids": [
+        "LogoutResponseDto.redirectUri"
+      ]
+    },
+    {
+      "operation_id": "logoutOAuth",
+      "http_method": "POST",
+      "api_relative_path": "/oauth/backchannel-logout",
+      "openapi_operation_pointer": "#/paths/~1oauth~1backchannel-logout/post",
+      "implementation_status": "required_not_implemented",
+      "runtime_verified": false,
+      "facts": [
+        {
+          "fact_id": "urlencoded_request",
+          "evidence_level": "openapi_verified",
+          "value": {
+            "content_type": "application/x-www-form-urlencoded",
+            "schema": {
+              "$ref": "#/components/schemas/OAuthBackchannelLogoutDto"
+            }
+          },
+          "source_urls": [
+            "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "requirement_id": "request_body_handler",
+          "evidence_level": "design_requirement",
+          "value": "urlencoded_form",
+          "rationale": "JSONへ置き換えず、secret_refを解決後に正式なform serializerで送信する。"
+        }
+      ],
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+      ],
+      "secret_field_rule_ids": [
+        "OAuthBackchannelLogoutDto.logout_token"
+      ]
+    },
+    {
+      "operation_id": "maintenanceLogin",
+      "http_method": "POST",
+      "api_relative_path": "/admin/maintenance/login",
+      "openapi_operation_pointer": "#/paths/~1admin~1maintenance~1login/post",
+      "implementation_status": "required_not_implemented",
+      "runtime_verified": false,
+      "facts": [],
+      "requirements": [],
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+      ],
+      "secret_field_rule_ids": [
+        "MaintenanceLoginDto.token"
+      ]
+    },
+    {
+      "operation_id": "playAssetVideo",
+      "http_method": "GET",
+      "api_relative_path": "/assets/{id}/video/playback",
+      "openapi_operation_pointer": "#/paths/~1assets~1{id}~1video~1playback/get",
+      "implementation_status": "required_not_implemented",
+      "runtime_verified": false,
+      "facts": [
+        {
+          "fact_id": "declared_non_json_responses",
+          "evidence_level": "openapi_verified",
+          "value": [
+            {
+              "status_code": 200,
+              "content_type": "application/octet-stream",
+              "body_schema": {
+                "format": "binary",
+                "type": "string"
+              }
+            }
+          ],
+          "source_urls": [
+            "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+          ]
+        },
+        {
+          "fact_id": "byte_range_support",
+          "evidence_level": "source_verified",
+          "value": {
+            "controller_description": "supports byte range requests",
+            "request_header": "Range"
+          },
+          "source_urls": [
+            "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/asset-media.controller.ts"
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "requirement_id": "response_body_handler",
+          "evidence_level": "design_requirement",
+          "value": "binary_stream",
+          "rationale": "原本bytesと実Content-Typeを保存し、JSON parse・UTF-8変換・会話への巨大base64展開をしない。"
+        },
+        {
+          "requirement_id": "result_storage",
+          "evidence_level": "design_requirement",
+          "value": "principal_scoped_artifact",
+          "rationale": "ユーザー別認証・期限・サイズ・SHA-256を持つartifactを返す。原本を切り詰めない。"
+        },
+        {
+          "requirement_id": "range_forwarding",
+          "evidence_level": "design_requirement",
+          "value": {
+            "request_headers": [
+              "Range"
+            ],
+            "response_headers": [
+              "Content-Range",
+              "Accept-Ranges",
+              "Content-Length"
+            ],
+            "preserve_status_codes": [
+              200,
+              206,
+              416
+            ]
+          },
+          "rationale": "Rangeを上流へ送り、実際の部分応答・範囲外応答を保持する。206/416のruntime検証は実装受入で行う。"
+        }
+      ],
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/asset-media.controller.ts"
+      ],
+      "secret_field_rule_ids": []
+    },
+    {
+      "operation_id": "redirectOAuthToMobile",
+      "http_method": "GET",
+      "api_relative_path": "/oauth/mobile-redirect",
+      "openapi_operation_pointer": "#/paths/~1oauth~1mobile-redirect/get",
+      "implementation_status": "required_not_implemented",
+      "runtime_verified": false,
+      "facts": [
+        {
+          "fact_id": "documented_status",
+          "evidence_level": "openapi_verified",
+          "value": [
+            "200"
+          ],
+          "source_urls": [
+            "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+          ]
+        },
+        {
+          "fact_id": "actual_controller_redirect",
+          "evidence_level": "source_verified",
+          "value": {
+            "status_code": 307,
+            "header": "Location",
+            "target": "AuthService.getMobileRedirect(request.url)"
+          },
+          "source_urls": [
+            "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/oauth.controller.ts",
+            "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/auth.service.ts"
+          ]
+        },
+        {
+          "fact_id": "undeclared_callback_query_passthrough",
+          "evidence_level": "source_verified",
+          "value": {
+            "openapi_parameters": [],
+            "controller_input": "request.url",
+            "service_behavior": "getMobileRedirect appends the incoming URL query to the mobile redirect URI"
+          },
+          "source_urls": [
+            "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json",
+            "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/oauth.controller.ts",
+            "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/auth.service.ts"
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "requirement_id": "secure_callback_query_input_adapter",
+          "evidence_level": "design_requirement",
+          "value": {
+            "mcp_tool": "immich_api_call_context",
+            "input_pointer": "/adapter_inputs/oauth_callback_ref",
+            "input_type": "opaque_same_principal_workflow_reference",
+            "reference_resolution": {
+              "principal_must_match": true,
+              "workflow_must_match": true,
+              "oauth_state_must_be_verified": true,
+              "expiry_and_consumption_state_must_be_valid": true,
+              "query_source": "encrypted_server_side_callback_query",
+              "preserve_query_semantics_and_duplicate_parameters": true
+            },
+            "upstream_destination": "fixed_origin_and_pinned_redirectOAuthToMobile_route",
+            "normal_api_call_arbitrary_query_enabled": false,
+            "accept_raw_callback_url_from_model": false,
+            "accept_raw_callback_query_from_model": false,
+            "return_raw_callback_url_to_model": false,
+            "return_raw_location_to_model": false,
+            "raw_callback_and_location_surface": "same_principal_secure_control_plane_only"
+          },
+          "rationale": "OpenAPIにない実入力を、本人workflowでstate検証済みの保存queryから復元する。通常invokerの任意queryを解禁せず、OAuth機能の入力表現力を補完する。"
+        },
+        {
+          "requirement_id": "redirect_handler",
+          "evidence_level": "design_requirement",
+          "value": {
+            "auto_follow": false,
+            "preserve_status": true,
+            "location_surface": "secure_control_plane"
+          },
+          "rationale": "外部URL・app schemeをHTTPクライアントで自動追跡せず、認可code等を含むLocationをモデルへ出さない。"
+        }
+      ],
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/oauth.controller.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/auth.service.ts"
+      ],
+      "secret_field_rule_ids": []
+    },
+    {
+      "operation_id": "resetPinCode",
+      "http_method": "DELETE",
+      "api_relative_path": "/auth/pin-code",
+      "openapi_operation_pointer": "#/paths/~1auth~1pin-code/delete",
+      "implementation_status": "required_not_implemented",
+      "runtime_verified": false,
+      "facts": [],
+      "requirements": [],
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+      ],
+      "secret_field_rule_ids": [
+        "PinCodeResetDto.password",
+        "PinCodeResetDto.pinCode"
+      ]
+    },
+    {
+      "operation_id": "rotateApiKey",
+      "http_method": "POST",
+      "api_relative_path": "/api-keys/{id}/rotate",
+      "openapi_operation_pointer": "#/paths/~1api-keys~1{id}~1rotate/post",
+      "implementation_status": "required_not_implemented",
+      "runtime_verified": false,
+      "facts": [],
+      "requirements": [],
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+      ],
+      "secret_field_rule_ids": [
+        "ApiKeyCreateResponseDto.secret"
+      ]
+    },
+    {
+      "operation_id": "sendTestEmailAdmin",
+      "http_method": "POST",
+      "api_relative_path": "/admin/notifications/test-email",
+      "openapi_operation_pointer": "#/paths/~1admin~1notifications~1test-email/post",
+      "implementation_status": "required_not_implemented",
+      "runtime_verified": false,
+      "facts": [],
+      "requirements": [],
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+      ],
+      "secret_field_rule_ids": [
+        "AdminConfigSmtpTransportDto.password"
+      ]
+    },
+    {
+      "operation_id": "setMaintenanceMode",
+      "http_method": "POST",
+      "api_relative_path": "/admin/maintenance",
+      "openapi_operation_pointer": "#/paths/~1admin~1maintenance/post",
+      "implementation_status": "required_not_implemented",
+      "runtime_verified": false,
+      "facts": [
+        {
+          "fact_id": "secret_cookie_names",
+          "evidence_level": "source_verified",
+          "value": [
+            "immich_maintenance_token"
+          ],
+          "source_urls": [
+            "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/maintenance.controller.ts",
+            "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/enum.ts"
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "requirement_id": "cookie_handling",
+          "evidence_level": "design_requirement",
+          "value": "principal_and_workflow_scoped_secure_cookie_jar",
+          "rationale": "Set-Cookie値はモデルへ返さない。別ユーザーと共有せず、適用先auth-contextは別契約に従う。"
+        }
+      ],
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/maintenance.controller.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/enum.ts"
+      ],
+      "secret_field_rule_ids": []
+    },
+    {
+      "operation_id": "setupPinCode",
+      "http_method": "POST",
+      "api_relative_path": "/auth/pin-code",
+      "openapi_operation_pointer": "#/paths/~1auth~1pin-code/post",
+      "implementation_status": "required_not_implemented",
+      "runtime_verified": false,
+      "facts": [],
+      "requirements": [],
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+      ],
+      "secret_field_rule_ids": [
+        "PinCodeSetupDto.pinCode"
+      ]
+    },
+    {
+      "operation_id": "sharedLinkLogin",
+      "http_method": "POST",
+      "api_relative_path": "/shared-links/login",
+      "openapi_operation_pointer": "#/paths/~1shared-links~1login/post",
+      "implementation_status": "required_not_implemented",
+      "runtime_verified": false,
+      "facts": [
+        {
+          "fact_id": "secret_cookie_names",
+          "evidence_level": "source_verified",
+          "value": [
+            "immich_shared_link_token"
+          ],
+          "source_urls": [
+            "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/shared-link.controller.ts",
+            "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/enum.ts"
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "requirement_id": "cookie_handling",
+          "evidence_level": "design_requirement",
+          "value": "principal_and_workflow_scoped_secure_cookie_jar",
+          "rationale": "Set-Cookie値はモデルへ返さない。別ユーザーと共有せず、適用先auth-contextは別契約に従う。"
+        }
+      ],
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/shared-link.controller.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/dtos/shared-link.dto.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/enum.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/auth.service.ts"
+      ],
+      "secret_field_rule_ids": [
+        "SharedLinkLoginDto.password",
+        "SharedLinkResponseDto.key",
+        "SharedLinkResponseDto.password",
+        "SharedLinkResponseDto.slug"
+      ]
+    },
+    {
+      "operation_id": "signUpAdmin",
+      "http_method": "POST",
+      "api_relative_path": "/auth/admin-sign-up",
+      "openapi_operation_pointer": "#/paths/~1auth~1admin-sign-up/post",
+      "implementation_status": "required_not_implemented",
+      "runtime_verified": false,
+      "facts": [],
+      "requirements": [],
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+      ],
+      "secret_field_rule_ids": [
+        "SignUpDto.password"
+      ]
+    },
+    {
+      "operation_id": "startOAuth",
+      "http_method": "POST",
+      "api_relative_path": "/oauth/authorize",
+      "openapi_operation_pointer": "#/paths/~1oauth~1authorize/post",
+      "implementation_status": "required_not_implemented",
+      "runtime_verified": false,
+      "facts": [
+        {
+          "fact_id": "secret_cookie_names",
+          "evidence_level": "source_verified",
+          "value": [
+            "immich_oauth_state",
+            "immich_oauth_code_verifier"
+          ],
+          "source_urls": [
+            "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/oauth.controller.ts",
+            "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/enum.ts"
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "requirement_id": "cookie_handling",
+          "evidence_level": "design_requirement",
+          "value": "principal_and_workflow_scoped_secure_cookie_jar",
+          "rationale": "Set-Cookie値はモデルへ返さない。別ユーザーと共有せず、適用先auth-contextは別契約に従う。"
+        }
+      ],
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/oauth.controller.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/enum.ts"
+      ],
+      "secret_field_rule_ids": [
+        "OAuthConfigDto.state",
+        "OAuthAuthorizeResponseDto.url"
+      ]
+    },
+    {
+      "operation_id": "unlockAuthSession",
+      "http_method": "POST",
+      "api_relative_path": "/auth/session/unlock",
+      "openapi_operation_pointer": "#/paths/~1auth~1session~1unlock/post",
+      "implementation_status": "required_not_implemented",
+      "runtime_verified": false,
+      "facts": [],
+      "requirements": [],
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+      ],
+      "secret_field_rule_ids": [
+        "SessionUnlockDto.password",
+        "SessionUnlockDto.pinCode"
+      ]
+    },
+    {
+      "operation_id": "updateAdminConfig",
+      "http_method": "PUT",
+      "api_relative_path": "/admin/config",
+      "openapi_operation_pointer": "#/paths/~1admin~1config/put",
+      "implementation_status": "required_not_implemented",
+      "runtime_verified": false,
+      "facts": [],
+      "requirements": [],
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+      ],
+      "secret_field_rule_ids": [
+        "AdminConfigOAuthDto.clientSecret",
+        "AdminConfigSmtpTransportDto.password"
+      ]
+    },
+    {
+      "operation_id": "updateConfig",
+      "http_method": "PUT",
+      "api_relative_path": "/system-config",
+      "openapi_operation_pointer": "#/paths/~1system-config/put",
+      "implementation_status": "required_not_implemented",
+      "runtime_verified": false,
+      "facts": [],
+      "requirements": [],
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+      ],
+      "secret_field_rule_ids": [
+        "AdminConfigOAuthDto.clientSecret",
+        "AdminConfigSmtpTransportDto.password"
+      ]
+    },
+    {
+      "operation_id": "updateMyUser",
+      "http_method": "PUT",
+      "api_relative_path": "/users/me",
+      "openapi_operation_pointer": "#/paths/~1users~1me/put",
+      "implementation_status": "required_not_implemented",
+      "runtime_verified": false,
+      "facts": [],
+      "requirements": [],
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+      ],
+      "secret_field_rule_ids": [
+        "UserUpdateMeDto.password"
+      ]
+    },
+    {
+      "operation_id": "updateSharedLink",
+      "http_method": "PATCH",
+      "api_relative_path": "/shared-links/{id}",
+      "openapi_operation_pointer": "#/paths/~1shared-links~1{id}/patch",
+      "implementation_status": "required_not_implemented",
+      "runtime_verified": false,
+      "facts": [],
+      "requirements": [],
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/dtos/shared-link.dto.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/auth.service.ts"
+      ],
+      "secret_field_rule_ids": [
+        "SharedLinkEditDto.password",
+        "SharedLinkEditDto.slug",
+        "SharedLinkResponseDto.key",
+        "SharedLinkResponseDto.password",
+        "SharedLinkResponseDto.slug"
+      ]
+    },
+    {
+      "operation_id": "updateUserAdmin",
+      "http_method": "PUT",
+      "api_relative_path": "/admin/users/{id}",
+      "openapi_operation_pointer": "#/paths/~1admin~1users~1{id}/put",
+      "implementation_status": "required_not_implemented",
+      "runtime_verified": false,
+      "facts": [],
+      "requirements": [],
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+      ],
+      "secret_field_rule_ids": [
+        "UserAdminUpdateDto.password",
+        "UserAdminUpdateDto.pinCode"
+      ]
+    },
+    {
+      "operation_id": "uploadAsset",
+      "http_method": "POST",
+      "api_relative_path": "/assets",
+      "openapi_operation_pointer": "#/paths/~1assets/post",
+      "implementation_status": "required_not_implemented",
+      "runtime_verified": false,
+      "facts": [
+        {
+          "fact_id": "multipart_request",
+          "evidence_level": "openapi_verified",
+          "value": {
+            "content_type": "multipart/form-data",
+            "schema": {
+              "$ref": "#/components/schemas/AssetMediaCreateDto"
+            },
+            "binary_parts": [
+              {
+                "part_name": "assetData",
+                "required": true,
+                "format": "binary",
+                "type": "string"
+              },
+              {
+                "part_name": "sidecarData",
+                "required": false,
+                "format": "binary",
+                "type": "string"
+              }
+            ]
+          },
+          "source_urls": [
+            "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+          ]
+        },
+        {
+          "fact_id": "success_status_meanings",
+          "evidence_level": "source_verified",
+          "value": {
+            "200": "duplicate",
+            "201": "new_asset_uploaded"
+          },
+          "source_urls": [
+            "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/asset-media.controller.ts",
+            "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+          ]
+        },
+        {
+          "fact_id": "optional_checksum_header",
+          "evidence_level": "openapi_verified",
+          "value": {
+            "name": "x-immich-checksum",
+            "purpose": "SHA1 duplicate detection"
+          },
+          "source_urls": [
+            "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "requirement_id": "request_body_handler",
+          "evidence_level": "design_requirement",
+          "value": "streaming_multipart_from_file_refs",
+          "rationale": "各partは本人のfile_refから解決し、part名・filename・MIME・他のDTO fieldを維持する。"
+        },
+        {
+          "requirement_id": "preserve_success_status",
+          "evidence_level": "design_requirement",
+          "value": true,
+          "rationale": "duplicateと新規登録を区別し、timeout後に無条件の自動upload retryをしない。"
+        }
+      ],
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/asset-media.controller.ts"
+      ],
+      "secret_field_rule_ids": []
+    },
+    {
+      "operation_id": "uploadDatabaseBackup",
+      "http_method": "POST",
+      "api_relative_path": "/admin/database-backups/upload",
+      "openapi_operation_pointer": "#/paths/~1admin~1database-backups~1upload/post",
+      "implementation_status": "required_not_implemented",
+      "runtime_verified": false,
+      "facts": [
+        {
+          "fact_id": "multipart_request",
+          "evidence_level": "openapi_verified",
+          "value": {
+            "content_type": "multipart/form-data",
+            "schema": {
+              "$ref": "#/components/schemas/DatabaseBackupUploadDto"
+            },
+            "binary_parts": [
+              {
+                "part_name": "file",
+                "required": false,
+                "format": "binary",
+                "type": "string"
+              }
+            ]
+          },
+          "source_urls": [
+            "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "requirement_id": "request_body_handler",
+          "evidence_level": "design_requirement",
+          "value": "streaming_multipart_from_file_refs",
+          "rationale": "各partは本人のfile_refから解決し、part名・filename・MIME・他のDTO fieldを維持する。"
+        }
+      ],
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+      ],
+      "secret_field_rule_ids": []
+    },
+    {
+      "operation_id": "viewAsset",
+      "http_method": "GET",
+      "api_relative_path": "/assets/{id}/thumbnail",
+      "openapi_operation_pointer": "#/paths/~1assets~1{id}~1thumbnail/get",
+      "implementation_status": "required_not_implemented",
+      "runtime_verified": false,
+      "facts": [
+        {
+          "fact_id": "declared_non_json_responses",
+          "evidence_level": "openapi_verified",
+          "value": [
+            {
+              "status_code": 200,
+              "content_type": "application/octet-stream",
+              "body_schema": {
+                "format": "binary",
+                "type": "string"
+              }
+            }
+          ],
+          "source_urls": [
+            "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+          ]
+        },
+        {
+          "fact_id": "thumbnail_redirect",
+          "evidence_level": "source_verified",
+          "value": {
+            "status_code": 302,
+            "status_derivation": "Express response.redirect default",
+            "targets": [
+              "relative original endpoint",
+              "same thumbnail endpoint with changed size"
+            ],
+            "original_permission_difference": true
+          },
+          "source_urls": [
+            "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/asset-media.controller.ts",
+            "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "requirement_id": "response_body_handler",
+          "evidence_level": "design_requirement",
+          "value": "binary_stream",
+          "rationale": "原本bytesと実Content-Typeを保存し、JSON parse・UTF-8変換・会話への巨大base64展開をしない。"
+        },
+        {
+          "requirement_id": "result_storage",
+          "evidence_level": "design_requirement",
+          "value": "principal_scoped_artifact",
+          "rationale": "ユーザー別認証・期限・サイズ・SHA-256を持つartifactを返す。原本を切り詰めない。"
+        },
+        {
+          "requirement_id": "redirect_handler",
+          "evidence_level": "design_requirement",
+          "value": {
+            "policy": "same_configured_origin_and_known_immich_api_route_only",
+            "allowed_target_operation_ids": [
+              "viewAsset",
+              "downloadAsset"
+            ],
+            "preserve_asset_id": true,
+            "preserve_history": true,
+            "max_redirects_required": true,
+            "credential_escalation": false
+          },
+          "rationale": "通常のredirect追跡でも元の認証文脈を維持する。追加permissionの拒否を回避しない。"
+        }
+      ],
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/asset-media.controller.ts"
+      ],
+      "secret_field_rule_ids": []
+    }
+  ],
+  "secret_field_rules": [
+    {
+      "rule_id": "ApiKeyCreateResponseDto.secret",
+      "schema_name": "ApiKeyCreateResponseDto",
+      "field_name": "secret",
+      "schema_property_pointer": "#/components/schemas/ApiKeyCreateResponseDto/properties/secret",
+      "relative_instance_pointer": "/secret",
+      "classification": "api_key_secret",
+      "field_type": {
+        "description": "API key secret (only shown once)",
+        "type": "string"
+      },
+      "evidence": {
+        "field_existence": "openapi_verified",
+        "sensitivity_classification": "design_requirement"
+      },
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+      ],
+      "handling": {
+        "request": "resolve_same_principal_secret_ref_before_serialization",
+        "response": "retain_encrypted_original_and_return_secret_ref_projection",
+        "null": "preserve_null",
+        "absent": "preserve_absence"
+      },
+      "bindings": [
+        {
+          "operation_id": "createApiKey",
+          "direction": "response",
+          "container": "decoded_body",
+          "status_code": 201,
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/secret",
+          "binding_evidence_level": "openapi_verified"
+        },
+        {
+          "operation_id": "rotateApiKey",
+          "direction": "response",
+          "container": "decoded_body",
+          "status_code": 201,
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/secret",
+          "binding_evidence_level": "openapi_verified"
+        }
+      ]
+    },
+    {
+      "rule_id": "LoginResponseDto.accessToken",
+      "schema_name": "LoginResponseDto",
+      "field_name": "accessToken",
+      "schema_property_pointer": "#/components/schemas/LoginResponseDto/properties/accessToken",
+      "relative_instance_pointer": "/accessToken",
+      "classification": "session_bearer_token",
+      "field_type": {
+        "description": "Access token",
+        "type": "string"
+      },
+      "evidence": {
+        "field_existence": "openapi_verified",
+        "sensitivity_classification": "design_requirement"
+      },
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+      ],
+      "handling": {
+        "request": "resolve_same_principal_secret_ref_before_serialization",
+        "response": "retain_encrypted_original_and_return_secret_ref_projection",
+        "null": "preserve_null",
+        "absent": "preserve_absence"
+      },
+      "bindings": [
+        {
+          "operation_id": "login",
+          "direction": "response",
+          "container": "decoded_body",
+          "status_code": 201,
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/accessToken",
+          "binding_evidence_level": "openapi_verified"
+        },
+        {
+          "operation_id": "finishOAuth",
+          "direction": "response",
+          "container": "decoded_body",
+          "status_code": 201,
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/accessToken",
+          "binding_evidence_level": "openapi_verified"
+        }
+      ]
+    },
+    {
+      "rule_id": "SessionCreateResponseDto.token",
+      "schema_name": "SessionCreateResponseDto",
+      "field_name": "token",
+      "schema_property_pointer": "#/components/schemas/SessionCreateResponseDto/properties/token",
+      "relative_instance_pointer": "/token",
+      "classification": "session_bearer_token",
+      "field_type": {
+        "description": "Session token",
+        "type": "string"
+      },
+      "evidence": {
+        "field_existence": "openapi_verified",
+        "sensitivity_classification": "design_requirement"
+      },
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+      ],
+      "handling": {
+        "request": "resolve_same_principal_secret_ref_before_serialization",
+        "response": "retain_encrypted_original_and_return_secret_ref_projection",
+        "null": "preserve_null",
+        "absent": "preserve_absence"
+      },
+      "bindings": [
+        {
+          "operation_id": "createSession",
+          "direction": "response",
+          "container": "decoded_body",
+          "status_code": 201,
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/token",
+          "binding_evidence_level": "openapi_verified"
+        }
+      ]
+    },
+    {
+      "rule_id": "AdminConfigOAuthDto.clientSecret",
+      "schema_name": "AdminConfigOAuthDto",
+      "field_name": "clientSecret",
+      "schema_property_pointer": "#/components/schemas/AdminConfigOAuthDto/properties/clientSecret",
+      "relative_instance_pointer": "/clientSecret",
+      "classification": "oauth_client_secret",
+      "field_type": {
+        "description": "Client secret",
+        "type": "string"
+      },
+      "evidence": {
+        "field_existence": "openapi_verified",
+        "sensitivity_classification": "design_requirement"
+      },
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+      ],
+      "handling": {
+        "request": "resolve_same_principal_secret_ref_before_serialization",
+        "response": "retain_encrypted_original_and_return_secret_ref_projection",
+        "null": "preserve_null",
+        "absent": "preserve_absence"
+      },
+      "bindings": [
+        {
+          "operation_id": "getAdminConfig",
+          "direction": "response",
+          "container": "decoded_body",
+          "status_code": 200,
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/oauth/clientSecret",
+          "binding_evidence_level": "openapi_verified"
+        },
+        {
+          "operation_id": "updateAdminConfig",
+          "direction": "request",
+          "container": "decoded_body",
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/oauth/clientSecret",
+          "binding_evidence_level": "openapi_verified"
+        },
+        {
+          "operation_id": "updateAdminConfig",
+          "direction": "response",
+          "container": "decoded_body",
+          "status_code": 200,
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/oauth/clientSecret",
+          "binding_evidence_level": "openapi_verified"
+        },
+        {
+          "operation_id": "getAdminConfigDefaults",
+          "direction": "response",
+          "container": "decoded_body",
+          "status_code": 200,
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/oauth/clientSecret",
+          "binding_evidence_level": "openapi_verified"
+        },
+        {
+          "operation_id": "getConfig",
+          "direction": "response",
+          "container": "decoded_body",
+          "status_code": 200,
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/oauth/clientSecret",
+          "binding_evidence_level": "openapi_verified"
+        },
+        {
+          "operation_id": "updateConfig",
+          "direction": "request",
+          "container": "decoded_body",
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/oauth/clientSecret",
+          "binding_evidence_level": "openapi_verified"
+        },
+        {
+          "operation_id": "updateConfig",
+          "direction": "response",
+          "container": "decoded_body",
+          "status_code": 200,
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/oauth/clientSecret",
+          "binding_evidence_level": "openapi_verified"
+        },
+        {
+          "operation_id": "getConfigDefaults",
+          "direction": "response",
+          "container": "decoded_body",
+          "status_code": 200,
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/oauth/clientSecret",
+          "binding_evidence_level": "openapi_verified"
+        }
+      ]
+    },
+    {
+      "rule_id": "AdminConfigSmtpTransportDto.password",
+      "schema_name": "AdminConfigSmtpTransportDto",
+      "field_name": "password",
+      "schema_property_pointer": "#/components/schemas/AdminConfigSmtpTransportDto/properties/password",
+      "relative_instance_pointer": "/password",
+      "classification": "smtp_password",
+      "field_type": {
+        "description": "SMTP password",
+        "type": "string"
+      },
+      "evidence": {
+        "field_existence": "openapi_verified",
+        "sensitivity_classification": "design_requirement"
+      },
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+      ],
+      "handling": {
+        "request": "resolve_same_principal_secret_ref_before_serialization",
+        "response": "retain_encrypted_original_and_return_secret_ref_projection",
+        "null": "preserve_null",
+        "absent": "preserve_absence"
+      },
+      "bindings": [
+        {
+          "operation_id": "getAdminConfig",
+          "direction": "response",
+          "container": "decoded_body",
+          "status_code": 200,
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/notifications/smtp/transport/password",
+          "binding_evidence_level": "openapi_verified"
+        },
+        {
+          "operation_id": "updateAdminConfig",
+          "direction": "request",
+          "container": "decoded_body",
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/notifications/smtp/transport/password",
+          "binding_evidence_level": "openapi_verified"
+        },
+        {
+          "operation_id": "updateAdminConfig",
+          "direction": "response",
+          "container": "decoded_body",
+          "status_code": 200,
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/notifications/smtp/transport/password",
+          "binding_evidence_level": "openapi_verified"
+        },
+        {
+          "operation_id": "getAdminConfigDefaults",
+          "direction": "response",
+          "container": "decoded_body",
+          "status_code": 200,
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/notifications/smtp/transport/password",
+          "binding_evidence_level": "openapi_verified"
+        },
+        {
+          "operation_id": "sendTestEmailAdmin",
+          "direction": "request",
+          "container": "decoded_body",
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/transport/password",
+          "binding_evidence_level": "openapi_verified"
+        },
+        {
+          "operation_id": "getConfig",
+          "direction": "response",
+          "container": "decoded_body",
+          "status_code": 200,
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/notifications/smtp/transport/password",
+          "binding_evidence_level": "openapi_verified"
+        },
+        {
+          "operation_id": "updateConfig",
+          "direction": "request",
+          "container": "decoded_body",
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/notifications/smtp/transport/password",
+          "binding_evidence_level": "openapi_verified"
+        },
+        {
+          "operation_id": "updateConfig",
+          "direction": "response",
+          "container": "decoded_body",
+          "status_code": 200,
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/notifications/smtp/transport/password",
+          "binding_evidence_level": "openapi_verified"
+        },
+        {
+          "operation_id": "getConfigDefaults",
+          "direction": "response",
+          "container": "decoded_body",
+          "status_code": 200,
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/notifications/smtp/transport/password",
+          "binding_evidence_level": "openapi_verified"
+        }
+      ]
+    },
+    {
+      "rule_id": "LoginCredentialDto.password",
+      "schema_name": "LoginCredentialDto",
+      "field_name": "password",
+      "schema_property_pointer": "#/components/schemas/LoginCredentialDto/properties/password",
+      "relative_instance_pointer": "/password",
+      "classification": "password",
+      "field_type": {
+        "description": "User password",
+        "example": "password",
+        "type": "string"
+      },
+      "evidence": {
+        "field_existence": "openapi_verified",
+        "sensitivity_classification": "design_requirement"
+      },
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+      ],
+      "handling": {
+        "request": "resolve_same_principal_secret_ref_before_serialization",
+        "response": "retain_encrypted_original_and_return_secret_ref_projection",
+        "null": "preserve_null",
+        "absent": "preserve_absence"
+      },
+      "bindings": [
+        {
+          "operation_id": "login",
+          "direction": "request",
+          "container": "decoded_body",
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/password",
+          "binding_evidence_level": "openapi_verified"
+        }
+      ]
+    },
+    {
+      "rule_id": "ChangePasswordDto.password",
+      "schema_name": "ChangePasswordDto",
+      "field_name": "password",
+      "schema_property_pointer": "#/components/schemas/ChangePasswordDto/properties/password",
+      "relative_instance_pointer": "/password",
+      "classification": "password",
+      "field_type": {
+        "description": "Current password",
+        "example": "password",
+        "type": "string"
+      },
+      "evidence": {
+        "field_existence": "openapi_verified",
+        "sensitivity_classification": "design_requirement"
+      },
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+      ],
+      "handling": {
+        "request": "resolve_same_principal_secret_ref_before_serialization",
+        "response": "retain_encrypted_original_and_return_secret_ref_projection",
+        "null": "preserve_null",
+        "absent": "preserve_absence"
+      },
+      "bindings": [
+        {
+          "operation_id": "changePassword",
+          "direction": "request",
+          "container": "decoded_body",
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/password",
+          "binding_evidence_level": "openapi_verified"
+        }
+      ]
+    },
+    {
+      "rule_id": "ChangePasswordDto.newPassword",
+      "schema_name": "ChangePasswordDto",
+      "field_name": "newPassword",
+      "schema_property_pointer": "#/components/schemas/ChangePasswordDto/properties/newPassword",
+      "relative_instance_pointer": "/newPassword",
+      "classification": "password",
+      "field_type": {
+        "description": "New password (min 8 characters)",
+        "example": "password",
+        "minLength": 8,
+        "type": "string"
+      },
+      "evidence": {
+        "field_existence": "openapi_verified",
+        "sensitivity_classification": "design_requirement"
+      },
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+      ],
+      "handling": {
+        "request": "resolve_same_principal_secret_ref_before_serialization",
+        "response": "retain_encrypted_original_and_return_secret_ref_projection",
+        "null": "preserve_null",
+        "absent": "preserve_absence"
+      },
+      "bindings": [
+        {
+          "operation_id": "changePassword",
+          "direction": "request",
+          "container": "decoded_body",
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/newPassword",
+          "binding_evidence_level": "openapi_verified"
+        }
+      ]
+    },
+    {
+      "rule_id": "SignUpDto.password",
+      "schema_name": "SignUpDto",
+      "field_name": "password",
+      "schema_property_pointer": "#/components/schemas/SignUpDto/properties/password",
+      "relative_instance_pointer": "/password",
+      "classification": "password",
+      "field_type": {
+        "description": "User password",
+        "example": "password",
+        "type": "string"
+      },
+      "evidence": {
+        "field_existence": "openapi_verified",
+        "sensitivity_classification": "design_requirement"
+      },
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+      ],
+      "handling": {
+        "request": "resolve_same_principal_secret_ref_before_serialization",
+        "response": "retain_encrypted_original_and_return_secret_ref_projection",
+        "null": "preserve_null",
+        "absent": "preserve_absence"
+      },
+      "bindings": [
+        {
+          "operation_id": "signUpAdmin",
+          "direction": "request",
+          "container": "decoded_body",
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/password",
+          "binding_evidence_level": "openapi_verified"
+        }
+      ]
+    },
+    {
+      "rule_id": "UserAdminCreateDto.password",
+      "schema_name": "UserAdminCreateDto",
+      "field_name": "password",
+      "schema_property_pointer": "#/components/schemas/UserAdminCreateDto/properties/password",
+      "relative_instance_pointer": "/password",
+      "classification": "password",
+      "field_type": {
+        "description": "User password",
+        "type": "string"
+      },
+      "evidence": {
+        "field_existence": "openapi_verified",
+        "sensitivity_classification": "design_requirement"
+      },
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+      ],
+      "handling": {
+        "request": "resolve_same_principal_secret_ref_before_serialization",
+        "response": "retain_encrypted_original_and_return_secret_ref_projection",
+        "null": "preserve_null",
+        "absent": "preserve_absence"
+      },
+      "bindings": [
+        {
+          "operation_id": "createUserAdmin",
+          "direction": "request",
+          "container": "decoded_body",
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/password",
+          "binding_evidence_level": "openapi_verified"
+        }
+      ]
+    },
+    {
+      "rule_id": "UserAdminCreateDto.pinCode",
+      "schema_name": "UserAdminCreateDto",
+      "field_name": "pinCode",
+      "schema_property_pointer": "#/components/schemas/UserAdminCreateDto/properties/pinCode",
+      "relative_instance_pointer": "/pinCode",
+      "classification": "pin_code",
+      "field_type": {
+        "description": "PIN code",
+        "example": "123456",
+        "nullable": true,
+        "pattern": "^\\d{6}$",
+        "type": "string"
+      },
+      "evidence": {
+        "field_existence": "openapi_verified",
+        "sensitivity_classification": "design_requirement"
+      },
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+      ],
+      "handling": {
+        "request": "resolve_same_principal_secret_ref_before_serialization",
+        "response": "retain_encrypted_original_and_return_secret_ref_projection",
+        "null": "preserve_null",
+        "absent": "preserve_absence"
+      },
+      "bindings": [
+        {
+          "operation_id": "createUserAdmin",
+          "direction": "request",
+          "container": "decoded_body",
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/pinCode",
+          "binding_evidence_level": "openapi_verified"
+        }
+      ]
+    },
+    {
+      "rule_id": "UserAdminUpdateDto.password",
+      "schema_name": "UserAdminUpdateDto",
+      "field_name": "password",
+      "schema_property_pointer": "#/components/schemas/UserAdminUpdateDto/properties/password",
+      "relative_instance_pointer": "/password",
+      "classification": "password",
+      "field_type": {
+        "description": "User password",
+        "type": "string"
+      },
+      "evidence": {
+        "field_existence": "openapi_verified",
+        "sensitivity_classification": "design_requirement"
+      },
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+      ],
+      "handling": {
+        "request": "resolve_same_principal_secret_ref_before_serialization",
+        "response": "retain_encrypted_original_and_return_secret_ref_projection",
+        "null": "preserve_null",
+        "absent": "preserve_absence"
+      },
+      "bindings": [
+        {
+          "operation_id": "updateUserAdmin",
+          "direction": "request",
+          "container": "decoded_body",
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/password",
+          "binding_evidence_level": "openapi_verified"
+        }
+      ]
+    },
+    {
+      "rule_id": "UserAdminUpdateDto.pinCode",
+      "schema_name": "UserAdminUpdateDto",
+      "field_name": "pinCode",
+      "schema_property_pointer": "#/components/schemas/UserAdminUpdateDto/properties/pinCode",
+      "relative_instance_pointer": "/pinCode",
+      "classification": "pin_code",
+      "field_type": {
+        "description": "PIN code",
+        "example": "123456",
+        "nullable": true,
+        "pattern": "^\\d{6}$",
+        "type": "string"
+      },
+      "evidence": {
+        "field_existence": "openapi_verified",
+        "sensitivity_classification": "design_requirement"
+      },
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+      ],
+      "handling": {
+        "request": "resolve_same_principal_secret_ref_before_serialization",
+        "response": "retain_encrypted_original_and_return_secret_ref_projection",
+        "null": "preserve_null",
+        "absent": "preserve_absence"
+      },
+      "bindings": [
+        {
+          "operation_id": "updateUserAdmin",
+          "direction": "request",
+          "container": "decoded_body",
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/pinCode",
+          "binding_evidence_level": "openapi_verified"
+        }
+      ]
+    },
+    {
+      "rule_id": "UserUpdateMeDto.password",
+      "schema_name": "UserUpdateMeDto",
+      "field_name": "password",
+      "schema_property_pointer": "#/components/schemas/UserUpdateMeDto/properties/password",
+      "relative_instance_pointer": "/password",
+      "classification": "password",
+      "field_type": {
+        "deprecated": true,
+        "description": "User password (deprecated, use change password endpoint)",
+        "type": "string"
+      },
+      "evidence": {
+        "field_existence": "openapi_verified",
+        "sensitivity_classification": "design_requirement"
+      },
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+      ],
+      "handling": {
+        "request": "resolve_same_principal_secret_ref_before_serialization",
+        "response": "retain_encrypted_original_and_return_secret_ref_projection",
+        "null": "preserve_null",
+        "absent": "preserve_absence"
+      },
+      "bindings": [
+        {
+          "operation_id": "updateMyUser",
+          "direction": "request",
+          "container": "decoded_body",
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/password",
+          "binding_evidence_level": "openapi_verified"
+        }
+      ]
+    },
+    {
+      "rule_id": "PinCodeSetupDto.pinCode",
+      "schema_name": "PinCodeSetupDto",
+      "field_name": "pinCode",
+      "schema_property_pointer": "#/components/schemas/PinCodeSetupDto/properties/pinCode",
+      "relative_instance_pointer": "/pinCode",
+      "classification": "pin_code",
+      "field_type": {
+        "description": "PIN code (4-6 digits)",
+        "example": "123456",
+        "pattern": "^\\d{6}$",
+        "type": "string"
+      },
+      "evidence": {
+        "field_existence": "openapi_verified",
+        "sensitivity_classification": "design_requirement"
+      },
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+      ],
+      "handling": {
+        "request": "resolve_same_principal_secret_ref_before_serialization",
+        "response": "retain_encrypted_original_and_return_secret_ref_projection",
+        "null": "preserve_null",
+        "absent": "preserve_absence"
+      },
+      "bindings": [
+        {
+          "operation_id": "setupPinCode",
+          "direction": "request",
+          "container": "decoded_body",
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/pinCode",
+          "binding_evidence_level": "openapi_verified"
+        }
+      ]
+    },
+    {
+      "rule_id": "PinCodeChangeDto.newPinCode",
+      "schema_name": "PinCodeChangeDto",
+      "field_name": "newPinCode",
+      "schema_property_pointer": "#/components/schemas/PinCodeChangeDto/properties/newPinCode",
+      "relative_instance_pointer": "/newPinCode",
+      "classification": "pin_code",
+      "field_type": {
+        "description": "New PIN code (4-6 digits)",
+        "pattern": "^\\d{6}$",
+        "type": "string"
+      },
+      "evidence": {
+        "field_existence": "openapi_verified",
+        "sensitivity_classification": "design_requirement"
+      },
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+      ],
+      "handling": {
+        "request": "resolve_same_principal_secret_ref_before_serialization",
+        "response": "retain_encrypted_original_and_return_secret_ref_projection",
+        "null": "preserve_null",
+        "absent": "preserve_absence"
+      },
+      "bindings": [
+        {
+          "operation_id": "changePinCode",
+          "direction": "request",
+          "container": "decoded_body",
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/newPinCode",
+          "binding_evidence_level": "openapi_verified"
+        }
+      ]
+    },
+    {
+      "rule_id": "PinCodeChangeDto.password",
+      "schema_name": "PinCodeChangeDto",
+      "field_name": "password",
+      "schema_property_pointer": "#/components/schemas/PinCodeChangeDto/properties/password",
+      "relative_instance_pointer": "/password",
+      "classification": "password",
+      "field_type": {
+        "description": "User password (required if PIN code is not provided)",
+        "example": "password",
+        "type": "string"
+      },
+      "evidence": {
+        "field_existence": "openapi_verified",
+        "sensitivity_classification": "design_requirement"
+      },
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+      ],
+      "handling": {
+        "request": "resolve_same_principal_secret_ref_before_serialization",
+        "response": "retain_encrypted_original_and_return_secret_ref_projection",
+        "null": "preserve_null",
+        "absent": "preserve_absence"
+      },
+      "bindings": [
+        {
+          "operation_id": "changePinCode",
+          "direction": "request",
+          "container": "decoded_body",
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/password",
+          "binding_evidence_level": "openapi_verified"
+        }
+      ]
+    },
+    {
+      "rule_id": "PinCodeChangeDto.pinCode",
+      "schema_name": "PinCodeChangeDto",
+      "field_name": "pinCode",
+      "schema_property_pointer": "#/components/schemas/PinCodeChangeDto/properties/pinCode",
+      "relative_instance_pointer": "/pinCode",
+      "classification": "pin_code",
+      "field_type": {
+        "description": "New PIN code (4-6 digits)",
+        "example": "123456",
+        "pattern": "^\\d{6}$",
+        "type": "string"
+      },
+      "evidence": {
+        "field_existence": "openapi_verified",
+        "sensitivity_classification": "design_requirement"
+      },
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+      ],
+      "handling": {
+        "request": "resolve_same_principal_secret_ref_before_serialization",
+        "response": "retain_encrypted_original_and_return_secret_ref_projection",
+        "null": "preserve_null",
+        "absent": "preserve_absence"
+      },
+      "bindings": [
+        {
+          "operation_id": "changePinCode",
+          "direction": "request",
+          "container": "decoded_body",
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/pinCode",
+          "binding_evidence_level": "openapi_verified"
+        }
+      ]
+    },
+    {
+      "rule_id": "PinCodeResetDto.password",
+      "schema_name": "PinCodeResetDto",
+      "field_name": "password",
+      "schema_property_pointer": "#/components/schemas/PinCodeResetDto/properties/password",
+      "relative_instance_pointer": "/password",
+      "classification": "password",
+      "field_type": {
+        "description": "User password (required if PIN code is not provided)",
+        "example": "password",
+        "type": "string"
+      },
+      "evidence": {
+        "field_existence": "openapi_verified",
+        "sensitivity_classification": "design_requirement"
+      },
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+      ],
+      "handling": {
+        "request": "resolve_same_principal_secret_ref_before_serialization",
+        "response": "retain_encrypted_original_and_return_secret_ref_projection",
+        "null": "preserve_null",
+        "absent": "preserve_absence"
+      },
+      "bindings": [
+        {
+          "operation_id": "resetPinCode",
+          "direction": "request",
+          "container": "decoded_body",
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/password",
+          "binding_evidence_level": "openapi_verified"
+        }
+      ]
+    },
+    {
+      "rule_id": "PinCodeResetDto.pinCode",
+      "schema_name": "PinCodeResetDto",
+      "field_name": "pinCode",
+      "schema_property_pointer": "#/components/schemas/PinCodeResetDto/properties/pinCode",
+      "relative_instance_pointer": "/pinCode",
+      "classification": "pin_code",
+      "field_type": {
+        "description": "New PIN code (4-6 digits)",
+        "example": "123456",
+        "pattern": "^\\d{6}$",
+        "type": "string"
+      },
+      "evidence": {
+        "field_existence": "openapi_verified",
+        "sensitivity_classification": "design_requirement"
+      },
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+      ],
+      "handling": {
+        "request": "resolve_same_principal_secret_ref_before_serialization",
+        "response": "retain_encrypted_original_and_return_secret_ref_projection",
+        "null": "preserve_null",
+        "absent": "preserve_absence"
+      },
+      "bindings": [
+        {
+          "operation_id": "resetPinCode",
+          "direction": "request",
+          "container": "decoded_body",
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/pinCode",
+          "binding_evidence_level": "openapi_verified"
+        }
+      ]
+    },
+    {
+      "rule_id": "SessionUnlockDto.password",
+      "schema_name": "SessionUnlockDto",
+      "field_name": "password",
+      "schema_property_pointer": "#/components/schemas/SessionUnlockDto/properties/password",
+      "relative_instance_pointer": "/password",
+      "classification": "password",
+      "field_type": {
+        "description": "User password (required if PIN code is not provided)",
+        "example": "password",
+        "type": "string"
+      },
+      "evidence": {
+        "field_existence": "openapi_verified",
+        "sensitivity_classification": "design_requirement"
+      },
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+      ],
+      "handling": {
+        "request": "resolve_same_principal_secret_ref_before_serialization",
+        "response": "retain_encrypted_original_and_return_secret_ref_projection",
+        "null": "preserve_null",
+        "absent": "preserve_absence"
+      },
+      "bindings": [
+        {
+          "operation_id": "unlockAuthSession",
+          "direction": "request",
+          "container": "decoded_body",
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/password",
+          "binding_evidence_level": "openapi_verified"
+        }
+      ]
+    },
+    {
+      "rule_id": "SessionUnlockDto.pinCode",
+      "schema_name": "SessionUnlockDto",
+      "field_name": "pinCode",
+      "schema_property_pointer": "#/components/schemas/SessionUnlockDto/properties/pinCode",
+      "relative_instance_pointer": "/pinCode",
+      "classification": "pin_code",
+      "field_type": {
+        "description": "New PIN code (4-6 digits)",
+        "example": "123456",
+        "pattern": "^\\d{6}$",
+        "type": "string"
+      },
+      "evidence": {
+        "field_existence": "openapi_verified",
+        "sensitivity_classification": "design_requirement"
+      },
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+      ],
+      "handling": {
+        "request": "resolve_same_principal_secret_ref_before_serialization",
+        "response": "retain_encrypted_original_and_return_secret_ref_projection",
+        "null": "preserve_null",
+        "absent": "preserve_absence"
+      },
+      "bindings": [
+        {
+          "operation_id": "unlockAuthSession",
+          "direction": "request",
+          "container": "decoded_body",
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/pinCode",
+          "binding_evidence_level": "openapi_verified"
+        }
+      ]
+    },
+    {
+      "rule_id": "SharedLinkCreateDto.password",
+      "schema_name": "SharedLinkCreateDto",
+      "field_name": "password",
+      "schema_property_pointer": "#/components/schemas/SharedLinkCreateDto/properties/password",
+      "relative_instance_pointer": "/password",
+      "classification": "shared_link_password",
+      "field_type": {
+        "description": "Link password",
+        "nullable": true,
+        "type": "string"
+      },
+      "evidence": {
+        "field_existence": "openapi_verified",
+        "sensitivity_classification": "design_requirement"
+      },
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/dtos/shared-link.dto.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/auth.service.ts"
+      ],
+      "handling": {
+        "request": "resolve_same_principal_secret_ref_before_serialization",
+        "response": "retain_encrypted_original_and_return_secret_ref_projection",
+        "null": "preserve_null",
+        "absent": "preserve_absence"
+      },
+      "bindings": [
+        {
+          "operation_id": "createSharedLink",
+          "direction": "request",
+          "container": "decoded_body",
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/password",
+          "binding_evidence_level": "openapi_verified"
+        }
+      ]
+    },
+    {
+      "rule_id": "SharedLinkCreateDto.slug",
+      "schema_name": "SharedLinkCreateDto",
+      "field_name": "slug",
+      "schema_property_pointer": "#/components/schemas/SharedLinkCreateDto/properties/slug",
+      "relative_instance_pointer": "/slug",
+      "classification": "shared_link_capability",
+      "field_type": {
+        "description": "Custom URL slug",
+        "nullable": true,
+        "type": "string"
+      },
+      "evidence": {
+        "field_existence": "openapi_verified",
+        "sensitivity_classification": "design_requirement"
+      },
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/dtos/shared-link.dto.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/auth.service.ts"
+      ],
+      "handling": {
+        "request": "resolve_same_principal_secret_ref_before_serialization",
+        "response": "retain_encrypted_original_and_return_secret_ref_projection",
+        "null": "preserve_null",
+        "absent": "preserve_absence"
+      },
+      "bindings": [
+        {
+          "operation_id": "createSharedLink",
+          "direction": "request",
+          "container": "decoded_body",
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/slug",
+          "binding_evidence_level": "openapi_verified"
+        }
+      ]
+    },
+    {
+      "rule_id": "SharedLinkEditDto.password",
+      "schema_name": "SharedLinkEditDto",
+      "field_name": "password",
+      "schema_property_pointer": "#/components/schemas/SharedLinkEditDto/properties/password",
+      "relative_instance_pointer": "/password",
+      "classification": "shared_link_password",
+      "field_type": {
+        "description": "Link password",
+        "nullable": true,
+        "type": "string"
+      },
+      "evidence": {
+        "field_existence": "openapi_verified",
+        "sensitivity_classification": "design_requirement"
+      },
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/dtos/shared-link.dto.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/auth.service.ts"
+      ],
+      "handling": {
+        "request": "resolve_same_principal_secret_ref_before_serialization",
+        "response": "retain_encrypted_original_and_return_secret_ref_projection",
+        "null": "preserve_null",
+        "absent": "preserve_absence"
+      },
+      "bindings": [
+        {
+          "operation_id": "updateSharedLink",
+          "direction": "request",
+          "container": "decoded_body",
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/password",
+          "binding_evidence_level": "openapi_verified"
+        }
+      ]
+    },
+    {
+      "rule_id": "SharedLinkEditDto.slug",
+      "schema_name": "SharedLinkEditDto",
+      "field_name": "slug",
+      "schema_property_pointer": "#/components/schemas/SharedLinkEditDto/properties/slug",
+      "relative_instance_pointer": "/slug",
+      "classification": "shared_link_capability",
+      "field_type": {
+        "description": "Custom URL slug",
+        "nullable": true,
+        "type": "string"
+      },
+      "evidence": {
+        "field_existence": "openapi_verified",
+        "sensitivity_classification": "design_requirement"
+      },
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/dtos/shared-link.dto.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/auth.service.ts"
+      ],
+      "handling": {
+        "request": "resolve_same_principal_secret_ref_before_serialization",
+        "response": "retain_encrypted_original_and_return_secret_ref_projection",
+        "null": "preserve_null",
+        "absent": "preserve_absence"
+      },
+      "bindings": [
+        {
+          "operation_id": "updateSharedLink",
+          "direction": "request",
+          "container": "decoded_body",
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/slug",
+          "binding_evidence_level": "openapi_verified"
+        }
+      ]
+    },
+    {
+      "rule_id": "SharedLinkLoginDto.password",
+      "schema_name": "SharedLinkLoginDto",
+      "field_name": "password",
+      "schema_property_pointer": "#/components/schemas/SharedLinkLoginDto/properties/password",
+      "relative_instance_pointer": "/password",
+      "classification": "shared_link_password",
+      "field_type": {
+        "description": "Shared link password",
+        "example": "password",
+        "type": "string"
+      },
+      "evidence": {
+        "field_existence": "openapi_verified",
+        "sensitivity_classification": "design_requirement"
+      },
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/dtos/shared-link.dto.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/auth.service.ts"
+      ],
+      "handling": {
+        "request": "resolve_same_principal_secret_ref_before_serialization",
+        "response": "retain_encrypted_original_and_return_secret_ref_projection",
+        "null": "preserve_null",
+        "absent": "preserve_absence"
+      },
+      "bindings": [
+        {
+          "operation_id": "sharedLinkLogin",
+          "direction": "request",
+          "container": "decoded_body",
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/password",
+          "binding_evidence_level": "openapi_verified"
+        }
+      ]
+    },
+    {
+      "rule_id": "SharedLinkResponseDto.key",
+      "schema_name": "SharedLinkResponseDto",
+      "field_name": "key",
+      "schema_property_pointer": "#/components/schemas/SharedLinkResponseDto/properties/key",
+      "relative_instance_pointer": "/key",
+      "classification": "shared_link_capability",
+      "field_type": {
+        "description": "Encryption key (base64url)",
+        "type": "string"
+      },
+      "evidence": {
+        "field_existence": "openapi_verified",
+        "sensitivity_classification": "design_requirement"
+      },
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/dtos/shared-link.dto.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/auth.service.ts"
+      ],
+      "handling": {
+        "request": "resolve_same_principal_secret_ref_before_serialization",
+        "response": "retain_encrypted_original_and_return_secret_ref_projection",
+        "null": "preserve_null",
+        "absent": "preserve_absence"
+      },
+      "bindings": [
+        {
+          "operation_id": "getAllSharedLinks",
+          "direction": "response",
+          "container": "decoded_body",
+          "status_code": 200,
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/*/key",
+          "binding_evidence_level": "openapi_verified"
+        },
+        {
+          "operation_id": "createSharedLink",
+          "direction": "response",
+          "container": "decoded_body",
+          "status_code": 201,
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/key",
+          "binding_evidence_level": "openapi_verified"
+        },
+        {
+          "operation_id": "sharedLinkLogin",
+          "direction": "response",
+          "container": "decoded_body",
+          "status_code": 201,
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/key",
+          "binding_evidence_level": "openapi_verified"
+        },
+        {
+          "operation_id": "getMySharedLink",
+          "direction": "response",
+          "container": "decoded_body",
+          "status_code": 200,
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/key",
+          "binding_evidence_level": "openapi_verified"
+        },
+        {
+          "operation_id": "getSharedLinkById",
+          "direction": "response",
+          "container": "decoded_body",
+          "status_code": 200,
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/key",
+          "binding_evidence_level": "openapi_verified"
+        },
+        {
+          "operation_id": "updateSharedLink",
+          "direction": "response",
+          "container": "decoded_body",
+          "status_code": 200,
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/key",
+          "binding_evidence_level": "openapi_verified"
+        }
+      ]
+    },
+    {
+      "rule_id": "SharedLinkResponseDto.password",
+      "schema_name": "SharedLinkResponseDto",
+      "field_name": "password",
+      "schema_property_pointer": "#/components/schemas/SharedLinkResponseDto/properties/password",
+      "relative_instance_pointer": "/password",
+      "classification": "shared_link_password",
+      "field_type": {
+        "description": "Has password",
+        "nullable": true,
+        "type": "string"
+      },
+      "evidence": {
+        "field_existence": "openapi_verified",
+        "sensitivity_classification": "design_requirement"
+      },
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/dtos/shared-link.dto.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/auth.service.ts"
+      ],
+      "handling": {
+        "request": "resolve_same_principal_secret_ref_before_serialization",
+        "response": "retain_encrypted_original_and_return_secret_ref_projection",
+        "null": "preserve_null",
+        "absent": "preserve_absence"
+      },
+      "bindings": [
+        {
+          "operation_id": "getAllSharedLinks",
+          "direction": "response",
+          "container": "decoded_body",
+          "status_code": 200,
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/*/password",
+          "binding_evidence_level": "openapi_verified"
+        },
+        {
+          "operation_id": "createSharedLink",
+          "direction": "response",
+          "container": "decoded_body",
+          "status_code": 201,
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/password",
+          "binding_evidence_level": "openapi_verified"
+        },
+        {
+          "operation_id": "sharedLinkLogin",
+          "direction": "response",
+          "container": "decoded_body",
+          "status_code": 201,
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/password",
+          "binding_evidence_level": "openapi_verified"
+        },
+        {
+          "operation_id": "getMySharedLink",
+          "direction": "response",
+          "container": "decoded_body",
+          "status_code": 200,
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/password",
+          "binding_evidence_level": "openapi_verified"
+        },
+        {
+          "operation_id": "getSharedLinkById",
+          "direction": "response",
+          "container": "decoded_body",
+          "status_code": 200,
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/password",
+          "binding_evidence_level": "openapi_verified"
+        },
+        {
+          "operation_id": "updateSharedLink",
+          "direction": "response",
+          "container": "decoded_body",
+          "status_code": 200,
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/password",
+          "binding_evidence_level": "openapi_verified"
+        }
+      ]
+    },
+    {
+      "rule_id": "SharedLinkResponseDto.slug",
+      "schema_name": "SharedLinkResponseDto",
+      "field_name": "slug",
+      "schema_property_pointer": "#/components/schemas/SharedLinkResponseDto/properties/slug",
+      "relative_instance_pointer": "/slug",
+      "classification": "shared_link_capability",
+      "field_type": {
+        "description": "Custom URL slug",
+        "nullable": true,
+        "type": "string"
+      },
+      "evidence": {
+        "field_existence": "openapi_verified",
+        "sensitivity_classification": "design_requirement"
+      },
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/dtos/shared-link.dto.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/auth.service.ts"
+      ],
+      "handling": {
+        "request": "resolve_same_principal_secret_ref_before_serialization",
+        "response": "retain_encrypted_original_and_return_secret_ref_projection",
+        "null": "preserve_null",
+        "absent": "preserve_absence"
+      },
+      "bindings": [
+        {
+          "operation_id": "getAllSharedLinks",
+          "direction": "response",
+          "container": "decoded_body",
+          "status_code": 200,
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/*/slug",
+          "binding_evidence_level": "openapi_verified"
+        },
+        {
+          "operation_id": "createSharedLink",
+          "direction": "response",
+          "container": "decoded_body",
+          "status_code": 201,
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/slug",
+          "binding_evidence_level": "openapi_verified"
+        },
+        {
+          "operation_id": "sharedLinkLogin",
+          "direction": "response",
+          "container": "decoded_body",
+          "status_code": 201,
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/slug",
+          "binding_evidence_level": "openapi_verified"
+        },
+        {
+          "operation_id": "getMySharedLink",
+          "direction": "response",
+          "container": "decoded_body",
+          "status_code": 200,
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/slug",
+          "binding_evidence_level": "openapi_verified"
+        },
+        {
+          "operation_id": "getSharedLinkById",
+          "direction": "response",
+          "container": "decoded_body",
+          "status_code": 200,
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/slug",
+          "binding_evidence_level": "openapi_verified"
+        },
+        {
+          "operation_id": "updateSharedLink",
+          "direction": "response",
+          "container": "decoded_body",
+          "status_code": 200,
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/slug",
+          "binding_evidence_level": "openapi_verified"
+        }
+      ]
+    },
+    {
+      "rule_id": "MaintenanceLoginDto.token",
+      "schema_name": "MaintenanceLoginDto",
+      "field_name": "token",
+      "schema_property_pointer": "#/components/schemas/MaintenanceLoginDto/properties/token",
+      "relative_instance_pointer": "/token",
+      "classification": "maintenance_token",
+      "field_type": {
+        "description": "Maintenance token",
+        "type": "string"
+      },
+      "evidence": {
+        "field_existence": "openapi_verified",
+        "sensitivity_classification": "design_requirement"
+      },
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+      ],
+      "handling": {
+        "request": "resolve_same_principal_secret_ref_before_serialization",
+        "response": "retain_encrypted_original_and_return_secret_ref_projection",
+        "null": "preserve_null",
+        "absent": "preserve_absence"
+      },
+      "bindings": [
+        {
+          "operation_id": "maintenanceLogin",
+          "direction": "request",
+          "container": "decoded_body",
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/token",
+          "binding_evidence_level": "openapi_verified"
+        }
+      ]
+    },
+    {
+      "rule_id": "OAuthBackchannelLogoutDto.logout_token",
+      "schema_name": "OAuthBackchannelLogoutDto",
+      "field_name": "logout_token",
+      "schema_property_pointer": "#/components/schemas/OAuthBackchannelLogoutDto/properties/logout_token",
+      "relative_instance_pointer": "/logout_token",
+      "classification": "oauth_logout_token",
+      "field_type": {
+        "description": "OAuth logout token",
+        "type": "string"
+      },
+      "evidence": {
+        "field_existence": "openapi_verified",
+        "sensitivity_classification": "design_requirement"
+      },
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+      ],
+      "handling": {
+        "request": "resolve_same_principal_secret_ref_before_serialization",
+        "response": "retain_encrypted_original_and_return_secret_ref_projection",
+        "null": "preserve_null",
+        "absent": "preserve_absence"
+      },
+      "bindings": [
+        {
+          "operation_id": "logoutOAuth",
+          "direction": "request",
+          "container": "decoded_body",
+          "media_type": "application/x-www-form-urlencoded",
+          "instance_pointer_pattern": "/logout_token",
+          "binding_evidence_level": "openapi_verified"
+        }
+      ]
+    },
+    {
+      "rule_id": "OAuthCallbackDto.codeVerifier",
+      "schema_name": "OAuthCallbackDto",
+      "field_name": "codeVerifier",
+      "schema_property_pointer": "#/components/schemas/OAuthCallbackDto/properties/codeVerifier",
+      "relative_instance_pointer": "/codeVerifier",
+      "classification": "oauth_pkce_verifier",
+      "field_type": {
+        "description": "OAuth code verifier (PKCE)",
+        "type": "string"
+      },
+      "evidence": {
+        "field_existence": "openapi_verified",
+        "sensitivity_classification": "design_requirement"
+      },
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+      ],
+      "handling": {
+        "request": "resolve_same_principal_secret_ref_before_serialization",
+        "response": "retain_encrypted_original_and_return_secret_ref_projection",
+        "null": "preserve_null",
+        "absent": "preserve_absence"
+      },
+      "bindings": [
+        {
+          "operation_id": "finishOAuth",
+          "direction": "request",
+          "container": "decoded_body",
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/codeVerifier",
+          "binding_evidence_level": "openapi_verified"
+        },
+        {
+          "operation_id": "linkOAuthAccount",
+          "direction": "request",
+          "container": "decoded_body",
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/codeVerifier",
+          "binding_evidence_level": "openapi_verified"
+        }
+      ]
+    },
+    {
+      "rule_id": "OAuthCallbackDto.state",
+      "schema_name": "OAuthCallbackDto",
+      "field_name": "state",
+      "schema_property_pointer": "#/components/schemas/OAuthCallbackDto/properties/state",
+      "relative_instance_pointer": "/state",
+      "classification": "oauth_flow_state",
+      "field_type": {
+        "description": "OAuth state parameter",
+        "type": "string"
+      },
+      "evidence": {
+        "field_existence": "openapi_verified",
+        "sensitivity_classification": "design_requirement"
+      },
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+      ],
+      "handling": {
+        "request": "resolve_same_principal_secret_ref_before_serialization",
+        "response": "retain_encrypted_original_and_return_secret_ref_projection",
+        "null": "preserve_null",
+        "absent": "preserve_absence"
+      },
+      "bindings": [
+        {
+          "operation_id": "finishOAuth",
+          "direction": "request",
+          "container": "decoded_body",
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/state",
+          "binding_evidence_level": "openapi_verified"
+        },
+        {
+          "operation_id": "linkOAuthAccount",
+          "direction": "request",
+          "container": "decoded_body",
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/state",
+          "binding_evidence_level": "openapi_verified"
+        }
+      ]
+    },
+    {
+      "rule_id": "OAuthCallbackDto.url",
+      "schema_name": "OAuthCallbackDto",
+      "field_name": "url",
+      "schema_property_pointer": "#/components/schemas/OAuthCallbackDto/properties/url",
+      "relative_instance_pointer": "/url",
+      "classification": "oauth_callback_url_with_code_and_state",
+      "field_type": {
+        "description": "OAuth callback URL",
+        "minLength": 1,
+        "type": "string"
+      },
+      "evidence": {
+        "field_existence": "openapi_verified",
+        "sensitivity_classification": "design_requirement"
+      },
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+      ],
+      "handling": {
+        "request": "resolve_same_principal_secret_ref_before_serialization",
+        "response": "retain_encrypted_original_and_return_secret_ref_projection",
+        "null": "preserve_null",
+        "absent": "preserve_absence"
+      },
+      "bindings": [
+        {
+          "operation_id": "finishOAuth",
+          "direction": "request",
+          "container": "decoded_body",
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/url",
+          "binding_evidence_level": "openapi_verified"
+        },
+        {
+          "operation_id": "linkOAuthAccount",
+          "direction": "request",
+          "container": "decoded_body",
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/url",
+          "binding_evidence_level": "openapi_verified"
+        }
+      ]
+    },
+    {
+      "rule_id": "OAuthConfigDto.state",
+      "schema_name": "OAuthConfigDto",
+      "field_name": "state",
+      "schema_property_pointer": "#/components/schemas/OAuthConfigDto/properties/state",
+      "relative_instance_pointer": "/state",
+      "classification": "oauth_flow_state",
+      "field_type": {
+        "description": "OAuth state parameter",
+        "type": "string"
+      },
+      "evidence": {
+        "field_existence": "openapi_verified",
+        "sensitivity_classification": "design_requirement"
+      },
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+      ],
+      "handling": {
+        "request": "resolve_same_principal_secret_ref_before_serialization",
+        "response": "retain_encrypted_original_and_return_secret_ref_projection",
+        "null": "preserve_null",
+        "absent": "preserve_absence"
+      },
+      "bindings": [
+        {
+          "operation_id": "startOAuth",
+          "direction": "request",
+          "container": "decoded_body",
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/state",
+          "binding_evidence_level": "openapi_verified"
+        }
+      ]
+    },
+    {
+      "rule_id": "OAuthAuthorizeResponseDto.url",
+      "schema_name": "OAuthAuthorizeResponseDto",
+      "field_name": "url",
+      "schema_property_pointer": "#/components/schemas/OAuthAuthorizeResponseDto/properties/url",
+      "relative_instance_pointer": "/url",
+      "classification": "oauth_authorization_url_with_state",
+      "field_type": {
+        "description": "OAuth authorization URL",
+        "type": "string"
+      },
+      "evidence": {
+        "field_existence": "openapi_verified",
+        "sensitivity_classification": "design_requirement"
+      },
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+      ],
+      "handling": {
+        "request": "resolve_same_principal_secret_ref_before_serialization",
+        "response": "retain_encrypted_original_and_return_secret_ref_projection",
+        "null": "preserve_null",
+        "absent": "preserve_absence"
+      },
+      "bindings": [
+        {
+          "operation_id": "startOAuth",
+          "direction": "response",
+          "container": "decoded_body",
+          "status_code": 201,
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/url",
+          "binding_evidence_level": "openapi_verified"
+        }
+      ]
+    },
+    {
+      "rule_id": "LogoutResponseDto.redirectUri",
+      "schema_name": "LogoutResponseDto",
+      "field_name": "redirectUri",
+      "schema_property_pointer": "#/components/schemas/LogoutResponseDto/properties/redirectUri",
+      "relative_instance_pointer": "/redirectUri",
+      "classification": "oauth_logout_url_may_contain_id_token_hint",
+      "field_type": {
+        "description": "Redirect URI",
+        "type": "string"
+      },
+      "evidence": {
+        "field_existence": "openapi_verified",
+        "sensitivity_classification": "design_requirement"
+      },
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/auth.service.ts"
+      ],
+      "handling": {
+        "request": "resolve_same_principal_secret_ref_before_serialization",
+        "response": "retain_encrypted_original_and_return_secret_ref_projection",
+        "null": "preserve_null",
+        "absent": "preserve_absence"
+      },
+      "bindings": [
+        {
+          "operation_id": "logout",
+          "direction": "response",
+          "container": "decoded_body",
+          "status_code": 200,
+          "media_type": "application/json",
+          "instance_pointer_pattern": "/redirectUri",
+          "binding_evidence_level": "openapi_verified"
+        }
+      ]
+    },
+    {
+      "rule_id": "SyncAuthUserV1.pinCode",
+      "schema_name": "SyncAuthUserV1",
+      "field_name": "pinCode",
+      "schema_property_pointer": "#/components/schemas/SyncAuthUserV1/properties/pinCode",
+      "relative_instance_pointer": "/pinCode",
+      "classification": "pin_code_or_credential_material",
+      "field_type": {
+        "description": "User pin code",
+        "nullable": true,
+        "type": "string"
+      },
+      "evidence": {
+        "field_existence": "openapi_verified",
+        "sensitivity_classification": "design_requirement"
+      },
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/sync.service.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/utils/sync.ts"
+      ],
+      "handling": {
+        "request": "resolve_same_principal_secret_ref_before_serialization",
+        "response": "retain_encrypted_original_and_return_secret_ref_projection",
+        "null": "preserve_null",
+        "absent": "preserve_absence"
+      },
+      "bindings": [
+        {
+          "operation_id": "getSyncStream",
+          "direction": "response",
+          "container": "each_jsonl_record",
+          "status_code": 200,
+          "media_type": "application/jsonlines+json",
+          "when": {
+            "instance_pointer": "/type",
+            "equals": "AuthUserV1"
+          },
+          "instance_pointer_pattern": "/data/pinCode",
+          "binding_evidence_level": "source_verified"
+        }
+      ]
+    },
+    {
+      "rule_id": "SyncAuthUserV2.pinCode",
+      "schema_name": "SyncAuthUserV2",
+      "field_name": "pinCode",
+      "schema_property_pointer": "#/components/schemas/SyncAuthUserV2/properties/pinCode",
+      "relative_instance_pointer": "/pinCode",
+      "classification": "pin_code_or_credential_material",
+      "field_type": {
+        "description": "User pin code",
+        "nullable": true,
+        "type": "string"
+      },
+      "evidence": {
+        "field_existence": "openapi_verified",
+        "sensitivity_classification": "design_requirement"
+      },
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/sync.service.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/utils/sync.ts"
+      ],
+      "handling": {
+        "request": "resolve_same_principal_secret_ref_before_serialization",
+        "response": "retain_encrypted_original_and_return_secret_ref_projection",
+        "null": "preserve_null",
+        "absent": "preserve_absence"
+      },
+      "bindings": [
+        {
+          "operation_id": "getSyncStream",
+          "direction": "response",
+          "container": "each_jsonl_record",
+          "status_code": 200,
+          "media_type": "application/jsonlines+json",
+          "when": {
+            "instance_pointer": "/type",
+            "equals": "AuthUserV2"
+          },
+          "instance_pointer_pattern": "/data/pinCode",
+          "binding_evidence_level": "source_verified"
+        }
+      ]
+    }
+  ],
+  "transport_secret_rules": [
+    {
+      "rule_id": "request_auth_headers",
+      "directions": [
+        "request"
+      ],
+      "container": "headers",
+      "header_names_case_insensitive": [
+        "Authorization",
+        "Proxy-Authorization",
+        "Cookie",
+        "x-api-key",
+        "x-immich-user-token",
+        "x-immich-session-token",
+        "x-immich-share-key",
+        "x-immich-share-slug",
+        "CF-Access-Client-Secret",
+        "Cf-Access-Jwt-Assertion"
+      ],
+      "classification": "authentication_material",
+      "evidence_level": "design_requirement",
+      "handling": "log_redaction_and_auth_context_contract_only",
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/auth.service.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/enum.ts"
+      ]
+    },
+    {
+      "rule_id": "response_set_cookie",
+      "directions": [
+        "response"
+      ],
+      "container": "headers",
+      "header_names_case_insensitive": [
+        "Set-Cookie"
+      ],
+      "classification": "cookie_material",
+      "evidence_level": "design_requirement",
+      "handling": "secure_cookie_jar_never_model_result",
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/auth.controller.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/maintenance.controller.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/oauth.controller.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/shared-link.controller.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/enum.ts"
+      ]
+    },
+    {
+      "rule_id": "auth_query_material",
+      "directions": [
+        "request",
+        "response_url"
+      ],
+      "container": "url_query",
+      "parameter_names": [
+        "key",
+        "slug",
+        "sessionKey",
+        "code",
+        "state",
+        "id_token_hint",
+        "access_token"
+      ],
+      "classification": "auth_material_or_sensitive_flow_value",
+      "evidence_level": "design_requirement",
+      "handling": "auth_context_contract_or_secure_workflow_only_never_generic_header_query_override",
+      "protocol_required_upstream_use": "explicit_adapter_and_validated_same_principal_workflow_only",
+      "model_or_log_url_exposure": false,
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/auth.service.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json"
+      ]
+    },
+    {
+      "rule_id": "oauth_mobile_location",
+      "directions": [
+        "response"
+      ],
+      "operation_ids": [
+        "redirectOAuthToMobile"
+      ],
+      "container": "headers",
+      "header_names_case_insensitive": [
+        "Location"
+      ],
+      "classification": "oauth_redirect_url_may_contain_code",
+      "evidence_level": "design_requirement",
+      "handling": "secure_control_plane_no_auto_fetch",
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/oauth.controller.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/auth.service.ts"
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "source_id": "openapi",
+      "url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json",
+      "upstream_path": "open-api/immich-openapi-specs.json",
+      "sha256": "632700b84590f6b197fe6ef9a8486db19d08a31a03cf10bc780925e8a32b6bb9",
+      "verification": "pinned_source_text_read",
+      "runtime_verified": false
+    },
+    {
+      "source_id": "controller:asset-media",
+      "url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/asset-media.controller.ts",
+      "upstream_path": "server/src/controllers/asset-media.controller.ts",
+      "sha256": "a4d16981f825e5f7389e218761ba17f2bf7d33363a501426d454693c5f1086d8",
+      "verification": "pinned_source_text_read",
+      "runtime_verified": false
+    },
+    {
+      "source_id": "controller:video-stream",
+      "url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/video-stream.controller.ts",
+      "upstream_path": "server/src/controllers/video-stream.controller.ts",
+      "sha256": "3c1e493598768fdb2e16eb6a7987239e2f6d7c0b2251f23d11726bb30ecda724",
+      "verification": "pinned_source_text_read",
+      "runtime_verified": false
+    },
+    {
+      "source_id": "controller:sync",
+      "url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/sync.controller.ts",
+      "upstream_path": "server/src/controllers/sync.controller.ts",
+      "sha256": "c606ae5d9c08a80a625d82fbc5357f778d85512a48e664cccb5a325f0cdb2872",
+      "verification": "pinned_source_text_read",
+      "runtime_verified": false
+    },
+    {
+      "source_id": "controller:oauth",
+      "url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/oauth.controller.ts",
+      "upstream_path": "server/src/controllers/oauth.controller.ts",
+      "sha256": "0bd875e5065d562d59b49b4ab227cbcafbca9f8d2b64662327bf1b7591dab131",
+      "verification": "pinned_source_text_read",
+      "runtime_verified": false
+    },
+    {
+      "source_id": "controller:download",
+      "url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/download.controller.ts",
+      "upstream_path": "server/src/controllers/download.controller.ts",
+      "sha256": "ae8d263ea847826bf89cd3d5d0e4105adcff4d9e15dd42c1199b6b860cda5cc4",
+      "verification": "pinned_source_text_read",
+      "runtime_verified": false
+    },
+    {
+      "source_id": "controller:auth",
+      "url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/auth.controller.ts",
+      "upstream_path": "server/src/controllers/auth.controller.ts",
+      "sha256": "81eb2ec932b8bade488989ec7e2e10d0fcf54fb507077ade92de99f40ff39a06",
+      "verification": "pinned_source_text_read",
+      "runtime_verified": false
+    },
+    {
+      "source_id": "controller:shared-link",
+      "url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/shared-link.controller.ts",
+      "upstream_path": "server/src/controllers/shared-link.controller.ts",
+      "sha256": "96160e162d34d6a71b9b0737617b78f560792d42f7444553dd70aecdebf34176",
+      "verification": "pinned_source_text_read",
+      "runtime_verified": false
+    },
+    {
+      "source_id": "controller:maintenance",
+      "url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/maintenance.controller.ts",
+      "upstream_path": "server/src/controllers/maintenance.controller.ts",
+      "sha256": "8befcacd04cab11f99656a1944863f238f8790bcbfa34fd9a98e0ce13dddfd8e",
+      "verification": "pinned_source_text_read",
+      "runtime_verified": false
+    },
+    {
+      "source_id": "controller:database-backup",
+      "url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/database-backup.controller.ts",
+      "upstream_path": "server/src/controllers/database-backup.controller.ts",
+      "sha256": "1f3397b6187d6ef2f7a895390d7a9fc044b9781bdcb2e85b91d5cebb8d7cffdc",
+      "verification": "pinned_source_text_read",
+      "runtime_verified": false
+    },
+    {
+      "source_id": "controller:user",
+      "url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/user.controller.ts",
+      "upstream_path": "server/src/controllers/user.controller.ts",
+      "sha256": "cb67d77d8dc46ea67963ccf75f88eeb1592eac7e0a5444143c81ddd835b81a37",
+      "verification": "pinned_source_text_read",
+      "runtime_verified": false
+    },
+    {
+      "source_id": "controller:session",
+      "url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/session.controller.ts",
+      "upstream_path": "server/src/controllers/session.controller.ts",
+      "sha256": "7e383202642151a43a98a0043374a431cfd6f991e12d85ecf4bfec10f7312222",
+      "verification": "pinned_source_text_read",
+      "runtime_verified": false
+    },
+    {
+      "source_id": "service:auth",
+      "url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/auth.service.ts",
+      "upstream_path": "server/src/services/auth.service.ts",
+      "sha256": "c28aaaf219b8dd2a3cdd6fbf86483e2971350ba9abfaf4d40ef60bcbfe1c5cb6",
+      "verification": "pinned_source_text_read",
+      "runtime_verified": false
+    },
+    {
+      "source_id": "service:sync",
+      "url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/sync.service.ts",
+      "upstream_path": "server/src/services/sync.service.ts",
+      "sha256": "c1393e538471b4faa9ba705672104007cae6e501b316ff37d843b0d25262296b",
+      "verification": "pinned_source_text_read",
+      "runtime_verified": false
+    },
+    {
+      "source_id": "enum",
+      "url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/enum.ts",
+      "upstream_path": "server/src/enum.ts",
+      "sha256": "fe9d39162965e070b62ade12f83fa195f4ed496c799705a1fd473754355a76a3",
+      "verification": "pinned_source_text_read",
+      "runtime_verified": false
+    },
+    {
+      "source_id": "service:hls",
+      "url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/hls.service.ts",
+      "upstream_path": "server/src/services/hls.service.ts",
+      "sha256": "0ba47c091ebfb4b43cc67c5525ee9f8ce5eb1853e676c4dc3acdd3a39d5290c5",
+      "verification": "pinned_source_text_read",
+      "runtime_verified": false,
+      "git_blob_sha1": "56e05b1da7666c80b31c78cf8e6fb7bdc42a69a9",
+      "git_blob_verified": true
+    },
+    {
+      "source_id": "utils:sync",
+      "url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/utils/sync.ts",
+      "upstream_path": "server/src/utils/sync.ts",
+      "sha256": "c301ba444ccd419c0853d0bca351e029e81167cd187a8208591d6be6faf814f8",
+      "verification": "pinned_source_text_read",
+      "runtime_verified": false,
+      "git_blob_sha1": "609eaaa1c39a16307d35c12e537ba3528ee8230b",
+      "git_blob_verified": true
+    },
+    {
+      "source_id": "dto:shared-link",
+      "url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/dtos/shared-link.dto.ts",
+      "upstream_path": "server/src/dtos/shared-link.dto.ts",
+      "sha256": "fad947c7106718a0a2c5eb154320b862f81b32f7c3024b1b0154f5fc27d11eac",
+      "verification": "pinned_source_text_read",
+      "runtime_verified": false,
+      "git_blob_sha1": "9e35b4ac60cb4a841bf2e52a3143853c4ce2e5ce",
+      "git_blob_verified": true
+    }
+  ],
+  "known_limits_and_remaining_implementation_work": [
+    "既知補正の一覧であり、全controllerとすべてのruntime応答差を完全監査した一覧ではない。実装時の差分検証と使い捨て3.3.5環境での受入試験が必要。",
+    "秘密判定はexact schema fieldと確認済みHTTP要素に基づく。任意JSON・ユーザーメタデータ・plugin独自設定・非JSONエラー中の未知の秘密まで完全識別するとは保証しない。",
+    "OpenAPIの条件付き検証・DTO superRefine等はこのファイルで完全再現しない。上流の検証とエラーを保持する。",
+    "HLSのGET3操作は副作用あり。readOnly分類の全279operation監査をこのファイルで完了したとはしない。",
+    "Rangeの206/416・redirectの到達結果・multipart実データはruntime未検証。sourceに基づく実装要件として受入試験で確認する。",
+    "source URLは固定commitを指す。version更新時に参照・schema・秘密field・overrideの再評価を要求する。"
+  ],
+  "validation_summary": {
+    "validation_kind": "static_reference_integrity_only",
+    "openapi_sha256_matches": true,
+    "all_operation_ids_exist": true,
+    "all_schema_property_pointers_resolve": true,
+    "all_secret_schema_fields_are_strings": true,
+    "all_secret_rules_have_at_least_one_binding": true,
+    "operation_overrides_count": 52,
+    "binary_response_operation_count": 11,
+    "hls_playlist_operation_count": 2,
+    "multipart_operation_count": 3,
+    "urlencoded_operation_count": 1,
+    "jsonl_source_override_count": 1,
+    "secret_schema_field_rule_count": 40,
+    "secret_instance_binding_count": 75,
+    "secret_bound_operation_count": 33,
+    "runtime_tested": false
+  }
+}

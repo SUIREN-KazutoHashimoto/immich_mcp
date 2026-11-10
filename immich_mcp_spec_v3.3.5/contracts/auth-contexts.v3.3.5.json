@@ -1,0 +1,1645 @@
+{
+  "format": "immich-mcp-auth-context-contract/v1",
+  "document_type": "design_specification_data",
+  "language": "ja",
+  "verified_on": "2026-11-05",
+  "implementation_status": "specification_only_not_deployed_or_integration_tested",
+  "target": {
+    "product": "Immich",
+    "version": "3.3.5",
+    "git_tag": "v3.3.5",
+    "git_commit": "8303cb117e197c700332b33b61b45314c9cc5bb4",
+    "git_tag_source_url": "https://api.github.com/repos/immich-app/immich/git/ref/tags/v3.3.5",
+    "openapi_source_url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/open-api/immich-openapi-specs.json",
+    "openapi_sha256": "632700b84590f6b197fe6ef9a8486db19d08a31a03cf10bc780925e8a32b6bb9",
+    "operation_inventory_relative_path": "../api/operation-inventory.json",
+    "operation_count": 279,
+    "path_count": 193
+  },
+  "interpretation": {
+    "all_279_operation_contracts_and_all_transports_required": true,
+    "all_operation_catalog_visibility": "always_for_authenticated_mcp_users",
+    "special_auth_adapter_implementation_and_isolated_tests_required": true,
+    "all_api_operations_succeed_with_api_key_only": false,
+    "scope_control_and_all_auth_contexts_are_identical": false,
+    "reason": "Immich v3.3.5にはsession/shared-link/maintenance/public/setupの認証文脈があり、その文脈ではAPIキーscopeが適用されない。APIキーのみで全operationが成功するという保証はソースと矛盾する。",
+    "upstream_context_table_is_not_local_permission_allowlist": true,
+    "additional_choice_required_from_user_now": false
+  },
+  "primary_api_call": {
+    "applies_to_operation_count": 279,
+    "credential_selector": "verified_access_issuer_and_subject -> caller_active_immich_api_key",
+    "upstream_header": "x-api-key",
+    "fixed_upstream_base_url": true,
+    "caller_supplied_upstream_url": false,
+    "caller_supplied_authorization_headers": false,
+    "local_per_operation_permission_allowlist": false,
+    "local_read_only_mode": false,
+    "cached_permissions_authorize_calls": false,
+    "final_authorization_authority": "Immich current API-key permissions, owning user's admin state, resource access checks and runtime-specific rules",
+    "on_permission_or_context_denial": "return original upstream status and body; optional diagnostic may explain required context",
+    "fallback_to_session": false,
+    "fallback_to_admin_key": false,
+    "fallback_to_another_user_key": false,
+    "fallback_to_shared_link": false,
+    "fallback_to_maintenance_cookie": false,
+    "special_context_replaces_primary_binding": false,
+    "public_or_maintenance_exception": "固定APIキーheaderを送っても、上流のpublic/maintenance handlerがAPIキーを検証しない場合にscope適用を強制することはできない。MCPが認可を代替実装しているとは表現しない。",
+    "missing_registered_key": "all standard api_call operations require caller's registered API key; explicit public/setup special adapters preserve upstream contracts before initial key registration without inventing key grants"
+  },
+  "identity": {
+    "principal_key": [
+      "verified_access_jwt.iss",
+      "verified_access_jwt.sub"
+    ],
+    "jwt_checks": [
+      "signature",
+      "configured_issuer",
+      "configured_application_audience",
+      "exp",
+      "nbf",
+      "nonempty_user_subject"
+    ],
+    "service_token_empty_subject_is_user": false,
+    "email_is_authorization_identity": false,
+    "automatic_relink_by_email_after_sub_changes": false,
+    "access_admin_implies_immich_admin": false,
+    "source_refs": [
+      "access_application_token",
+      "access_jwt_validation",
+      "access_managed_oauth"
+    ]
+  },
+  "explicit_context_registration": {
+    "surface": "authenticated_control_ui",
+    "caller_must_explicitly_register_or_select": true,
+    "secret_body_in_model_tool_arguments": false,
+    "principal_bound_encrypted_vault": true,
+    "secret_ref_is_bearer_authority": false,
+    "cross_principal_context_selection": false,
+    "normal_binding_automatically_replaced": false,
+    "session_ownership_verification": [
+      "Get bound API-key ID using getMyApiKey with registered API key.",
+      "Using candidate session alone, call getApiKey for that key ID.",
+      "Require returned ID match; upstream repository constrains by both session user's ID and key ID."
+    ],
+    "extra_registered_api_key_permission_required_for_session_owner_match": false,
+    "owner_match_is_scope_inheritance": false,
+    "source_refs": [
+      "api_key_controller",
+      "api_key_service",
+      "api_key_repository"
+    ]
+  },
+  "alternative_auth_modes": {
+    "session_special_adapters": {
+      "implementation_required": true,
+      "only_explicit_principal_bound_context": true,
+      "api_key_scopes_applied_upstream": false,
+      "automatic_use_after_api_key_error": false,
+      "scope_semantics_must_be_shown": true,
+      "does_not_enable_general_session_invoker": true
+    },
+    "shared_link_special_adapters": {
+      "implementation_required": true,
+      "only_explicit_principal_bound_context": true,
+      "api_key_scopes_applied_upstream": false,
+      "authorization_authority": "Immich shared-link conditions"
+    },
+    "maintenance_special_adapters": {
+      "implementation_required": true,
+      "only_explicit_principal_bound_context": true,
+      "api_key_scopes_applied_in_maintenance_worker": false,
+      "authorization_authority": "Immich maintenance JWT and runtime state"
+    },
+    "general_session_execution_and_locked_asset_support": {
+      "separate_mode_not_primary_api_call": true,
+      "enabled_by_default": false,
+      "silent_escalation_from_api_key": false,
+      "api_key_scopes_inherited": false,
+      "requires_explicit_mode_selection_and_disclosed_authorization_semantics": true,
+      "reason": "同じ所有者のsessionでもAPIキーscopeは継承しない。一般APIをsessionで実行するとAPIキーpermission不足を迂回できるため、標準経路へ混ぜない。"
+    }
+  },
+  "upstream_permission_semantics": {
+    "explicit_permission": "Immich checks requested permission against caller API-key permission set.",
+    "permission_unspecified_on_authenticated_route": "defaults to all",
+    "permission_false": "no API-key scope requirement, but authentication and service-specific context checks still apply",
+    "all_implies_admin": false,
+    "admin_route": "API-key permission test AND owning user's isAdmin; object-level rules still apply",
+    "session_scope_inheritance": false,
+    "api_key_create_update": "Immich rejects requested child/updated-key permissions not granted by calling API key.",
+    "api_key_rotate": "Immich rejects rotation when target key has permissions not granted by calling API key.",
+    "source_refs": [
+      "auth_service",
+      "access_util",
+      "api_key_service"
+    ]
+  },
+  "upstream_authentication_precedence": {
+    "ordered_contexts": [
+      {
+        "kind": "shared_link_key",
+        "headers": [
+          "x-immich-share-key"
+        ],
+        "query": [
+          "key"
+        ]
+      },
+      {
+        "kind": "shared_link_slug",
+        "headers": [
+          "x-immich-share-slug"
+        ],
+        "query": [
+          "slug"
+        ]
+      },
+      {
+        "kind": "session",
+        "headers": [
+          "x-immich-user-token",
+          "x-immich-session-token",
+          "Authorization: Bearer"
+        ],
+        "query": [
+          "sessionKey"
+        ],
+        "cookie": [
+          "immich_access_token"
+        ]
+      },
+      {
+        "kind": "api_key",
+        "headers": [
+          "x-api-key"
+        ],
+        "query": [
+          "apiKey"
+        ]
+      }
+    ],
+    "auth_material_must_not_be_mixed_by_generic_headers_or_query": true,
+    "source_refs": [
+      "auth_service",
+      "enum"
+    ]
+  },
+  "session_only_operations": [
+    {
+      "operation_id": "unlockAuthSession",
+      "method": "POST",
+      "path": "/auth/session/unlock",
+      "full_api_path": "/api/auth/session/unlock",
+      "normal_controller": {
+        "public": false,
+        "admin_only": false,
+        "api_permission_mode": "default_all",
+        "effective_api_key_permission": "all",
+        "source_url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/auth.controller.ts",
+        "source_symbol": "unlockAuthSession"
+      },
+      "required_upstream_context": [
+        "session",
+        "correct_pin"
+      ],
+      "api_key_only_outcome_after_normal_guard_passes": {
+        "http_status": 400,
+        "message": "This endpoint can only be used with a session token",
+        "upstream_symbol": "unlockSession"
+      },
+      "scope_failure_may_precede_context_failure": true,
+      "api_key_scopes_applied_in_session_context": false,
+      "adapter_implementation_required": true,
+      "catalog_visibility": "always",
+      "primary_api_call_replaces_api_key_with_session": false,
+      "automatic_fallback": false,
+      "registration": "explicit_authenticated_control_ui",
+      "credential_ownership": "same_access_principal_and_verified_immich_owner",
+      "source_refs": [
+        "auth_service",
+        "auth_service"
+      ],
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/auth.service.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/auth.service.ts"
+      ]
+    },
+    {
+      "operation_id": "lockAuthSession",
+      "method": "POST",
+      "path": "/auth/session/lock",
+      "full_api_path": "/api/auth/session/lock",
+      "normal_controller": {
+        "public": false,
+        "admin_only": false,
+        "api_permission_mode": "default_all",
+        "effective_api_key_permission": "all",
+        "source_url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/auth.controller.ts",
+        "source_symbol": "lockAuthSession"
+      },
+      "required_upstream_context": [
+        "session"
+      ],
+      "api_key_only_outcome_after_normal_guard_passes": {
+        "http_status": 400,
+        "message": "This endpoint can only be used with a session token",
+        "upstream_symbol": "lockSession"
+      },
+      "scope_failure_may_precede_context_failure": true,
+      "api_key_scopes_applied_in_session_context": false,
+      "adapter_implementation_required": true,
+      "catalog_visibility": "always",
+      "primary_api_call_replaces_api_key_with_session": false,
+      "automatic_fallback": false,
+      "registration": "explicit_authenticated_control_ui",
+      "credential_ownership": "same_access_principal_and_verified_immich_owner",
+      "source_refs": [
+        "auth_service",
+        "auth_service"
+      ],
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/auth.service.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/auth.service.ts"
+      ]
+    },
+    {
+      "operation_id": "createSession",
+      "method": "POST",
+      "path": "/sessions",
+      "full_api_path": "/api/sessions",
+      "normal_controller": {
+        "public": false,
+        "admin_only": false,
+        "api_permission_mode": "explicit",
+        "effective_api_key_permission": "session.create",
+        "source_url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/session.controller.ts",
+        "source_symbol": "createSession"
+      },
+      "required_upstream_context": [
+        "parent_session"
+      ],
+      "api_key_only_outcome_after_normal_guard_passes": {
+        "http_status": 400,
+        "message": "This endpoint can only be used with a session token",
+        "upstream_symbol": "create"
+      },
+      "scope_failure_may_precede_context_failure": true,
+      "api_key_scopes_applied_in_session_context": false,
+      "adapter_implementation_required": true,
+      "catalog_visibility": "always",
+      "primary_api_call_replaces_api_key_with_session": false,
+      "automatic_fallback": false,
+      "registration": "explicit_authenticated_control_ui",
+      "credential_ownership": "same_access_principal_and_verified_immich_owner",
+      "source_refs": [
+        "session_service",
+        "auth_service"
+      ],
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/session.service.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/auth.service.ts"
+      ]
+    },
+    {
+      "operation_id": "getSyncAck",
+      "method": "GET",
+      "path": "/sync/ack",
+      "full_api_path": "/api/sync/ack",
+      "normal_controller": {
+        "public": false,
+        "admin_only": false,
+        "api_permission_mode": "explicit",
+        "effective_api_key_permission": "syncCheckpoint.read",
+        "source_url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/sync.controller.ts",
+        "source_symbol": "getSyncAck"
+      },
+      "required_upstream_context": [
+        "session"
+      ],
+      "api_key_only_outcome_after_normal_guard_passes": {
+        "http_status": 403,
+        "message": "Sync endpoints cannot be used with API keys",
+        "upstream_symbol": "getAcks"
+      },
+      "scope_failure_may_precede_context_failure": true,
+      "api_key_scopes_applied_in_session_context": false,
+      "adapter_implementation_required": true,
+      "catalog_visibility": "always",
+      "primary_api_call_replaces_api_key_with_session": false,
+      "automatic_fallback": false,
+      "registration": "explicit_authenticated_control_ui",
+      "credential_ownership": "same_access_principal_and_verified_immich_owner",
+      "source_refs": [
+        "sync_service",
+        "auth_service"
+      ],
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/sync.service.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/auth.service.ts"
+      ]
+    },
+    {
+      "operation_id": "sendSyncAck",
+      "method": "POST",
+      "path": "/sync/ack",
+      "full_api_path": "/api/sync/ack",
+      "normal_controller": {
+        "public": false,
+        "admin_only": false,
+        "api_permission_mode": "explicit",
+        "effective_api_key_permission": "syncCheckpoint.update",
+        "source_url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/sync.controller.ts",
+        "source_symbol": "sendSyncAck"
+      },
+      "required_upstream_context": [
+        "session"
+      ],
+      "api_key_only_outcome_after_normal_guard_passes": {
+        "http_status": 403,
+        "message": "Sync endpoints cannot be used with API keys",
+        "upstream_symbol": "setAcks"
+      },
+      "scope_failure_may_precede_context_failure": true,
+      "api_key_scopes_applied_in_session_context": false,
+      "adapter_implementation_required": true,
+      "catalog_visibility": "always",
+      "primary_api_call_replaces_api_key_with_session": false,
+      "automatic_fallback": false,
+      "registration": "explicit_authenticated_control_ui",
+      "credential_ownership": "same_access_principal_and_verified_immich_owner",
+      "source_refs": [
+        "sync_service",
+        "auth_service"
+      ],
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/sync.service.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/auth.service.ts"
+      ]
+    },
+    {
+      "operation_id": "deleteSyncAck",
+      "method": "DELETE",
+      "path": "/sync/ack",
+      "full_api_path": "/api/sync/ack",
+      "normal_controller": {
+        "public": false,
+        "admin_only": false,
+        "api_permission_mode": "explicit",
+        "effective_api_key_permission": "syncCheckpoint.delete",
+        "source_url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/sync.controller.ts",
+        "source_symbol": "deleteSyncAck"
+      },
+      "required_upstream_context": [
+        "session"
+      ],
+      "api_key_only_outcome_after_normal_guard_passes": {
+        "http_status": 403,
+        "message": "Sync endpoints cannot be used with API keys",
+        "upstream_symbol": "deleteAcks"
+      },
+      "scope_failure_may_precede_context_failure": true,
+      "api_key_scopes_applied_in_session_context": false,
+      "adapter_implementation_required": true,
+      "catalog_visibility": "always",
+      "primary_api_call_replaces_api_key_with_session": false,
+      "automatic_fallback": false,
+      "registration": "explicit_authenticated_control_ui",
+      "credential_ownership": "same_access_principal_and_verified_immich_owner",
+      "source_refs": [
+        "sync_service",
+        "auth_service"
+      ],
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/sync.service.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/auth.service.ts"
+      ]
+    },
+    {
+      "operation_id": "getSyncStream",
+      "method": "POST",
+      "path": "/sync/stream",
+      "full_api_path": "/api/sync/stream",
+      "normal_controller": {
+        "public": false,
+        "admin_only": false,
+        "api_permission_mode": "explicit",
+        "effective_api_key_permission": "sync.stream",
+        "source_url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/sync.controller.ts",
+        "source_symbol": "getSyncStream"
+      },
+      "required_upstream_context": [
+        "session"
+      ],
+      "api_key_only_outcome_after_normal_guard_passes": {
+        "http_status": 403,
+        "message": "Sync endpoints cannot be used with API keys",
+        "upstream_symbol": "streamInternal"
+      },
+      "scope_failure_may_precede_context_failure": true,
+      "api_key_scopes_applied_in_session_context": false,
+      "adapter_implementation_required": true,
+      "catalog_visibility": "always",
+      "primary_api_call_replaces_api_key_with_session": false,
+      "automatic_fallback": false,
+      "registration": "explicit_authenticated_control_ui",
+      "credential_ownership": "same_access_principal_and_verified_immich_owner",
+      "source_refs": [
+        "sync_service",
+        "auth_service"
+      ],
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/sync.service.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/auth.service.ts"
+      ]
+    }
+  ],
+  "shared_link_only_operations": [
+    {
+      "operation_id": "sharedLinkLogin",
+      "method": "POST",
+      "path": "/shared-links/login",
+      "full_api_path": "/api/shared-links/login",
+      "normal_controller": {
+        "public": false,
+        "admin_only": false,
+        "api_permission_mode": "default_all",
+        "effective_api_key_permission": "all",
+        "source_url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/shared-link.controller.ts",
+        "source_symbol": "sharedLinkLogin"
+      },
+      "required_upstream_context": [
+        "shared_link_key_or_slug",
+        "shared_link_password"
+      ],
+      "api_key_only_outcome_after_normal_guard_passes": {
+        "http_status": 403,
+        "message": "Forbidden",
+        "upstream_symbol": "login"
+      },
+      "api_key_scopes_applied_in_shared_link_context": false,
+      "authorization_authority": "Immich shared-link validity, expiry, password and link-specific upload/download/access conditions",
+      "same_access_principal_secret_refs_required": true,
+      "link_owner_must_equal_api_key_owner": false,
+      "link_owner_note": "共有リンクは本来別のImmich利用者が共有したものもあり得る。必要条件は本人主体に登録された有効な共有資格情報であり、APIキーownerとの同一性ではない。",
+      "adapter_implementation_required": true,
+      "catalog_visibility": "always",
+      "primary_api_call_replaces_api_key_with_shared_link": false,
+      "automatic_fallback": false,
+      "source_refs": [
+        "shared_link_controller",
+        "shared_link_service",
+        "auth_service"
+      ],
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/shared-link.controller.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/shared-link.service.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/auth.service.ts"
+      ]
+    },
+    {
+      "operation_id": "getMySharedLink",
+      "method": "GET",
+      "path": "/shared-links/me",
+      "full_api_path": "/api/shared-links/me",
+      "normal_controller": {
+        "public": false,
+        "admin_only": false,
+        "api_permission_mode": "default_all",
+        "effective_api_key_permission": "all",
+        "source_url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/shared-link.controller.ts",
+        "source_symbol": "getMySharedLink"
+      },
+      "required_upstream_context": [
+        "shared_link_key_or_slug",
+        "shared_link_cookie_if_password_protected"
+      ],
+      "api_key_only_outcome_after_normal_guard_passes": {
+        "http_status": 403,
+        "message": "Forbidden",
+        "upstream_symbol": "getMine"
+      },
+      "api_key_scopes_applied_in_shared_link_context": false,
+      "authorization_authority": "Immich shared-link validity, expiry, password and link-specific upload/download/access conditions",
+      "same_access_principal_secret_refs_required": true,
+      "link_owner_must_equal_api_key_owner": false,
+      "link_owner_note": "共有リンクは本来別のImmich利用者が共有したものもあり得る。必要条件は本人主体に登録された有効な共有資格情報であり、APIキーownerとの同一性ではない。",
+      "adapter_implementation_required": true,
+      "catalog_visibility": "always",
+      "primary_api_call_replaces_api_key_with_shared_link": false,
+      "automatic_fallback": false,
+      "source_refs": [
+        "shared_link_controller",
+        "shared_link_service",
+        "auth_service"
+      ],
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/shared-link.controller.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/shared-link.service.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/auth.service.ts"
+      ]
+    }
+  ],
+  "api_key_only_operations": [
+    {
+      "operation_id": "getMyApiKey",
+      "method": "GET",
+      "path": "/api-keys/me",
+      "full_api_path": "/api/api-keys/me",
+      "normal_controller": {
+        "public": false,
+        "admin_only": false,
+        "api_permission_mode": "check_disabled_by_immich",
+        "effective_api_key_permission": null,
+        "source_url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/api-key.controller.ts",
+        "source_symbol": "getMyApiKey"
+      },
+      "required_upstream_context": [
+        "api_key"
+      ],
+      "minimum_api_key_permissions": [],
+      "api_permission_check_explicitly_disabled": true,
+      "session_only_outcome": {
+        "http_status": 403,
+        "message": "Not authenticated with an API Key",
+        "upstream_symbol": "getMine"
+      },
+      "returns_immich_owner_user_id": false,
+      "recommended_for_credential_registration": true,
+      "source_refs": [
+        "api_key_controller",
+        "api_key_service"
+      ],
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/api-key.controller.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/api-key.service.ts"
+      ]
+    }
+  ],
+  "public_operations": [
+    {
+      "operation_id": "signUpAdmin",
+      "method": "POST",
+      "path": "/auth/admin-sign-up",
+      "full_api_path": "/api/auth/admin-sign-up",
+      "normal_controller": {
+        "public": true,
+        "admin_only": false,
+        "api_permission_mode": "public",
+        "effective_api_key_permission": null,
+        "source_url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/auth.controller.ts",
+        "source_symbol": "signUpAdmin"
+      },
+      "normal_immich_auth_guard_checks_api_key": false,
+      "normal_immich_api_key_scopes_applied": false,
+      "mcp_access_identity_still_required": true,
+      "primary_api_call_credential_selection": "same_principal_registered_api_key; upstream_public_guard_does_not_use_it",
+      "independent_credential_or_state_preconditions_still_apply": true,
+      "setup_only": true,
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/auth.controller.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/middleware/auth.guard.ts"
+      ]
+    },
+    {
+      "operation_id": "login",
+      "method": "POST",
+      "path": "/auth/login",
+      "full_api_path": "/api/auth/login",
+      "normal_controller": {
+        "public": true,
+        "admin_only": false,
+        "api_permission_mode": "public",
+        "effective_api_key_permission": null,
+        "source_url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/auth.controller.ts",
+        "source_symbol": "login"
+      },
+      "normal_immich_auth_guard_checks_api_key": false,
+      "normal_immich_api_key_scopes_applied": false,
+      "mcp_access_identity_still_required": true,
+      "primary_api_call_credential_selection": "same_principal_registered_api_key; upstream_public_guard_does_not_use_it",
+      "independent_credential_or_state_preconditions_still_apply": true,
+      "setup_only": false,
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/auth.controller.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/middleware/auth.guard.ts"
+      ]
+    },
+    {
+      "operation_id": "startOAuth",
+      "method": "POST",
+      "path": "/oauth/authorize",
+      "full_api_path": "/api/oauth/authorize",
+      "normal_controller": {
+        "public": true,
+        "admin_only": false,
+        "api_permission_mode": "public",
+        "effective_api_key_permission": null,
+        "source_url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/oauth.controller.ts",
+        "source_symbol": "startOAuth"
+      },
+      "normal_immich_auth_guard_checks_api_key": false,
+      "normal_immich_api_key_scopes_applied": false,
+      "mcp_access_identity_still_required": true,
+      "primary_api_call_credential_selection": "same_principal_registered_api_key; upstream_public_guard_does_not_use_it",
+      "independent_credential_or_state_preconditions_still_apply": true,
+      "setup_only": false,
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/oauth.controller.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/middleware/auth.guard.ts"
+      ]
+    },
+    {
+      "operation_id": "logoutOAuth",
+      "method": "POST",
+      "path": "/oauth/backchannel-logout",
+      "full_api_path": "/api/oauth/backchannel-logout",
+      "normal_controller": {
+        "public": true,
+        "admin_only": false,
+        "api_permission_mode": "public",
+        "effective_api_key_permission": null,
+        "source_url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/oauth.controller.ts",
+        "source_symbol": "logoutOAuth"
+      },
+      "normal_immich_auth_guard_checks_api_key": false,
+      "normal_immich_api_key_scopes_applied": false,
+      "mcp_access_identity_still_required": true,
+      "primary_api_call_credential_selection": "same_principal_registered_api_key; upstream_public_guard_does_not_use_it",
+      "independent_credential_or_state_preconditions_still_apply": true,
+      "setup_only": false,
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/oauth.controller.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/middleware/auth.guard.ts"
+      ]
+    },
+    {
+      "operation_id": "finishOAuth",
+      "method": "POST",
+      "path": "/oauth/callback",
+      "full_api_path": "/api/oauth/callback",
+      "normal_controller": {
+        "public": true,
+        "admin_only": false,
+        "api_permission_mode": "public",
+        "effective_api_key_permission": null,
+        "source_url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/oauth.controller.ts",
+        "source_symbol": "finishOAuth"
+      },
+      "normal_immich_auth_guard_checks_api_key": false,
+      "normal_immich_api_key_scopes_applied": false,
+      "mcp_access_identity_still_required": true,
+      "primary_api_call_credential_selection": "same_principal_registered_api_key; upstream_public_guard_does_not_use_it",
+      "independent_credential_or_state_preconditions_still_apply": true,
+      "setup_only": false,
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/oauth.controller.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/middleware/auth.guard.ts"
+      ]
+    },
+    {
+      "operation_id": "redirectOAuthToMobile",
+      "method": "GET",
+      "path": "/oauth/mobile-redirect",
+      "full_api_path": "/api/oauth/mobile-redirect",
+      "normal_controller": {
+        "public": true,
+        "admin_only": false,
+        "api_permission_mode": "public",
+        "effective_api_key_permission": null,
+        "source_url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/oauth.controller.ts",
+        "source_symbol": "redirectOAuthToMobile"
+      },
+      "normal_immich_auth_guard_checks_api_key": false,
+      "normal_immich_api_key_scopes_applied": false,
+      "mcp_access_identity_still_required": true,
+      "primary_api_call_credential_selection": "same_principal_registered_api_key; upstream_public_guard_does_not_use_it",
+      "independent_credential_or_state_preconditions_still_apply": true,
+      "setup_only": false,
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/oauth.controller.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/middleware/auth.guard.ts"
+      ]
+    },
+    {
+      "operation_id": "getPublicConfig",
+      "method": "GET",
+      "path": "/public/config",
+      "full_api_path": "/api/public/config",
+      "normal_controller": {
+        "public": true,
+        "admin_only": false,
+        "api_permission_mode": "public",
+        "effective_api_key_permission": null,
+        "source_url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/config-public.controller.ts",
+        "source_symbol": "getPublicConfig"
+      },
+      "normal_immich_auth_guard_checks_api_key": false,
+      "normal_immich_api_key_scopes_applied": false,
+      "mcp_access_identity_still_required": true,
+      "primary_api_call_credential_selection": "same_principal_registered_api_key; upstream_public_guard_does_not_use_it",
+      "independent_credential_or_state_preconditions_still_apply": true,
+      "setup_only": false,
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/config-public.controller.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/middleware/auth.guard.ts"
+      ]
+    },
+    {
+      "operation_id": "getPublicConfigDefaults",
+      "method": "GET",
+      "path": "/public/config/defaults",
+      "full_api_path": "/api/public/config/defaults",
+      "normal_controller": {
+        "public": true,
+        "admin_only": false,
+        "api_permission_mode": "public",
+        "effective_api_key_permission": null,
+        "source_url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/config-public.controller.ts",
+        "source_symbol": "getPublicConfigDefaults"
+      },
+      "normal_immich_auth_guard_checks_api_key": false,
+      "normal_immich_api_key_scopes_applied": false,
+      "mcp_access_identity_still_required": true,
+      "primary_api_call_credential_selection": "same_principal_registered_api_key; upstream_public_guard_does_not_use_it",
+      "independent_credential_or_state_preconditions_still_apply": true,
+      "setup_only": false,
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/config-public.controller.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/middleware/auth.guard.ts"
+      ]
+    },
+    {
+      "operation_id": "startDatabaseRestoreFlow",
+      "method": "POST",
+      "path": "/admin/database-backups/start-restore",
+      "full_api_path": "/api/admin/database-backups/start-restore",
+      "normal_controller": {
+        "public": true,
+        "admin_only": false,
+        "api_permission_mode": "public",
+        "effective_api_key_permission": null,
+        "source_url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/database-backup.controller.ts",
+        "source_symbol": "startDatabaseRestoreFlow"
+      },
+      "normal_immich_auth_guard_checks_api_key": false,
+      "normal_immich_api_key_scopes_applied": false,
+      "mcp_access_identity_still_required": true,
+      "primary_api_call_credential_selection": "same_principal_registered_api_key; upstream_public_guard_does_not_use_it",
+      "independent_credential_or_state_preconditions_still_apply": true,
+      "setup_only": true,
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/database-backup.controller.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/middleware/auth.guard.ts"
+      ]
+    },
+    {
+      "operation_id": "maintenanceLogin",
+      "method": "POST",
+      "path": "/admin/maintenance/login",
+      "full_api_path": "/api/admin/maintenance/login",
+      "normal_controller": {
+        "public": true,
+        "admin_only": false,
+        "api_permission_mode": "public",
+        "effective_api_key_permission": null,
+        "source_url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/maintenance.controller.ts",
+        "source_symbol": "maintenanceLogin"
+      },
+      "normal_immich_auth_guard_checks_api_key": false,
+      "normal_immich_api_key_scopes_applied": false,
+      "mcp_access_identity_still_required": true,
+      "primary_api_call_credential_selection": "same_principal_registered_api_key; upstream_public_guard_does_not_use_it",
+      "independent_credential_or_state_preconditions_still_apply": true,
+      "setup_only": false,
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/maintenance.controller.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/middleware/auth.guard.ts"
+      ]
+    },
+    {
+      "operation_id": "getMaintenanceStatus",
+      "method": "GET",
+      "path": "/admin/maintenance/status",
+      "full_api_path": "/api/admin/maintenance/status",
+      "normal_controller": {
+        "public": true,
+        "admin_only": false,
+        "api_permission_mode": "public",
+        "effective_api_key_permission": null,
+        "source_url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/maintenance.controller.ts",
+        "source_symbol": "getMaintenanceStatus"
+      },
+      "normal_immich_auth_guard_checks_api_key": false,
+      "normal_immich_api_key_scopes_applied": false,
+      "mcp_access_identity_still_required": true,
+      "primary_api_call_credential_selection": "same_principal_registered_api_key; upstream_public_guard_does_not_use_it",
+      "independent_credential_or_state_preconditions_still_apply": true,
+      "setup_only": false,
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/maintenance.controller.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/middleware/auth.guard.ts"
+      ]
+    },
+    {
+      "operation_id": "getServerConfig",
+      "method": "GET",
+      "path": "/server/config",
+      "full_api_path": "/api/server/config",
+      "normal_controller": {
+        "public": true,
+        "admin_only": false,
+        "api_permission_mode": "public",
+        "effective_api_key_permission": null,
+        "source_url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/server.controller.ts",
+        "source_symbol": "getServerConfig"
+      },
+      "normal_immich_auth_guard_checks_api_key": false,
+      "normal_immich_api_key_scopes_applied": false,
+      "mcp_access_identity_still_required": true,
+      "primary_api_call_credential_selection": "same_principal_registered_api_key; upstream_public_guard_does_not_use_it",
+      "independent_credential_or_state_preconditions_still_apply": true,
+      "setup_only": false,
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/server.controller.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/middleware/auth.guard.ts"
+      ]
+    },
+    {
+      "operation_id": "getServerFeatures",
+      "method": "GET",
+      "path": "/server/features",
+      "full_api_path": "/api/server/features",
+      "normal_controller": {
+        "public": true,
+        "admin_only": false,
+        "api_permission_mode": "public",
+        "effective_api_key_permission": null,
+        "source_url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/server.controller.ts",
+        "source_symbol": "getServerFeatures"
+      },
+      "normal_immich_auth_guard_checks_api_key": false,
+      "normal_immich_api_key_scopes_applied": false,
+      "mcp_access_identity_still_required": true,
+      "primary_api_call_credential_selection": "same_principal_registered_api_key; upstream_public_guard_does_not_use_it",
+      "independent_credential_or_state_preconditions_still_apply": true,
+      "setup_only": false,
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/server.controller.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/middleware/auth.guard.ts"
+      ]
+    },
+    {
+      "operation_id": "getSupportedMediaTypes",
+      "method": "GET",
+      "path": "/server/media-types",
+      "full_api_path": "/api/server/media-types",
+      "normal_controller": {
+        "public": true,
+        "admin_only": false,
+        "api_permission_mode": "public",
+        "effective_api_key_permission": null,
+        "source_url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/server.controller.ts",
+        "source_symbol": "getSupportedMediaTypes"
+      },
+      "normal_immich_auth_guard_checks_api_key": false,
+      "normal_immich_api_key_scopes_applied": false,
+      "mcp_access_identity_still_required": true,
+      "primary_api_call_credential_selection": "same_principal_registered_api_key; upstream_public_guard_does_not_use_it",
+      "independent_credential_or_state_preconditions_still_apply": true,
+      "setup_only": false,
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/server.controller.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/middleware/auth.guard.ts"
+      ]
+    },
+    {
+      "operation_id": "pingServer",
+      "method": "GET",
+      "path": "/server/ping",
+      "full_api_path": "/api/server/ping",
+      "normal_controller": {
+        "public": true,
+        "admin_only": false,
+        "api_permission_mode": "public",
+        "effective_api_key_permission": null,
+        "source_url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/server.controller.ts",
+        "source_symbol": "pingServer"
+      },
+      "normal_immich_auth_guard_checks_api_key": false,
+      "normal_immich_api_key_scopes_applied": false,
+      "mcp_access_identity_still_required": true,
+      "primary_api_call_credential_selection": "same_principal_registered_api_key; upstream_public_guard_does_not_use_it",
+      "independent_credential_or_state_preconditions_still_apply": true,
+      "setup_only": false,
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/server.controller.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/middleware/auth.guard.ts"
+      ]
+    },
+    {
+      "operation_id": "getServerVersion",
+      "method": "GET",
+      "path": "/server/version",
+      "full_api_path": "/api/server/version",
+      "normal_controller": {
+        "public": true,
+        "admin_only": false,
+        "api_permission_mode": "public",
+        "effective_api_key_permission": null,
+        "source_url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/server.controller.ts",
+        "source_symbol": "getServerVersion"
+      },
+      "normal_immich_auth_guard_checks_api_key": false,
+      "normal_immich_api_key_scopes_applied": false,
+      "mcp_access_identity_still_required": true,
+      "primary_api_call_credential_selection": "same_principal_registered_api_key; upstream_public_guard_does_not_use_it",
+      "independent_credential_or_state_preconditions_still_apply": true,
+      "setup_only": false,
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/server.controller.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/middleware/auth.guard.ts"
+      ]
+    },
+    {
+      "operation_id": "getVersionHistory",
+      "method": "GET",
+      "path": "/server/version-history",
+      "full_api_path": "/api/server/version-history",
+      "normal_controller": {
+        "public": true,
+        "admin_only": false,
+        "api_permission_mode": "public",
+        "effective_api_key_permission": null,
+        "source_url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/server.controller.ts",
+        "source_symbol": "getVersionHistory"
+      },
+      "normal_immich_auth_guard_checks_api_key": false,
+      "normal_immich_api_key_scopes_applied": false,
+      "mcp_access_identity_still_required": true,
+      "primary_api_call_credential_selection": "same_principal_registered_api_key; upstream_public_guard_does_not_use_it",
+      "independent_credential_or_state_preconditions_still_apply": true,
+      "setup_only": false,
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/server.controller.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/middleware/auth.guard.ts"
+      ]
+    }
+  ],
+  "setup_only_operations": [
+    {
+      "operation_id": "signUpAdmin",
+      "method": "POST",
+      "path": "/auth/admin-sign-up",
+      "full_api_path": "/api/auth/admin-sign-up",
+      "normal_controller": {
+        "public": true,
+        "admin_only": false,
+        "api_permission_mode": "public",
+        "effective_api_key_permission": null,
+        "source_url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/auth.controller.ts",
+        "source_symbol": "signUpAdmin"
+      },
+      "required_upstream_state": "config.environment.setup.allow == true AND userRepository.hasAdmin() == false",
+      "normal_upstream_authentication": "public_after_setup_state_check",
+      "api_key_scopes_applied": false,
+      "failure": {
+        "http_status": 400,
+        "message": "Admin setup is not available"
+      },
+      "source_refs": [
+        "auth_guard",
+        "base_service"
+      ],
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/auth.controller.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/middleware/auth.guard.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/base.service.ts"
+      ]
+    },
+    {
+      "operation_id": "startDatabaseRestoreFlow",
+      "method": "POST",
+      "path": "/admin/database-backups/start-restore",
+      "full_api_path": "/api/admin/database-backups/start-restore",
+      "normal_controller": {
+        "public": true,
+        "admin_only": false,
+        "api_permission_mode": "public",
+        "effective_api_key_permission": null,
+        "source_url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/database-backup.controller.ts",
+        "source_symbol": "startDatabaseRestoreFlow"
+      },
+      "required_upstream_state": "config.environment.setup.allow == true AND userRepository.hasAdmin() == false",
+      "normal_upstream_authentication": "public_after_setup_state_check",
+      "api_key_scopes_applied": false,
+      "failure": {
+        "http_status": 400,
+        "message": "Admin setup is not available"
+      },
+      "source_refs": [
+        "auth_guard",
+        "base_service"
+      ],
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/database-backup.controller.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/middleware/auth.guard.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/base.service.ts"
+      ]
+    }
+  ],
+  "maintenance_runtime": {
+    "same_method_path_can_change_authentication_with_server_runtime": true,
+    "normal_runtime_source_refs": [
+      "maintenance_controller",
+      "maintenance_service",
+      "database_backup_controller"
+    ],
+    "maintenance_runtime_source_refs": [
+      "maintenance_worker_controller",
+      "maintenance_worker_service",
+      "maintenance_auth_guard"
+    ],
+    "credential_cookie_name": "immich_maintenance_token",
+    "cookie_capture": "capture secret-bearing Set-Cookie into caller encrypted vault; do not expose raw token to model or auto-activate it",
+    "normal_start_precondition": "admin plus maintenance API-key scope, or explicit setup-only restore route",
+    "normal_start_effect": "persist maintenance state, emit AppRestart, issue maintenance JWT; network disruption can make response outcome uncertain",
+    "retry_on_interrupted_transition": "no blind automatic replay",
+    "worker_jwt_expiry_source": "signMaintenanceJwt sets 4h expiration using HS256 with generated maintenance secret",
+    "worker_api_key_scopes_applied": false,
+    "operation_variants": [
+      {
+        "operation_id": "listDatabaseBackups",
+        "method": "GET",
+        "path": "/admin/database-backups",
+        "full_api_path": "/api/admin/database-backups",
+        "normal_controller": {
+          "public": false,
+          "admin_only": true,
+          "api_permission_mode": "explicit",
+          "effective_api_key_permission": "maintenance",
+          "source_url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/database-backup.controller.ts",
+          "source_symbol": "listDatabaseBackups"
+        },
+        "maintenance_worker_context": {
+          "required_credential": "immich_maintenance_token_cookie",
+          "guard": "MaintenanceAuthGuard",
+          "authentication": "MaintenanceWorkerService.authenticate parses cookie then login verifies JWT with current maintenance secret",
+          "api_key_scopes_applied": false,
+          "normal_api_key_does_not_substitute_for_cookie": true,
+          "missing_cookie_status": 401,
+          "missing_cookie_message": "Missing JWT Token",
+          "invalid_cookie_status": 401,
+          "invalid_cookie_message": "Invalid JWT Token"
+        },
+        "source_refs": [
+          "maintenance_worker_controller",
+          "maintenance_auth_guard",
+          "maintenance_worker_service"
+        ],
+        "source_urls": [
+          "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/maintenance/maintenance-worker.controller.ts",
+          "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/maintenance/maintenance-auth.guard.ts",
+          "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/maintenance/maintenance-worker.service.ts"
+        ]
+      },
+      {
+        "operation_id": "downloadDatabaseBackup",
+        "method": "GET",
+        "path": "/admin/database-backups/{filename}",
+        "full_api_path": "/api/admin/database-backups/{filename}",
+        "normal_controller": {
+          "public": false,
+          "admin_only": true,
+          "api_permission_mode": "explicit",
+          "effective_api_key_permission": "backup.download",
+          "source_url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/database-backup.controller.ts",
+          "source_symbol": "downloadDatabaseBackup"
+        },
+        "maintenance_worker_context": {
+          "required_credential": "immich_maintenance_token_cookie",
+          "guard": "MaintenanceAuthGuard",
+          "authentication": "MaintenanceWorkerService.authenticate parses cookie then login verifies JWT with current maintenance secret",
+          "api_key_scopes_applied": false,
+          "normal_api_key_does_not_substitute_for_cookie": true,
+          "missing_cookie_status": 401,
+          "missing_cookie_message": "Missing JWT Token",
+          "invalid_cookie_status": 401,
+          "invalid_cookie_message": "Invalid JWT Token"
+        },
+        "source_refs": [
+          "maintenance_worker_controller",
+          "maintenance_auth_guard",
+          "maintenance_worker_service"
+        ],
+        "source_urls": [
+          "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/maintenance/maintenance-worker.controller.ts",
+          "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/maintenance/maintenance-auth.guard.ts",
+          "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/maintenance/maintenance-worker.service.ts"
+        ]
+      },
+      {
+        "operation_id": "deleteDatabaseBackup",
+        "method": "DELETE",
+        "path": "/admin/database-backups",
+        "full_api_path": "/api/admin/database-backups",
+        "normal_controller": {
+          "public": false,
+          "admin_only": true,
+          "api_permission_mode": "explicit",
+          "effective_api_key_permission": "backup.delete",
+          "source_url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/database-backup.controller.ts",
+          "source_symbol": "deleteDatabaseBackup"
+        },
+        "maintenance_worker_context": {
+          "required_credential": "immich_maintenance_token_cookie",
+          "guard": "MaintenanceAuthGuard",
+          "authentication": "MaintenanceWorkerService.authenticate parses cookie then login verifies JWT with current maintenance secret",
+          "api_key_scopes_applied": false,
+          "normal_api_key_does_not_substitute_for_cookie": true,
+          "missing_cookie_status": 401,
+          "missing_cookie_message": "Missing JWT Token",
+          "invalid_cookie_status": 401,
+          "invalid_cookie_message": "Invalid JWT Token"
+        },
+        "source_refs": [
+          "maintenance_worker_controller",
+          "maintenance_auth_guard",
+          "maintenance_worker_service"
+        ],
+        "source_urls": [
+          "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/maintenance/maintenance-worker.controller.ts",
+          "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/maintenance/maintenance-auth.guard.ts",
+          "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/maintenance/maintenance-worker.service.ts"
+        ]
+      },
+      {
+        "operation_id": "uploadDatabaseBackup",
+        "method": "POST",
+        "path": "/admin/database-backups/upload",
+        "full_api_path": "/api/admin/database-backups/upload",
+        "normal_controller": {
+          "public": false,
+          "admin_only": true,
+          "api_permission_mode": "explicit",
+          "effective_api_key_permission": "backup.upload",
+          "source_url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/database-backup.controller.ts",
+          "source_symbol": "uploadDatabaseBackup"
+        },
+        "maintenance_worker_context": {
+          "required_credential": "immich_maintenance_token_cookie",
+          "guard": "MaintenanceAuthGuard",
+          "authentication": "MaintenanceWorkerService.authenticate parses cookie then login verifies JWT with current maintenance secret",
+          "api_key_scopes_applied": false,
+          "normal_api_key_does_not_substitute_for_cookie": true,
+          "missing_cookie_status": 401,
+          "missing_cookie_message": "Missing JWT Token",
+          "invalid_cookie_status": 401,
+          "invalid_cookie_message": "Invalid JWT Token"
+        },
+        "source_refs": [
+          "maintenance_worker_controller",
+          "maintenance_auth_guard",
+          "maintenance_worker_service"
+        ],
+        "source_urls": [
+          "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/maintenance/maintenance-worker.controller.ts",
+          "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/maintenance/maintenance-auth.guard.ts",
+          "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/maintenance/maintenance-worker.service.ts"
+        ]
+      },
+      {
+        "operation_id": "setMaintenanceMode",
+        "method": "POST",
+        "path": "/admin/maintenance",
+        "full_api_path": "/api/admin/maintenance",
+        "normal_controller": {
+          "public": false,
+          "admin_only": true,
+          "api_permission_mode": "explicit",
+          "effective_api_key_permission": "maintenance",
+          "source_url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/maintenance.controller.ts",
+          "source_symbol": "setMaintenanceMode"
+        },
+        "maintenance_worker_context": {
+          "required_credential": "immich_maintenance_token_cookie",
+          "guard": "MaintenanceAuthGuard",
+          "authentication": "MaintenanceWorkerService.authenticate parses cookie then login verifies JWT with current maintenance secret",
+          "api_key_scopes_applied": false,
+          "normal_api_key_does_not_substitute_for_cookie": true,
+          "missing_cookie_status": 401,
+          "missing_cookie_message": "Missing JWT Token",
+          "invalid_cookie_status": 401,
+          "invalid_cookie_message": "Invalid JWT Token"
+        },
+        "source_refs": [
+          "maintenance_worker_controller",
+          "maintenance_auth_guard",
+          "maintenance_worker_service"
+        ],
+        "source_urls": [
+          "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/maintenance/maintenance-worker.controller.ts",
+          "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/maintenance/maintenance-auth.guard.ts",
+          "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/maintenance/maintenance-worker.service.ts"
+        ]
+      },
+      {
+        "operation_id": "maintenanceLogin",
+        "method": "POST",
+        "path": "/admin/maintenance/login",
+        "full_api_path": "/api/admin/maintenance/login",
+        "normal_controller": {
+          "public": true,
+          "admin_only": false,
+          "api_permission_mode": "public",
+          "effective_api_key_permission": null,
+          "source_url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/maintenance.controller.ts",
+          "source_symbol": "maintenanceLogin"
+        },
+        "maintenance_worker_behavior": "Normal runtime always returns 400 Not in maintenance mode. Maintenance worker accepts DTO.token or existing immich_maintenance_token cookie, verifies JWT, and returns auth metadata plus Set-Cookie.",
+        "maintenance_worker_api_key_scopes_applied": false,
+        "source_refs": [
+          "maintenance_worker_controller",
+          "maintenance_worker_service"
+        ],
+        "source_urls": [
+          "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/maintenance/maintenance-worker.controller.ts",
+          "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/maintenance/maintenance-worker.service.ts"
+        ]
+      },
+      {
+        "operation_id": "getMaintenanceStatus",
+        "method": "GET",
+        "path": "/admin/maintenance/status",
+        "full_api_path": "/api/admin/maintenance/status",
+        "normal_controller": {
+          "public": true,
+          "admin_only": false,
+          "api_permission_mode": "public",
+          "effective_api_key_permission": null,
+          "source_url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/maintenance.controller.ts",
+          "source_symbol": "getMaintenanceStatus"
+        },
+        "maintenance_worker_behavior": "Normal runtime returns inactive status. Maintenance worker returns full status with valid maintenance cookie, otherwise limited public status.",
+        "maintenance_worker_api_key_scopes_applied": false,
+        "source_refs": [
+          "maintenance_worker_controller",
+          "maintenance_worker_service"
+        ],
+        "source_urls": [
+          "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/maintenance/maintenance-worker.controller.ts",
+          "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/maintenance/maintenance-worker.service.ts"
+        ]
+      },
+      {
+        "operation_id": "detectPriorInstall",
+        "method": "GET",
+        "path": "/admin/maintenance/detect-install",
+        "full_api_path": "/api/admin/maintenance/detect-install",
+        "normal_controller": {
+          "public": false,
+          "admin_only": true,
+          "api_permission_mode": "explicit",
+          "effective_api_key_permission": "maintenance",
+          "source_url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/maintenance.controller.ts",
+          "source_symbol": "detectPriorInstall"
+        },
+        "maintenance_worker_behavior": "Normal runtime requires admin plus maintenance scope. Maintenance worker handler has no MaintenanceRoute guard. API-key scopes do not protect this worker variant.",
+        "maintenance_worker_api_key_scopes_applied": false,
+        "source_refs": [
+          "maintenance_worker_controller",
+          "maintenance_worker_service",
+          "maintenance_util"
+        ],
+        "source_urls": [
+          "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/maintenance/maintenance-worker.controller.ts",
+          "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/maintenance/maintenance-worker.service.ts",
+          "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/utils/maintenance.ts"
+        ],
+        "side_effect_note": "GET probe reads and overwrites .immich marker files to test writability; readOnlyHint must not be inferred solely from HTTP method."
+      },
+      {
+        "operation_id": "getServerConfig",
+        "method": "GET",
+        "path": "/server/config",
+        "full_api_path": "/api/server/config",
+        "normal_controller": {
+          "public": true,
+          "admin_only": false,
+          "api_permission_mode": "public",
+          "effective_api_key_permission": null,
+          "source_url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/server.controller.ts",
+          "source_symbol": "getServerConfig"
+        },
+        "maintenance_worker_behavior": "Maintenance worker exposes its server config without MaintenanceRoute guard.",
+        "maintenance_worker_api_key_scopes_applied": false,
+        "source_refs": [
+          "maintenance_worker_controller",
+          "maintenance_worker_service"
+        ],
+        "source_urls": [
+          "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/maintenance/maintenance-worker.controller.ts",
+          "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/maintenance/maintenance-worker.service.ts"
+        ]
+      },
+      {
+        "operation_id": "pingServer",
+        "method": "GET",
+        "path": "/server/ping",
+        "full_api_path": "/api/server/ping",
+        "normal_controller": {
+          "public": true,
+          "admin_only": false,
+          "api_permission_mode": "public",
+          "effective_api_key_permission": null,
+          "source_url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/server.controller.ts",
+          "source_symbol": "pingServer"
+        },
+        "maintenance_worker_behavior": "Maintenance worker exposes ping without MaintenanceRoute guard.",
+        "maintenance_worker_api_key_scopes_applied": false,
+        "source_refs": [
+          "maintenance_worker_controller",
+          "maintenance_worker_service"
+        ],
+        "source_urls": [
+          "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/maintenance/maintenance-worker.controller.ts",
+          "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/maintenance/maintenance-worker.service.ts"
+        ]
+      },
+      {
+        "operation_id": "getServerVersion",
+        "method": "GET",
+        "path": "/server/version",
+        "full_api_path": "/api/server/version",
+        "normal_controller": {
+          "public": true,
+          "admin_only": false,
+          "api_permission_mode": "public",
+          "effective_api_key_permission": null,
+          "source_url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/server.controller.ts",
+          "source_symbol": "getServerVersion"
+        },
+        "maintenance_worker_behavior": "Maintenance worker exposes version without MaintenanceRoute guard.",
+        "maintenance_worker_api_key_scopes_applied": false,
+        "source_refs": [
+          "maintenance_worker_controller",
+          "maintenance_worker_service"
+        ],
+        "source_urls": [
+          "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/maintenance/maintenance-worker.controller.ts",
+          "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/maintenance/maintenance-worker.service.ts"
+        ]
+      }
+    ],
+    "source_urls": [
+      "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/maintenance.controller.ts",
+      "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/maintenance.service.ts",
+      "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/maintenance/maintenance-worker.controller.ts",
+      "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/maintenance/maintenance-worker.service.ts",
+      "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/maintenance/maintenance-auth.guard.ts",
+      "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/utils/maintenance.ts"
+    ]
+  },
+  "locked_assets": {
+    "standalone_operation_class": false,
+    "resource_and_argument_dependent_constraint": true,
+    "normal_api_key_has_elevated_session": false,
+    "api_key_all_scope_bypasses_lock": false,
+    "owner_access_check": "checkOwnerAccess excludes visibility=Locked unless auth.session.hasElevatedPermission is true",
+    "explicit_locked_query_check": "requireElevatedPermission rejects absent/non-elevated session with 401 Elevated permission is required",
+    "verified_example_operations": [
+      "getAssetInfo",
+      "getAssetStatistics"
+    ],
+    "example_scope": "examples are not an exhaustive affected-operation list; common asset/asset-file access helpers apply this condition",
+    "normal_api_call_behavior": "retain API key and return Immich result/error; never silently unlock or substitute a session",
+    "separate_general_session_mode": "described explicitly as different upstream authorization semantics and disabled by default",
+    "source_refs": [
+      "asset_service",
+      "access_util",
+      "access_repository",
+      "auth_service"
+    ],
+    "source_urls": [
+      "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/asset.service.ts",
+      "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/utils/access.ts",
+      "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/repositories/access.repository.ts",
+      "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/auth.service.ts"
+    ]
+  },
+  "context_sensitive_successes": [
+    {
+      "operation_id": "logout",
+      "method": "POST",
+      "path": "/auth/logout",
+      "full_api_path": "/api/auth/logout",
+      "normal_controller": {
+        "public": false,
+        "admin_only": false,
+        "api_permission_mode": "default_all",
+        "effective_api_key_permission": "all",
+        "source_url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/auth.controller.ts",
+        "source_symbol": "logout"
+      },
+      "api_key_result_can_be_successful": true,
+      "api_key_is_revoked": false,
+      "without_auth_session_no_session_is_deleted": true,
+      "do_not_report": "APIキーがログアウトまたは失効した",
+      "source_refs": [
+        "auth_service"
+      ],
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/auth.service.ts"
+      ]
+    },
+    {
+      "operation_id": "getAuthStatus",
+      "method": "GET",
+      "path": "/auth/status",
+      "full_api_path": "/api/auth/status",
+      "normal_controller": {
+        "public": false,
+        "admin_only": false,
+        "api_permission_mode": "default_all",
+        "effective_api_key_permission": "all",
+        "source_url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/auth.controller.ts",
+        "source_symbol": "getAuthStatus"
+      },
+      "session_fields_describe_only_supplied_session": true,
+      "api_key_result_describes_another_browser_session": false,
+      "source_refs": [
+        "auth_service"
+      ],
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/auth.service.ts"
+      ]
+    }
+  ],
+  "error_contract": {
+    "preserve_upstream_status": true,
+    "preserve_upstream_body": true,
+    "secret_scrubbing_or_vault_reference_preserves_protected_original": true,
+    "AUTH_CONTEXT_REQUIRED_is_native_immich_error_code": false,
+    "optional_diagnostic_field": "auth_context_diagnostic",
+    "operation_missing_error_for_upstream_context_denial": false
+  },
+  "verification_requirements": [
+    "All 279 operation contracts remain present and discoverable for authenticated MCP principals.",
+    "Default call path cannot select session, shared-link, maintenance or another user's key.",
+    "Runtime-context metadata is not reused as an independent feature permission list.",
+    "Each session-only, shared-link-only and API-key-only service condition preserves upstream status/body.",
+    "Public/setup and maintenance variants explicitly document absence of API-key scope checks.",
+    "Special adapters are tested with isolated credentials without using real family accounts.",
+    "Session owner validation requires no extra user.read scope on the registered API key.",
+    "Generic headers/query cannot override authentication precedence.",
+    "Maintenance Set-Cookie and other secret-bearing response fields remain principal-bound and model-inaccessible by default.",
+    "Specification must not claim API-key-only full-success coverage or invisible session scope inheritance."
+  ],
+  "sources": {
+    "auth_guard": {
+      "source_path": "server/src/middleware/auth.guard.ts",
+      "url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/middleware/auth.guard.ts",
+      "version": "3.3.5",
+      "commit": "8303cb117e197c700332b33b61b45314c9cc5bb4"
+    },
+    "auth_service": {
+      "source_path": "server/src/services/auth.service.ts",
+      "url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/auth.service.ts",
+      "version": "3.3.5",
+      "commit": "8303cb117e197c700332b33b61b45314c9cc5bb4"
+    },
+    "auth_controller": {
+      "source_path": "server/src/controllers/auth.controller.ts",
+      "url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/auth.controller.ts",
+      "version": "3.3.5",
+      "commit": "8303cb117e197c700332b33b61b45314c9cc5bb4"
+    },
+    "api_key_controller": {
+      "source_path": "server/src/controllers/api-key.controller.ts",
+      "url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/api-key.controller.ts",
+      "version": "3.3.5",
+      "commit": "8303cb117e197c700332b33b61b45314c9cc5bb4"
+    },
+    "api_key_service": {
+      "source_path": "server/src/services/api-key.service.ts",
+      "url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/api-key.service.ts",
+      "version": "3.3.5",
+      "commit": "8303cb117e197c700332b33b61b45314c9cc5bb4"
+    },
+    "api_key_repository": {
+      "source_path": "server/src/repositories/api-key.repository.ts",
+      "url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/repositories/api-key.repository.ts",
+      "version": "3.3.5",
+      "commit": "8303cb117e197c700332b33b61b45314c9cc5bb4"
+    },
+    "session_service": {
+      "source_path": "server/src/services/session.service.ts",
+      "url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/session.service.ts",
+      "version": "3.3.5",
+      "commit": "8303cb117e197c700332b33b61b45314c9cc5bb4"
+    },
+    "sync_service": {
+      "source_path": "server/src/services/sync.service.ts",
+      "url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/sync.service.ts",
+      "version": "3.3.5",
+      "commit": "8303cb117e197c700332b33b61b45314c9cc5bb4"
+    },
+    "shared_link_service": {
+      "source_path": "server/src/services/shared-link.service.ts",
+      "url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/shared-link.service.ts",
+      "version": "3.3.5",
+      "commit": "8303cb117e197c700332b33b61b45314c9cc5bb4"
+    },
+    "shared_link_controller": {
+      "source_path": "server/src/controllers/shared-link.controller.ts",
+      "url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/shared-link.controller.ts",
+      "version": "3.3.5",
+      "commit": "8303cb117e197c700332b33b61b45314c9cc5bb4"
+    },
+    "access_util": {
+      "source_path": "server/src/utils/access.ts",
+      "url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/utils/access.ts",
+      "version": "3.3.5",
+      "commit": "8303cb117e197c700332b33b61b45314c9cc5bb4"
+    },
+    "access_repository": {
+      "source_path": "server/src/repositories/access.repository.ts",
+      "url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/repositories/access.repository.ts",
+      "version": "3.3.5",
+      "commit": "8303cb117e197c700332b33b61b45314c9cc5bb4"
+    },
+    "asset_service": {
+      "source_path": "server/src/services/asset.service.ts",
+      "url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/asset.service.ts",
+      "version": "3.3.5",
+      "commit": "8303cb117e197c700332b33b61b45314c9cc5bb4"
+    },
+    "base_service": {
+      "source_path": "server/src/services/base.service.ts",
+      "url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/base.service.ts",
+      "version": "3.3.5",
+      "commit": "8303cb117e197c700332b33b61b45314c9cc5bb4"
+    },
+    "maintenance_controller": {
+      "source_path": "server/src/controllers/maintenance.controller.ts",
+      "url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/maintenance.controller.ts",
+      "version": "3.3.5",
+      "commit": "8303cb117e197c700332b33b61b45314c9cc5bb4"
+    },
+    "maintenance_service": {
+      "source_path": "server/src/services/maintenance.service.ts",
+      "url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/maintenance.service.ts",
+      "version": "3.3.5",
+      "commit": "8303cb117e197c700332b33b61b45314c9cc5bb4"
+    },
+    "maintenance_worker_controller": {
+      "source_path": "server/src/maintenance/maintenance-worker.controller.ts",
+      "url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/maintenance/maintenance-worker.controller.ts",
+      "version": "3.3.5",
+      "commit": "8303cb117e197c700332b33b61b45314c9cc5bb4"
+    },
+    "maintenance_worker_service": {
+      "source_path": "server/src/maintenance/maintenance-worker.service.ts",
+      "url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/maintenance/maintenance-worker.service.ts",
+      "version": "3.3.5",
+      "commit": "8303cb117e197c700332b33b61b45314c9cc5bb4"
+    },
+    "maintenance_auth_guard": {
+      "source_path": "server/src/maintenance/maintenance-auth.guard.ts",
+      "url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/maintenance/maintenance-auth.guard.ts",
+      "version": "3.3.5",
+      "commit": "8303cb117e197c700332b33b61b45314c9cc5bb4"
+    },
+    "maintenance_util": {
+      "source_path": "server/src/utils/maintenance.ts",
+      "url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/utils/maintenance.ts",
+      "version": "3.3.5",
+      "commit": "8303cb117e197c700332b33b61b45314c9cc5bb4"
+    },
+    "database_backup_controller": {
+      "source_path": "server/src/controllers/database-backup.controller.ts",
+      "url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/database-backup.controller.ts",
+      "version": "3.3.5",
+      "commit": "8303cb117e197c700332b33b61b45314c9cc5bb4"
+    },
+    "enum": {
+      "source_path": "server/src/enum.ts",
+      "url": "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/enum.ts",
+      "version": "3.3.5",
+      "commit": "8303cb117e197c700332b33b61b45314c9cc5bb4"
+    },
+    "access_application_token": {
+      "url": "https://developers.cloudflare.com/cloudflare-one/access-controls/applications/http-apps/authorization-cookie/application-token/",
+      "retrieved_on": "2026-11-05"
+    },
+    "access_jwt_validation": {
+      "url": "https://developers.cloudflare.com/cloudflare-one/access-controls/applications/http-apps/authorization-cookie/validating-json/",
+      "retrieved_on": "2026-11-05"
+    },
+    "access_managed_oauth": {
+      "url": "https://developers.cloudflare.com/cloudflare-one/access-controls/applications/http-apps/managed-oauth/",
+      "retrieved_on": "2026-11-05"
+    }
+  }
+}

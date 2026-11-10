@@ -1,0 +1,22 @@
+{
+  "ok": true,
+  "verification_scope": "specification_package_consistency_only",
+  "not_application_runtime_or_live_server_test": true,
+  "version": "3.3.5",
+  "source_commit": "8303cb117e197c700332b33b61b45314c9cc5bb4",
+  "openapi_sha256": "632700b84590f6b197fe6ef9a8486db19d08a31a03cf10bc780925e8a32b6bb9",
+  "operations": 279,
+  "paths": 193,
+  "primary_tags": 41,
+  "openapi_reference_occurrences_resolved": 743,
+  "override_operations": 52,
+  "secret_schema_rules": 40,
+  "secret_instance_bindings": 75,
+  "mcp_tools": 9,
+  "tool_schema_local_references_and_required_fields_checked": true,
+  "full_json_schema_metaschema_validation_performed": false,
+  "main_specification_chapters": 22,
+  "json_files_parsed": 13,
+  "live_immich_tested": false,
+  "chatgpt_connection_tested": false
+}

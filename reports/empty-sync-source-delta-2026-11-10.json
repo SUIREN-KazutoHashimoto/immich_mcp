@@ -1,0 +1,27 @@
+{
+  "observed_at": "2026-11-10T08:23:03.405045+00:00",
+  "previous_full_run": "reports/local-final-check-2026-11-10.json",
+  "previous_run_terminal_exit": 1,
+  "previous_selected_inputs_unchanged": 190,
+  "selected_inputs": 190,
+  "changed_inputs": {
+    "src/json-projection.ts": {
+      "before": "5f3db9cfbd337ad04fcbda75b6b1457ef3d2d1b8e4f654492123b27e4bf20cfd",
+      "after": "898dbc3f2d33c29d6eae56c24cbdae10a28c4942537882ee18d7ebed4b10d7cb"
+    },
+    "src/projection.ts": {
+      "before": "e3ec98336836da9856c1395fd8fc0812a0c2beeeb8dd7bd599046b9f2159fa85",
+      "after": "d663bceb7678556e8c6feeefe943668e129abdba65cf71979eaa6f15ccfe261f"
+    },
+    "tests/empty-object-projection.test.ts": {
+      "before": "66e54c8a44b29572f8fdab65b8604cd5b5b6e85e2892af89661881e6fb72767e",
+      "after": "29d38513c3d0b62cf95b5f5c32d60f77ae125de3d9af80645ac348fe5e5743e1"
+    }
+  },
+  "empty_terminal_probe": "reports/empty-sync-terminal-fixed-2026-11-10.json",
+  "focused_started_with_matching_sources": true,
+  "expected_full_tests": 705,
+  "production_scope": "Preserve actual empty{} for explicit empty-properties objects in safeShape and streaming JSON; nonempty arbitrary content remains withheld. No auth, deadlines, replay, validators or registry edits.",
+  "actual_immich_verified": false,
+  "full_acceptance": false
+}

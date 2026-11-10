@@ -1,0 +1,2 @@
+# Preserve the exact tested source and pinned upstream fingerprint bytes on every platform.
+* -text

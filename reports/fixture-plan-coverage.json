@@ -1,0 +1,783 @@
+{
+  "format": "immich-mcp-fixture-plan-source-coverage",
+  "version": 1,
+  "openapi_sha256": "632700b84590f6b197fe6ef9a8486db19d08a31a03cf10bc780925e8a32b6bb9",
+  "source_commit": "8303cb117e197c700332b33b61b45314c9cc5bb4",
+  "evidence_scope": "Static official operation-ID strings in eleven fixture source modules (33 referenced tags/eight without literal plan references). All eleven local fixture groups pass within the705-test full regression; no actual category acceptance is inferred.",
+  "plans": [
+    {
+      "plan": "auth_contexts_v1",
+      "source": "src/integration-auth-fixtures.ts",
+      "source_sha256": "af9f7a0966a9839eabcf075d262dab76cc39910dd24985b4a7b48b6a256f24b0",
+      "literal_operation_ids": [
+        "createSharedLink",
+        "downloadAsset",
+        "getAssetInfo",
+        "getAuthStatus",
+        "getMySharedLink",
+        "getSessions",
+        "lockAuthSession",
+        "setupPinCode",
+        "sharedLinkLogin",
+        "unlockAuthSession",
+        "updateAsset",
+        "updateSharedLink",
+        "uploadAsset"
+      ],
+      "primary_tags": [
+        "Assets",
+        "Authentication",
+        "Sessions",
+        "Shared links"
+      ]
+    },
+    {
+      "plan": "collection_fixtures_v1",
+      "source": "src/integration-collection-fixtures.ts",
+      "source_sha256": "9b4f00831ff777925f85f7ef8b5caf0e6d1a134fe198541992fdc354b2243845",
+      "literal_operation_ids": [
+        "addMemoryAssets",
+        "createMemory",
+        "createStack",
+        "deleteMemory",
+        "deleteStack",
+        "deleteStacks",
+        "getAssetInfo",
+        "getMemory",
+        "getStack",
+        "memoriesStatistics",
+        "removeAssetFromStack",
+        "removeMemoryAssets",
+        "searchMemories",
+        "searchStacks",
+        "updateMemory",
+        "updateStack",
+        "uploadAsset"
+      ],
+      "primary_tags": [
+        "Assets",
+        "Memories",
+        "Stacks"
+      ]
+    },
+    {
+      "plan": "discovery_fixtures_v1",
+      "source": "src/integration-discovery-fixtures.ts",
+      "source_sha256": "031b5cb061a6b6484173b704ea620a1b78e5f67bbfdaf93fb71275f48e88f1b8",
+      "literal_operation_ids": [
+        "addAssetsToAlbum",
+        "addUsersToAlbum",
+        "createAlbum",
+        "createPartner",
+        "getAssetInfo",
+        "getAssetsByCity",
+        "getAssetsByOriginalPath",
+        "getExploreData",
+        "getMapMarkers",
+        "getPartners",
+        "getSearchSuggestions",
+        "getTimeBucket",
+        "getTimeBuckets",
+        "getUniqueOriginalPaths",
+        "removePartner",
+        "reverseGeocode",
+        "searchAssetStatistics",
+        "searchAssets",
+        "searchLargeAssets",
+        "searchPerson",
+        "searchPlaces",
+        "searchRandom",
+        "searchSmart",
+        "updateAsset",
+        "updatePartner",
+        "uploadAsset"
+      ],
+      "primary_tags": [
+        "Albums",
+        "Assets",
+        "Map",
+        "Partners",
+        "Search",
+        "Timeline",
+        "Views"
+      ]
+    },
+    {
+      "plan": "media_fixtures_v1",
+      "source": "src/integration-fixtures.ts",
+      "source_sha256": "8c5f64583b94d5995532cf1d0ae295a43518223db9e207801686dc5671da64b0",
+      "literal_operation_ids": [
+        "addAssetsToAlbum",
+        "addUsersToAlbum",
+        "createAlbum",
+        "createTag",
+        "downloadAsset",
+        "getAlbumInfo",
+        "getAllAlbums",
+        "getAllTags",
+        "getApiKeys",
+        "getAssetInfo",
+        "getMyUser",
+        "getServerVersion",
+        "getTagById",
+        "tagAssets",
+        "uploadAsset"
+      ],
+      "primary_tags": [
+        "API keys",
+        "Albums",
+        "Assets",
+        "Server",
+        "Tags",
+        "Users"
+      ]
+    },
+    {
+      "plan": "lifecycle_fixtures_v1",
+      "source": "src/integration-lifecycle-fixtures.ts",
+      "source_sha256": "40d4ce754fb1fcdde3642d7a1347ac13518a4a9f4a6dce1fd0752ab07b7820df",
+      "literal_operation_ids": [
+        "addAssetsToAlbum",
+        "addUsersToAlbum",
+        "createAlbum",
+        "createTag",
+        "deleteAssetFile",
+        "deleteAssets",
+        "deleteDuplicate",
+        "deleteDuplicates",
+        "downloadAssetFile",
+        "emptyTrash",
+        "getAlbumInfo",
+        "getAssetDuplicates",
+        "getAssetFile",
+        "getAssetInfo",
+        "getConfig",
+        "getPartners",
+        "getQueue",
+        "getUserStatisticsAdmin",
+        "resolveDuplicates",
+        "restoreAssets",
+        "restoreTrash",
+        "searchAssetFiles",
+        "searchAssets",
+        "tagAssets",
+        "updateAsset",
+        "updateAssets",
+        "updateQueue",
+        "uploadAsset"
+      ],
+      "primary_tags": [
+        "Albums",
+        "Asset files",
+        "Assets",
+        "Duplicates",
+        "Partners",
+        "Queues",
+        "Search",
+        "System config",
+        "Tags",
+        "Trash",
+        "Users (admin)"
+      ]
+    },
+    {
+      "plan": "people_fixtures_v1",
+      "source": "src/integration-people-fixtures.ts",
+      "source_sha256": "5994eec839f868703c3182f8381b5fbdec1bbd4f40aba0df8a462f3b733636cb",
+      "literal_operation_ids": [
+        "acceptClusterGroupRequest",
+        "addAssetsToAlbum",
+        "addUsersToAlbum",
+        "clusterGroupRegeneratePeople",
+        "createAlbum",
+        "createClusterGroupRequest",
+        "createFace",
+        "createPerson",
+        "deleteClusterGroupRequest",
+        "deleteFace",
+        "deletePeople",
+        "deletePerson",
+        "getAlbumInfo",
+        "getAllPeople",
+        "getAssetInfo",
+        "getClusterGroupRequests",
+        "getClusterGroupRequestsForGroup",
+        "getClusterGroupUsers",
+        "getFaces",
+        "getMyUser",
+        "getPerson",
+        "getPersonStatistics",
+        "getPersonThumbnail",
+        "getUserStatisticsAdmin",
+        "getUsersForPeople",
+        "leaveClusterGroup",
+        "mergePeople",
+        "mergePersonLegacy",
+        "reassignFaces",
+        "reassignFacesById",
+        "removeUsersFromPeople",
+        "searchAssets",
+        "searchPerson",
+        "updatePeople",
+        "updatePerson",
+        "uploadAsset",
+        "upsertPeopleUsers"
+      ],
+      "primary_tags": [
+        "Albums",
+        "Assets",
+        "Cluster groups",
+        "Faces",
+        "People",
+        "Search",
+        "Users",
+        "Users (admin)"
+      ]
+    },
+    {
+      "plan": "sharing_fixtures_v1",
+      "source": "src/integration-sharing-fixtures.ts",
+      "source_sha256": "ee6841eb0c1f88e8e4658cef4670c98721fd7233aadffdf6e52a6d3c84ff2766",
+      "literal_operation_ids": [
+        "addAssetsToAlbum",
+        "addUsersToAlbum",
+        "createActivity",
+        "createAlbum",
+        "createPartner",
+        "createPartnerDeprecated",
+        "deleteActivity",
+        "downloadArchive",
+        "getActivities",
+        "getActivityStatistics",
+        "getAlbumInfo",
+        "getAssetInfo",
+        "getDownloadInfo",
+        "getPartners",
+        "removePartner",
+        "updateAlbumInfo",
+        "updateAsset",
+        "updatePartner",
+        "uploadAsset"
+      ],
+      "primary_tags": [
+        "Activities",
+        "Albums",
+        "Assets",
+        "Download",
+        "Partners"
+      ]
+    },
+    {
+      "plan": "sync_fixtures_v1",
+      "source": "src/integration-sync-fixtures.ts",
+      "source_sha256": "3728d002c2fc2f3134300160f7151089dd0b3ac893ca8b1b1213dd60ef572981",
+      "literal_operation_ids": [
+        "createSession",
+        "deleteSyncAck",
+        "getAssetInfo",
+        "getSessions",
+        "getSyncAck",
+        "getSyncStream",
+        "sendSyncAck",
+        "updateAsset",
+        "updateSession",
+        "uploadAsset"
+      ],
+      "primary_tags": [
+        "Assets",
+        "Sessions",
+        "Sync"
+      ]
+    },
+    {
+      "plan": "user_fixtures_v1",
+      "source": "src/integration-user-fixtures.ts",
+      "source_sha256": "3dc46615ca36458ce8853568e0ac58ca1344764155d55a2e2efd7c2db799e70d",
+      "literal_operation_ids": [
+        "createProfileImage",
+        "createUserAdmin",
+        "deleteProfileImage",
+        "deleteUserAdmin",
+        "deleteUserLicense",
+        "deleteUserOnboarding",
+        "getMyCalendarHeatmap",
+        "getMyPreferences",
+        "getMyUser",
+        "getProfileImage",
+        "getPublicConfig",
+        "getPublicConfigDefaults",
+        "getUser",
+        "getUserAdmin",
+        "getUserCalendarHeatmapAdmin",
+        "getUserConfig",
+        "getUserConfigDefaults",
+        "getUserLicense",
+        "getUserOnboarding",
+        "getUserPreferencesAdmin",
+        "getUserSessionsAdmin",
+        "getUserStatisticsAdmin",
+        "restoreUserAdmin",
+        "searchUsers",
+        "searchUsersAdmin",
+        "setUserOnboarding",
+        "updateMyPreferences",
+        "updateMyUser",
+        "updateUserAdmin",
+        "updateUserPreferencesAdmin"
+      ],
+      "primary_tags": [
+        "Config (public)",
+        "Config (user)",
+        "Users",
+        "Users (admin)"
+      ]
+    },
+    {
+      "plan": "video_fixtures_v1",
+      "source": "src/integration-video-fixtures.ts",
+      "source_sha256": "233e6d098234cf039dc5bd0833f3e9303b5a51de2cdcea1f1e67109b61a7270d",
+      "literal_operation_ids": [
+        "downloadAsset",
+        "endSession",
+        "getAdminConfig",
+        "getAssetInfo",
+        "getMainPlaylist",
+        "getMediaPlaylist",
+        "getSegment",
+        "playAssetVideo",
+        "updateAdminConfig",
+        "uploadAsset"
+      ],
+      "primary_tags": [
+        "Assets",
+        "Config (admin)"
+      ]
+    },
+    {
+      "plan": "workflow_plugin_fixtures_v1",
+      "source": "src/integration-workflow-fixtures.ts",
+      "source_sha256": "39a9438d5ff5c55d924333d3b9448426af74c2f85fcf042c89a207312f025c61",
+      "literal_operation_ids": [
+        "createTag",
+        "createWorkflow",
+        "deleteWorkflow",
+        "getAllTags",
+        "getAssetInfo",
+        "getPlugin",
+        "getQueue",
+        "getTagById",
+        "getUserStatisticsAdmin",
+        "getWorkflow",
+        "getWorkflowForShare",
+        "getWorkflowLogs",
+        "getWorkflowTriggers",
+        "searchPluginMethods",
+        "searchPluginTemplates",
+        "searchPlugins",
+        "searchWorkflows",
+        "tagAssets",
+        "updateWorkflow",
+        "uploadAsset"
+      ],
+      "primary_tags": [
+        "Assets",
+        "Plugins",
+        "Queues",
+        "Tags",
+        "Users (admin)",
+        "Workflows"
+      ]
+    }
+  ],
+  "primary_tags_with_literal_references": [
+    "API keys",
+    "Activities",
+    "Albums",
+    "Asset files",
+    "Assets",
+    "Authentication",
+    "Cluster groups",
+    "Config (admin)",
+    "Config (public)",
+    "Config (user)",
+    "Download",
+    "Duplicates",
+    "Faces",
+    "Map",
+    "Memories",
+    "Partners",
+    "People",
+    "Plugins",
+    "Queues",
+    "Search",
+    "Server",
+    "Sessions",
+    "Shared links",
+    "Stacks",
+    "Sync",
+    "System config",
+    "Tags",
+    "Timeline",
+    "Trash",
+    "Users",
+    "Users (admin)",
+    "Views",
+    "Workflows"
+  ],
+  "primary_tags_without_literal_references": [
+    "Authentication (admin)",
+    "Database Backups (admin)",
+    "Jobs",
+    "Libraries",
+    "Maintenance (admin)",
+    "Notifications",
+    "Notifications (admin)",
+    "System metadata"
+  ],
+  "categories": [
+    {
+      "tag": "API keys",
+      "official_operations": 7,
+      "named_plan_sources": [
+        "src/integration-fixtures.ts"
+      ],
+      "real_category_acceptance": "not_verified"
+    },
+    {
+      "tag": "Activities",
+      "official_operations": 4,
+      "named_plan_sources": [
+        "src/integration-sharing-fixtures.ts"
+      ],
+      "real_category_acceptance": "not_verified"
+    },
+    {
+      "tag": "Albums",
+      "official_operations": 13,
+      "named_plan_sources": [
+        "src/integration-discovery-fixtures.ts",
+        "src/integration-fixtures.ts",
+        "src/integration-lifecycle-fixtures.ts",
+        "src/integration-people-fixtures.ts",
+        "src/integration-sharing-fixtures.ts"
+      ],
+      "real_category_acceptance": "not_verified"
+    },
+    {
+      "tag": "Asset files",
+      "official_operations": 4,
+      "named_plan_sources": [
+        "src/integration-lifecycle-fixtures.ts"
+      ],
+      "real_category_acceptance": "not_verified"
+    },
+    {
+      "tag": "Assets",
+      "official_operations": 26,
+      "named_plan_sources": [
+        "src/integration-auth-fixtures.ts",
+        "src/integration-collection-fixtures.ts",
+        "src/integration-discovery-fixtures.ts",
+        "src/integration-fixtures.ts",
+        "src/integration-lifecycle-fixtures.ts",
+        "src/integration-people-fixtures.ts",
+        "src/integration-sharing-fixtures.ts",
+        "src/integration-sync-fixtures.ts",
+        "src/integration-video-fixtures.ts",
+        "src/integration-workflow-fixtures.ts"
+      ],
+      "real_category_acceptance": "not_verified"
+    },
+    {
+      "tag": "Authentication",
+      "official_operations": 17,
+      "named_plan_sources": [
+        "src/integration-auth-fixtures.ts"
+      ],
+      "real_category_acceptance": "not_verified"
+    },
+    {
+      "tag": "Authentication (admin)",
+      "official_operations": 1,
+      "named_plan_sources": [],
+      "real_category_acceptance": "not_verified"
+    },
+    {
+      "tag": "Cluster groups",
+      "official_operations": 8,
+      "named_plan_sources": [
+        "src/integration-people-fixtures.ts"
+      ],
+      "real_category_acceptance": "not_verified"
+    },
+    {
+      "tag": "Config (admin)",
+      "official_operations": 3,
+      "named_plan_sources": [
+        "src/integration-video-fixtures.ts"
+      ],
+      "real_category_acceptance": "not_verified"
+    },
+    {
+      "tag": "Config (public)",
+      "official_operations": 2,
+      "named_plan_sources": [
+        "src/integration-user-fixtures.ts"
+      ],
+      "real_category_acceptance": "not_verified"
+    },
+    {
+      "tag": "Config (user)",
+      "official_operations": 2,
+      "named_plan_sources": [
+        "src/integration-user-fixtures.ts"
+      ],
+      "real_category_acceptance": "not_verified"
+    },
+    {
+      "tag": "Database Backups (admin)",
+      "official_operations": 5,
+      "named_plan_sources": [],
+      "real_category_acceptance": "not_verified"
+    },
+    {
+      "tag": "Download",
+      "official_operations": 2,
+      "named_plan_sources": [
+        "src/integration-sharing-fixtures.ts"
+      ],
+      "real_category_acceptance": "not_verified"
+    },
+    {
+      "tag": "Duplicates",
+      "official_operations": 4,
+      "named_plan_sources": [
+        "src/integration-lifecycle-fixtures.ts"
+      ],
+      "real_category_acceptance": "not_verified"
+    },
+    {
+      "tag": "Faces",
+      "official_operations": 4,
+      "named_plan_sources": [
+        "src/integration-people-fixtures.ts"
+      ],
+      "real_category_acceptance": "not_verified"
+    },
+    {
+      "tag": "Jobs",
+      "official_operations": 3,
+      "named_plan_sources": [],
+      "real_category_acceptance": "not_verified"
+    },
+    {
+      "tag": "Libraries",
+      "official_operations": 8,
+      "named_plan_sources": [],
+      "real_category_acceptance": "not_verified"
+    },
+    {
+      "tag": "Maintenance (admin)",
+      "official_operations": 9,
+      "named_plan_sources": [],
+      "real_category_acceptance": "not_verified"
+    },
+    {
+      "tag": "Map",
+      "official_operations": 2,
+      "named_plan_sources": [
+        "src/integration-discovery-fixtures.ts"
+      ],
+      "real_category_acceptance": "not_verified"
+    },
+    {
+      "tag": "Memories",
+      "official_operations": 8,
+      "named_plan_sources": [
+        "src/integration-collection-fixtures.ts"
+      ],
+      "real_category_acceptance": "not_verified"
+    },
+    {
+      "tag": "Notifications",
+      "official_operations": 6,
+      "named_plan_sources": [],
+      "real_category_acceptance": "not_verified"
+    },
+    {
+      "tag": "Notifications (admin)",
+      "official_operations": 3,
+      "named_plan_sources": [],
+      "real_category_acceptance": "not_verified"
+    },
+    {
+      "tag": "Partners",
+      "official_operations": 5,
+      "named_plan_sources": [
+        "src/integration-discovery-fixtures.ts",
+        "src/integration-lifecycle-fixtures.ts",
+        "src/integration-sharing-fixtures.ts"
+      ],
+      "real_category_acceptance": "not_verified"
+    },
+    {
+      "tag": "People",
+      "official_operations": 15,
+      "named_plan_sources": [
+        "src/integration-people-fixtures.ts"
+      ],
+      "real_category_acceptance": "not_verified"
+    },
+    {
+      "tag": "Plugins",
+      "official_operations": 4,
+      "named_plan_sources": [
+        "src/integration-workflow-fixtures.ts"
+      ],
+      "real_category_acceptance": "not_verified"
+    },
+    {
+      "tag": "Queues",
+      "official_operations": 5,
+      "named_plan_sources": [
+        "src/integration-lifecycle-fixtures.ts",
+        "src/integration-workflow-fixtures.ts"
+      ],
+      "real_category_acceptance": "not_verified"
+    },
+    {
+      "tag": "Search",
+      "official_operations": 10,
+      "named_plan_sources": [
+        "src/integration-discovery-fixtures.ts",
+        "src/integration-lifecycle-fixtures.ts",
+        "src/integration-people-fixtures.ts"
+      ],
+      "real_category_acceptance": "not_verified"
+    },
+    {
+      "tag": "Server",
+      "official_operations": 14,
+      "named_plan_sources": [
+        "src/integration-fixtures.ts"
+      ],
+      "real_category_acceptance": "not_verified"
+    },
+    {
+      "tag": "Sessions",
+      "official_operations": 6,
+      "named_plan_sources": [
+        "src/integration-auth-fixtures.ts",
+        "src/integration-sync-fixtures.ts"
+      ],
+      "real_category_acceptance": "not_verified"
+    },
+    {
+      "tag": "Shared links",
+      "official_operations": 9,
+      "named_plan_sources": [
+        "src/integration-auth-fixtures.ts"
+      ],
+      "real_category_acceptance": "not_verified"
+    },
+    {
+      "tag": "Stacks",
+      "official_operations": 7,
+      "named_plan_sources": [
+        "src/integration-collection-fixtures.ts"
+      ],
+      "real_category_acceptance": "not_verified"
+    },
+    {
+      "tag": "Sync",
+      "official_operations": 4,
+      "named_plan_sources": [
+        "src/integration-sync-fixtures.ts"
+      ],
+      "real_category_acceptance": "not_verified"
+    },
+    {
+      "tag": "System config",
+      "official_operations": 4,
+      "named_plan_sources": [
+        "src/integration-lifecycle-fixtures.ts"
+      ],
+      "real_category_acceptance": "not_verified"
+    },
+    {
+      "tag": "System metadata",
+      "official_operations": 4,
+      "named_plan_sources": [],
+      "real_category_acceptance": "not_verified"
+    },
+    {
+      "tag": "Tags",
+      "official_operations": 9,
+      "named_plan_sources": [
+        "src/integration-fixtures.ts",
+        "src/integration-lifecycle-fixtures.ts",
+        "src/integration-workflow-fixtures.ts"
+      ],
+      "real_category_acceptance": "not_verified"
+    },
+    {
+      "tag": "Timeline",
+      "official_operations": 2,
+      "named_plan_sources": [
+        "src/integration-discovery-fixtures.ts"
+      ],
+      "real_category_acceptance": "not_verified"
+    },
+    {
+      "tag": "Trash",
+      "official_operations": 3,
+      "named_plan_sources": [
+        "src/integration-lifecycle-fixtures.ts"
+      ],
+      "real_category_acceptance": "not_verified"
+    },
+    {
+      "tag": "Users",
+      "official_operations": 16,
+      "named_plan_sources": [
+        "src/integration-fixtures.ts",
+        "src/integration-people-fixtures.ts",
+        "src/integration-user-fixtures.ts"
+      ],
+      "real_category_acceptance": "not_verified"
+    },
+    {
+      "tag": "Users (admin)",
+      "official_operations": 11,
+      "named_plan_sources": [
+        "src/integration-lifecycle-fixtures.ts",
+        "src/integration-people-fixtures.ts",
+        "src/integration-user-fixtures.ts",
+        "src/integration-workflow-fixtures.ts"
+      ],
+      "real_category_acceptance": "not_verified"
+    },
+    {
+      "tag": "Views",
+      "official_operations": 2,
+      "named_plan_sources": [
+        "src/integration-discovery-fixtures.ts"
+      ],
+      "real_category_acceptance": "not_verified"
+    },
+    {
+      "tag": "Workflows",
+      "official_operations": 8,
+      "named_plan_sources": [
+        "src/integration-workflow-fixtures.ts"
+      ],
+      "real_category_acceptance": "not_verified"
+    }
+  ],
+  "completed_41_category_acceptance": false,
+  "full_acceptance": false,
+  "cloudflare": "not_run",
+  "chatgpt": "not_run",
+  "literal_extraction": "Double-quoted identifier strings that exactly match an official operationId, including operation_id properties and executed operation tables/loops.",
+  "observed_at": "2026-11-10T10:29:03.238060+00:00"
+}

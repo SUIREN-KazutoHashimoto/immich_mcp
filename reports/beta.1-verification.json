@@ -1,0 +1,47 @@
+{
+  "format": "immich-mcp-beta-release-verification",
+  "version": "1.0.0-beta.1",
+  "upstream_version": "3.3.5",
+  "observed_at": "2026-11-10T13:18:50.222140+00:00",
+  "baseline": {
+    "report": "reports/local-final-check-2026-11-10-r2.json",
+    "report_sha256": "36447b92a14c79383035af28cc312328d3cd7ff45a4899d03ca4ed40b40e37e9",
+    "tests": 705,
+    "suites": 9,
+    "pass": 705,
+    "fail": 0,
+    "frozen_inputs": 190
+  },
+  "release_focused": {
+    "report": "reports/beta1-focused-check-2026-11-10-r2.json",
+    "tests": 12,
+    "pass": 12,
+    "fail": 0,
+    "duration_ms": 19859.0725,
+    "inputs_unchanged": true,
+    "frozen_input_count": 208
+  },
+  "changed_baseline_inputs": [
+    "Dockerfile",
+    "compose.yaml",
+    "deploy/.env.example",
+    "package.json",
+    "src/tools.ts",
+    "tests/transport.test.ts"
+  ],
+  "exact_runtime_application_delta": "MCP initialize serverInfo.version:0.1.0 ->1.0.0-beta.1; no executor/auth/storage/API definition changes",
+  "existing_metadata_deltas_reversible": true,
+  "transport_assertion_inverse_exact": true,
+  "registry_sha256": "871d98963afa469d2ac441a2243cca075b96be1ca4c7b37cb9edf436d152ac7d",
+  "original_specification_files_byte_identical": 23,
+  "full707_rerun": false,
+  "container_smoke": {
+    "result_asset": "immich-mcp-1.0.0-beta.1-linux-amd64.smoke.json",
+    "workflow": ".github/workflows/beta-docker.yml",
+    "upstream": "synthetic version endpoint"
+  },
+  "actual_immich_verified": false,
+  "cloudflare_verified": false,
+  "chatgpt_verified": false,
+  "full_acceptance": false
+}

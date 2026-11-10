@@ -1,0 +1,31 @@
+{
+  "format": "immich-mcp-json-response-shape-corrections",
+  "version": 1,
+  "immich_version": "3.3.5",
+  "source_commit": "8303cb117e197c700332b33b61b45314c9cc5bb4",
+  "openapi_sha256": "632700b84590f6b197fe6ef9a8486db19d08a31a03cf10bc780925e8a32b6bb9",
+  "evidence_scope": "Fixed service/DTO source and native compiled-executor reproduction; no real Immich acceptance",
+  "corrections": [
+    {
+      "operation_id": "getSearchSuggestions",
+      "http_method": "GET",
+      "api_relative_path": "/search/suggestions",
+      "openapi_operation_pointer": "#/paths/~1search~1suggestions/get",
+      "status_code": 200,
+      "content_type": "application/json",
+      "schema_pointer": "/items",
+      "correction": "allow_null_string_array_items",
+      "expected_schema": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "fact_id": "nullable_search_suggestion_items",
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/search.service.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/dtos/search.dto.ts"
+      ]
+    }
+  ]
+}

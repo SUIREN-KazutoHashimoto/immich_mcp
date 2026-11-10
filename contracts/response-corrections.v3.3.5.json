@@ -1,0 +1,25 @@
+{
+  "format": "immich-mcp-json-response-corrections",
+  "version": 1,
+  "immich_version": "3.3.5",
+  "source_commit": "8303cb117e197c700332b33b61b45314c9cc5bb4",
+  "openapi_sha256": "632700b84590f6b197fe6ef9a8486db19d08a31a03cf10bc780925e8a32b6bb9",
+  "evidence_scope": "Fixed controller/service inspection and local native HTTP reproduction; not real Immich acceptance",
+  "corrections": [
+    {
+      "operation_id": "createActivity",
+      "http_method": "POST",
+      "api_relative_path": "/activities",
+      "openapi_operation_pointer": "#/paths/~1activities/post",
+      "status_code": 200,
+      "schema_from_status_code": 201,
+      "content_type": "application/json",
+      "schema_ref": "#/components/schemas/ActivityResponseDto",
+      "fact_id": "duplicate_like_success_status",
+      "source_urls": [
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/activity.controller.ts",
+        "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/activity.service.ts"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,2800 @@
+{
+  "scope": "core executor HTTP wire only; not final feature acceptance",
+  "version": "3.3.5",
+  "sha256": "632700b84590f6b197fe6ef9a8486db19d08a31a03cf10bc780925e8a32b6bb9",
+  "missing": [],
+  "unexpected": [],
+  "duplicate": [],
+  "operations": [
+    {
+      "operation_id": "acceptClusterGroupRequest",
+      "method": "POST",
+      "path": "/cluster-groups/requests/{id}/accept",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "addAssetsToAlbum",
+      "method": "PUT",
+      "path": "/albums/{id}/assets",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "addAssetsToAlbums",
+      "method": "PUT",
+      "path": "/albums/assets",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "addMemoryAssets",
+      "method": "PUT",
+      "path": "/memories/{id}/assets",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "addSharedLinkAssets",
+      "method": "PUT",
+      "path": "/shared-links/{id}/assets",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "addUsersToAlbum",
+      "method": "PUT",
+      "path": "/albums/{id}/users",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "bulkTagAssets",
+      "method": "PUT",
+      "path": "/tags/assets",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "changePassword",
+      "method": "POST",
+      "path": "/auth/change-password",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "changePinCode",
+      "method": "PUT",
+      "path": "/auth/pin-code",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "checkBulkUpload",
+      "method": "POST",
+      "path": "/assets/bulk-upload-check",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "clusterGroupRegeneratePeople",
+      "method": "POST",
+      "path": "/cluster-groups/{id}/regenerate-people",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "copyAsset",
+      "method": "PUT",
+      "path": "/assets/copy",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "createActivity",
+      "method": "POST",
+      "path": "/activities",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "createAlbum",
+      "method": "POST",
+      "path": "/albums",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "createApiKey",
+      "method": "POST",
+      "path": "/api-keys",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "createClusterGroupRequest",
+      "method": "PUT",
+      "path": "/cluster-groups/{id}/requests",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "createFace",
+      "method": "POST",
+      "path": "/faces",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "createJob",
+      "method": "POST",
+      "path": "/jobs",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "createLibrary",
+      "method": "POST",
+      "path": "/libraries",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "createMemory",
+      "method": "POST",
+      "path": "/memories",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "createNotification",
+      "method": "POST",
+      "path": "/admin/notifications",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "createPartner",
+      "method": "POST",
+      "path": "/partners",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "createPartnerDeprecated",
+      "method": "POST",
+      "path": "/partners/{id}",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "createPerson",
+      "method": "POST",
+      "path": "/people",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "createProfileImage",
+      "method": "POST",
+      "path": "/users/profile-image",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "createSession",
+      "method": "POST",
+      "path": "/sessions",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "createSharedLink",
+      "method": "POST",
+      "path": "/shared-links",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "createStack",
+      "method": "POST",
+      "path": "/stacks",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "createTag",
+      "method": "POST",
+      "path": "/tags",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "createUserAdmin",
+      "method": "POST",
+      "path": "/admin/users",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "createWorkflow",
+      "method": "POST",
+      "path": "/workflows",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "deleteActivity",
+      "method": "DELETE",
+      "path": "/activities/{id}",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "deleteAlbum",
+      "method": "DELETE",
+      "path": "/albums/{id}",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "deleteAllSessions",
+      "method": "DELETE",
+      "path": "/sessions",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "deleteApiKey",
+      "method": "DELETE",
+      "path": "/api-keys/{id}",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "deleteAssetFile",
+      "method": "DELETE",
+      "path": "/asset-files/{id}",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "deleteAssetMetadata",
+      "method": "DELETE",
+      "path": "/assets/{id}/metadata/{key}",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "deleteAssets",
+      "method": "DELETE",
+      "path": "/assets",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "deleteBulkAssetMetadata",
+      "method": "DELETE",
+      "path": "/assets/metadata",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "deleteClusterGroupRequest",
+      "method": "DELETE",
+      "path": "/cluster-groups/requests/{id}",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "deleteDatabaseBackup",
+      "method": "DELETE",
+      "path": "/admin/database-backups",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "deleteDuplicate",
+      "method": "DELETE",
+      "path": "/duplicates/{id}",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "deleteDuplicates",
+      "method": "DELETE",
+      "path": "/duplicates",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "deleteFace",
+      "method": "DELETE",
+      "path": "/faces/{id}",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "deleteIntegrityReport",
+      "method": "DELETE",
+      "path": "/admin/integrity/report/{id}",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "deleteLibrary",
+      "method": "DELETE",
+      "path": "/libraries/{id}",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "deleteMemory",
+      "method": "DELETE",
+      "path": "/memories/{id}",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "deleteNotification",
+      "method": "DELETE",
+      "path": "/notifications/{id}",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "deleteNotifications",
+      "method": "DELETE",
+      "path": "/notifications",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "deletePeople",
+      "method": "DELETE",
+      "path": "/people",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "deletePerson",
+      "method": "DELETE",
+      "path": "/people/{id}",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "deleteProfileImage",
+      "method": "DELETE",
+      "path": "/users/profile-image",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "deleteServerLicense",
+      "method": "DELETE",
+      "path": "/server/license",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "deleteSession",
+      "method": "DELETE",
+      "path": "/sessions/{id}",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "deleteStack",
+      "method": "DELETE",
+      "path": "/stacks/{id}",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "deleteStacks",
+      "method": "DELETE",
+      "path": "/stacks",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "deleteSyncAck",
+      "method": "DELETE",
+      "path": "/sync/ack",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "deleteTag",
+      "method": "DELETE",
+      "path": "/tags/{id}",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "deleteUserAdmin",
+      "method": "DELETE",
+      "path": "/admin/users/{id}",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "deleteUserLicense",
+      "method": "DELETE",
+      "path": "/users/me/license",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "deleteUserOnboarding",
+      "method": "DELETE",
+      "path": "/users/me/onboarding",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "deleteWorkflow",
+      "method": "DELETE",
+      "path": "/workflows/{id}",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "detectPriorInstall",
+      "method": "GET",
+      "path": "/admin/maintenance/detect-install",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "downloadArchive",
+      "method": "POST",
+      "path": "/download/archive",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "downloadAsset",
+      "method": "GET",
+      "path": "/assets/{id}/original",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "downloadAssetFile",
+      "method": "GET",
+      "path": "/asset-files/{id}/download",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "downloadDatabaseBackup",
+      "method": "GET",
+      "path": "/admin/database-backups/{filename}",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "editAsset",
+      "method": "PUT",
+      "path": "/assets/{id}/edits",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "emptyQueue",
+      "method": "DELETE",
+      "path": "/queues/{name}/jobs",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "emptyTrash",
+      "method": "POST",
+      "path": "/trash/empty",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "endSession",
+      "method": "DELETE",
+      "path": "/assets/{id}/video/stream/{sessionId}",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "finishOAuth",
+      "method": "POST",
+      "path": "/oauth/callback",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getAboutInfo",
+      "method": "GET",
+      "path": "/server/about",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getActivities",
+      "method": "GET",
+      "path": "/activities",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getActivityStatistics",
+      "method": "GET",
+      "path": "/activities/statistics",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getAdminConfig",
+      "method": "GET",
+      "path": "/admin/config",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getAdminConfigDefaults",
+      "method": "GET",
+      "path": "/admin/config/defaults",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getAdminOnboarding",
+      "method": "GET",
+      "path": "/system-metadata/admin-onboarding",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getAlbumInfo",
+      "method": "GET",
+      "path": "/albums/{id}",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getAlbumMapMarkers",
+      "method": "GET",
+      "path": "/albums/{id}/map-markers",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getAlbumStatistics",
+      "method": "GET",
+      "path": "/albums/statistics",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getAllAlbums",
+      "method": "GET",
+      "path": "/albums",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getAllLibraries",
+      "method": "GET",
+      "path": "/libraries",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getAllPeople",
+      "method": "GET",
+      "path": "/people",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getAllSharedLinks",
+      "method": "GET",
+      "path": "/shared-links",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getAllTags",
+      "method": "GET",
+      "path": "/tags",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getApiKey",
+      "method": "GET",
+      "path": "/api-keys/{id}",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getApiKeys",
+      "method": "GET",
+      "path": "/api-keys",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getApkLinks",
+      "method": "GET",
+      "path": "/server/apk-links",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getAssetDuplicates",
+      "method": "GET",
+      "path": "/duplicates",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getAssetEdits",
+      "method": "GET",
+      "path": "/assets/{id}/edits",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getAssetFile",
+      "method": "GET",
+      "path": "/asset-files/{id}",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getAssetInfo",
+      "method": "GET",
+      "path": "/assets/{id}",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getAssetMetadata",
+      "method": "GET",
+      "path": "/assets/{id}/metadata",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getAssetMetadataByKey",
+      "method": "GET",
+      "path": "/assets/{id}/metadata/{key}",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getAssetOcr",
+      "method": "GET",
+      "path": "/assets/{id}/ocr",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getAssetStatistics",
+      "method": "GET",
+      "path": "/assets/statistics",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getAssetsByCity",
+      "method": "GET",
+      "path": "/search/cities",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getAssetsByOriginalPath",
+      "method": "GET",
+      "path": "/view/folder",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getAuthStatus",
+      "method": "GET",
+      "path": "/auth/status",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getClusterGroupRequests",
+      "method": "GET",
+      "path": "/cluster-groups/requests",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getClusterGroupRequestsForGroup",
+      "method": "GET",
+      "path": "/cluster-groups/{id}/requests",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getClusterGroupUsers",
+      "method": "GET",
+      "path": "/cluster-groups/{id}/users",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getConfig",
+      "method": "GET",
+      "path": "/system-config",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getConfigDefaults",
+      "method": "GET",
+      "path": "/system-config/defaults",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getDownloadInfo",
+      "method": "POST",
+      "path": "/download/info",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getExploreData",
+      "method": "GET",
+      "path": "/search/explore",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getFaces",
+      "method": "GET",
+      "path": "/faces",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getIntegrityReport",
+      "method": "GET",
+      "path": "/admin/integrity/report",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getIntegrityReportCsv",
+      "method": "GET",
+      "path": "/admin/integrity/report/{type}/csv",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getIntegrityReportFile",
+      "method": "GET",
+      "path": "/admin/integrity/report/{id}/file",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getIntegrityReportSummary",
+      "method": "GET",
+      "path": "/admin/integrity/summary",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getLibrary",
+      "method": "GET",
+      "path": "/libraries/{id}",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getLibraryStatistics",
+      "method": "GET",
+      "path": "/libraries/{id}/statistics",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getMainPlaylist",
+      "method": "GET",
+      "path": "/assets/{id}/video/stream/main.m3u8",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getMaintenanceStatus",
+      "method": "GET",
+      "path": "/admin/maintenance/status",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getMapMarkers",
+      "method": "GET",
+      "path": "/map/markers",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getMediaPlaylist",
+      "method": "GET",
+      "path": "/assets/{id}/video/stream/{sessionId}/{variantIndex}/playlist.m3u8",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getMemory",
+      "method": "GET",
+      "path": "/memories/{id}",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getMyApiKey",
+      "method": "GET",
+      "path": "/api-keys/me",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getMyCalendarHeatmap",
+      "method": "GET",
+      "path": "/users/me/calendar-heatmap",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getMyPreferences",
+      "method": "GET",
+      "path": "/users/me/preferences",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getMySharedLink",
+      "method": "GET",
+      "path": "/shared-links/me",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getMyUser",
+      "method": "GET",
+      "path": "/users/me",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getNotification",
+      "method": "GET",
+      "path": "/notifications/{id}",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getNotificationTemplateAdmin",
+      "method": "POST",
+      "path": "/admin/notifications/templates/{name}",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getNotifications",
+      "method": "GET",
+      "path": "/notifications",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getPartners",
+      "method": "GET",
+      "path": "/partners",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getPerson",
+      "method": "GET",
+      "path": "/people/{id}",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getPersonStatistics",
+      "method": "GET",
+      "path": "/people/{id}/statistics",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getPersonThumbnail",
+      "method": "GET",
+      "path": "/people/{id}/thumbnail",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getPlugin",
+      "method": "GET",
+      "path": "/plugins/{id}",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getProfileImage",
+      "method": "GET",
+      "path": "/users/{id}/profile-image",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getPublicConfig",
+      "method": "GET",
+      "path": "/public/config",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getPublicConfigDefaults",
+      "method": "GET",
+      "path": "/public/config/defaults",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getQueue",
+      "method": "GET",
+      "path": "/queues/{name}",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getQueueJobs",
+      "method": "GET",
+      "path": "/queues/{name}/jobs",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getQueues",
+      "method": "GET",
+      "path": "/queues",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getQueuesLegacy",
+      "method": "GET",
+      "path": "/jobs",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getReverseGeocodingState",
+      "method": "GET",
+      "path": "/system-metadata/reverse-geocoding-state",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getSearchSuggestions",
+      "method": "GET",
+      "path": "/search/suggestions",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getSegment",
+      "method": "GET",
+      "path": "/assets/{id}/video/stream/{sessionId}/{variantIndex}/{filename}",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getServerConfig",
+      "method": "GET",
+      "path": "/server/config",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getServerFeatures",
+      "method": "GET",
+      "path": "/server/features",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getServerLicense",
+      "method": "GET",
+      "path": "/server/license",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getServerStatistics",
+      "method": "GET",
+      "path": "/server/statistics",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getServerVersion",
+      "method": "GET",
+      "path": "/server/version",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getSessions",
+      "method": "GET",
+      "path": "/sessions",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getSharedLinkById",
+      "method": "GET",
+      "path": "/shared-links/{id}",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getStack",
+      "method": "GET",
+      "path": "/stacks/{id}",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getStorage",
+      "method": "GET",
+      "path": "/server/storage",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getStorageTemplateOptions",
+      "method": "GET",
+      "path": "/system-config/storage-template-options",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getSupportedMediaTypes",
+      "method": "GET",
+      "path": "/server/media-types",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getSyncAck",
+      "method": "GET",
+      "path": "/sync/ack",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getSyncStream",
+      "method": "POST",
+      "path": "/sync/stream",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getTagById",
+      "method": "GET",
+      "path": "/tags/{id}",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getTimeBucket",
+      "method": "GET",
+      "path": "/timeline/bucket",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getTimeBuckets",
+      "method": "GET",
+      "path": "/timeline/buckets",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getUniqueOriginalPaths",
+      "method": "GET",
+      "path": "/view/folder/unique-paths",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getUser",
+      "method": "GET",
+      "path": "/users/{id}",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getUserAdmin",
+      "method": "GET",
+      "path": "/admin/users/{id}",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getUserCalendarHeatmapAdmin",
+      "method": "GET",
+      "path": "/admin/users/{id}/calendar-heatmap",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getUserConfig",
+      "method": "GET",
+      "path": "/config",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getUserConfigDefaults",
+      "method": "GET",
+      "path": "/config/defaults",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getUserLicense",
+      "method": "GET",
+      "path": "/users/me/license",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getUserOnboarding",
+      "method": "GET",
+      "path": "/users/me/onboarding",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getUserPreferencesAdmin",
+      "method": "GET",
+      "path": "/admin/users/{id}/preferences",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getUserSessionsAdmin",
+      "method": "GET",
+      "path": "/admin/users/{id}/sessions",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getUserStatisticsAdmin",
+      "method": "GET",
+      "path": "/admin/users/{id}/statistics",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getUsersForPeople",
+      "method": "GET",
+      "path": "/people/users",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getVersionCheck",
+      "method": "GET",
+      "path": "/server/version-check",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getVersionCheckState",
+      "method": "GET",
+      "path": "/system-metadata/version-check-state",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getVersionHistory",
+      "method": "GET",
+      "path": "/server/version-history",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getWorkflow",
+      "method": "GET",
+      "path": "/workflows/{id}",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getWorkflowForShare",
+      "method": "GET",
+      "path": "/workflows/{id}/share",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getWorkflowLogs",
+      "method": "GET",
+      "path": "/workflows/{id}/logs",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "getWorkflowTriggers",
+      "method": "GET",
+      "path": "/workflows/triggers",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "leaveClusterGroup",
+      "method": "POST",
+      "path": "/cluster-groups/{id}/leave",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "linkOAuthAccount",
+      "method": "POST",
+      "path": "/oauth/link",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "listDatabaseBackups",
+      "method": "GET",
+      "path": "/admin/database-backups",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "lockAuthSession",
+      "method": "POST",
+      "path": "/auth/session/lock",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "lockSession",
+      "method": "POST",
+      "path": "/sessions/{id}/lock",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "login",
+      "method": "POST",
+      "path": "/auth/login",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "logout",
+      "method": "POST",
+      "path": "/auth/logout",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "logoutOAuth",
+      "method": "POST",
+      "path": "/oauth/backchannel-logout",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "maintenanceLogin",
+      "method": "POST",
+      "path": "/admin/maintenance/login",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "memoriesStatistics",
+      "method": "GET",
+      "path": "/memories/statistics",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "mergePeople",
+      "method": "POST",
+      "path": "/people/merge",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "mergePersonLegacy",
+      "method": "POST",
+      "path": "/people/{id}/merge",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "pingServer",
+      "method": "GET",
+      "path": "/server/ping",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "playAssetVideo",
+      "method": "GET",
+      "path": "/assets/{id}/video/playback",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "reassignFaces",
+      "method": "PUT",
+      "path": "/people/{id}/reassign",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "reassignFacesById",
+      "method": "PUT",
+      "path": "/faces/{id}",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "redirectOAuthToMobile",
+      "method": "GET",
+      "path": "/oauth/mobile-redirect",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "removeAssetEdits",
+      "method": "DELETE",
+      "path": "/assets/{id}/edits",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "removeAssetFromAlbum",
+      "method": "DELETE",
+      "path": "/albums/{id}/assets",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "removeAssetFromStack",
+      "method": "DELETE",
+      "path": "/stacks/{id}/assets/{assetId}",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "removeMemoryAssets",
+      "method": "DELETE",
+      "path": "/memories/{id}/assets",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "removePartner",
+      "method": "DELETE",
+      "path": "/partners/{id}",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "removeSharedLink",
+      "method": "DELETE",
+      "path": "/shared-links/{id}",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "removeSharedLinkAssets",
+      "method": "DELETE",
+      "path": "/shared-links/{id}/assets",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "removeUserFromAlbum",
+      "method": "DELETE",
+      "path": "/albums/{id}/user/{userId}",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "removeUsersFromPeople",
+      "method": "DELETE",
+      "path": "/people/users",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "resetPinCode",
+      "method": "DELETE",
+      "path": "/auth/pin-code",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "resolveDuplicates",
+      "method": "POST",
+      "path": "/duplicates/resolve",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "restoreAssets",
+      "method": "POST",
+      "path": "/trash/restore/assets",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "restoreTrash",
+      "method": "POST",
+      "path": "/trash/restore",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "restoreUserAdmin",
+      "method": "POST",
+      "path": "/admin/users/{id}/restore",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "reverseGeocode",
+      "method": "GET",
+      "path": "/map/reverse-geocode",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "rotateApiKey",
+      "method": "POST",
+      "path": "/api-keys/{id}/rotate",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "runAssetJobs",
+      "method": "POST",
+      "path": "/assets/jobs",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "runQueueCommandLegacy",
+      "method": "PUT",
+      "path": "/jobs/{name}",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "scanLibrary",
+      "method": "POST",
+      "path": "/libraries/{id}/scan",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "searchAssetFiles",
+      "method": "GET",
+      "path": "/asset-files",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "searchAssetStatistics",
+      "method": "POST",
+      "path": "/search/statistics",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "searchAssets",
+      "method": "POST",
+      "path": "/search/metadata",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "searchLargeAssets",
+      "method": "POST",
+      "path": "/search/large-assets",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "searchMemories",
+      "method": "GET",
+      "path": "/memories",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "searchPerson",
+      "method": "GET",
+      "path": "/search/person",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "searchPlaces",
+      "method": "GET",
+      "path": "/search/places",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "searchPluginMethods",
+      "method": "GET",
+      "path": "/plugins/methods",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "searchPluginTemplates",
+      "method": "GET",
+      "path": "/plugins/templates",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "searchPlugins",
+      "method": "GET",
+      "path": "/plugins",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "searchRandom",
+      "method": "POST",
+      "path": "/search/random",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "searchSmart",
+      "method": "POST",
+      "path": "/search/smart",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "searchStacks",
+      "method": "GET",
+      "path": "/stacks",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "searchUsers",
+      "method": "GET",
+      "path": "/users",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "searchUsersAdmin",
+      "method": "GET",
+      "path": "/admin/users",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "searchWorkflows",
+      "method": "GET",
+      "path": "/workflows",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "sendSyncAck",
+      "method": "POST",
+      "path": "/sync/ack",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "sendTestEmailAdmin",
+      "method": "POST",
+      "path": "/admin/notifications/test-email",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "setMaintenanceMode",
+      "method": "POST",
+      "path": "/admin/maintenance",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "setServerLicense",
+      "method": "PUT",
+      "path": "/server/license",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "setUserLicense",
+      "method": "PUT",
+      "path": "/users/me/license",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "setUserOnboarding",
+      "method": "PUT",
+      "path": "/users/me/onboarding",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "setupPinCode",
+      "method": "POST",
+      "path": "/auth/pin-code",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "sharedLinkLogin",
+      "method": "POST",
+      "path": "/shared-links/login",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "signUpAdmin",
+      "method": "POST",
+      "path": "/auth/admin-sign-up",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "startDatabaseRestoreFlow",
+      "method": "POST",
+      "path": "/admin/database-backups/start-restore",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "startOAuth",
+      "method": "POST",
+      "path": "/oauth/authorize",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "tagAssets",
+      "method": "PUT",
+      "path": "/tags/{id}/assets",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "unlinkAllOAuthAccountsAdmin",
+      "method": "POST",
+      "path": "/admin/auth/unlink-all",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "unlinkOAuthAccount",
+      "method": "POST",
+      "path": "/oauth/unlink",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "unlockAuthSession",
+      "method": "POST",
+      "path": "/auth/session/unlock",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "untagAssets",
+      "method": "DELETE",
+      "path": "/tags/{id}/assets",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "updateAdminConfig",
+      "method": "PUT",
+      "path": "/admin/config",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "updateAdminOnboarding",
+      "method": "POST",
+      "path": "/system-metadata/admin-onboarding",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "updateAlbumInfo",
+      "method": "PATCH",
+      "path": "/albums/{id}",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "updateAlbumUser",
+      "method": "PUT",
+      "path": "/albums/{id}/user/{userId}",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "updateApiKey",
+      "method": "PUT",
+      "path": "/api-keys/{id}",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "updateAsset",
+      "method": "PUT",
+      "path": "/assets/{id}",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "updateAssetMetadata",
+      "method": "PUT",
+      "path": "/assets/{id}/metadata",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "updateAssets",
+      "method": "PUT",
+      "path": "/assets",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "updateBulkAssetMetadata",
+      "method": "PUT",
+      "path": "/assets/metadata",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "updateConfig",
+      "method": "PUT",
+      "path": "/system-config",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "updateLibrary",
+      "method": "PUT",
+      "path": "/libraries/{id}",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "updateMemory",
+      "method": "PUT",
+      "path": "/memories/{id}",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "updateMyPreferences",
+      "method": "PUT",
+      "path": "/users/me/preferences",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "updateMyUser",
+      "method": "PUT",
+      "path": "/users/me",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "updateNotification",
+      "method": "PUT",
+      "path": "/notifications/{id}",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "updateNotifications",
+      "method": "PUT",
+      "path": "/notifications",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "updatePartner",
+      "method": "PUT",
+      "path": "/partners/{id}",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "updatePeople",
+      "method": "PUT",
+      "path": "/people",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "updatePerson",
+      "method": "PUT",
+      "path": "/people/{id}",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "updateQueue",
+      "method": "PUT",
+      "path": "/queues/{name}",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "updateSession",
+      "method": "PUT",
+      "path": "/sessions/{id}",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "updateSharedLink",
+      "method": "PATCH",
+      "path": "/shared-links/{id}",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "updateStack",
+      "method": "PUT",
+      "path": "/stacks/{id}",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "updateTag",
+      "method": "PUT",
+      "path": "/tags/{id}",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "updateUserAdmin",
+      "method": "PUT",
+      "path": "/admin/users/{id}",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "updateUserPreferencesAdmin",
+      "method": "PUT",
+      "path": "/admin/users/{id}/preferences",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "updateWorkflow",
+      "method": "PUT",
+      "path": "/workflows/{id}",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "uploadAsset",
+      "method": "POST",
+      "path": "/assets",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "uploadDatabaseBackup",
+      "method": "POST",
+      "path": "/admin/database-backups/upload",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "upsertPeopleUsers",
+      "method": "PUT",
+      "path": "/people/users",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "upsertTags",
+      "method": "PUT",
+      "path": "/tags",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "validate",
+      "method": "POST",
+      "path": "/libraries/{id}/validate",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "validateAccessToken",
+      "method": "POST",
+      "path": "/auth/validateToken",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    },
+    {
+      "operation_id": "viewAsset",
+      "method": "GET",
+      "path": "/assets/{id}/thumbnail",
+      "core_wire_pass": true,
+      "integration_success": "not_run",
+      "upstream_refusal": "mock_403_only",
+      "environment": "isolated Immich and Cloudflare/ChatGPT not configured",
+      "feature_acceptance": "incomplete"
+    }
+  ]
+}

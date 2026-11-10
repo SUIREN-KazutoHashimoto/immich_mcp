@@ -1,0 +1,12 @@
+{
+  "format": 1,
+  "version": "3.3.5",
+  "source_sha256": "632700b84590f6b197fe6ef9a8486db19d08a31a03cf10bc780925e8a32b6bb9",
+  "registry_value_sha256": "197d2998d461ac716375ab72dc8b38c9eb55df3a0ef22b0f7513001fff8aee14",
+  "assets": {
+    "registry": "871d98963afa469d2ac441a2243cca075b96be1ca4c7b37cb9edf436d152ac7d",
+    "upload_script": "9c4e839bbd0c5b79c6bcc2865db35adaf29da78d258c134e1d9f2eacdbe49ff5",
+    "tools": "8f524434178dc4ee9b4565b89a05f4389e2620c5c24d11488d50ff94d012097c",
+    "sync": "ab154477ad0d32577c4d16ff45e775ea57e7fb49921a5677a966f9aff386a913"
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "name": "immich-mcp",
+  "version": "1.0.0-beta.1",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24.0.0 <25"
+  },
+  "scripts": {
+    "generate": "tsx scripts/generate.ts",
+    "build": "tsc -p tsconfig.json && tsx scripts/copy-assets.ts",
+    "test": "tsx --test --test-concurrency=2 tests/*.test.ts",
+    "check": "pnpm generate && pnpm build && pnpm test",
+    "start": "node dist/src/main.js",
+    "dev": "tsx src/main.ts",
+    "keygen": "tsx scripts/init-key.ts",
+    "vault": "tsx scripts/vault.ts",
+    "integration": "tsx scripts/integration.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/server": "2.4.0",
+    "ajv": "8.18.0",
+    "ajv-formats": "3.0.1",
+    "jose": "6.2.16",
+    "stream-json": "3.8.0",
+    "undici": "8.12.4"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/client": "2.4.0",
+    "@types/node": "24.10.1",
+    "playwright": "1.62.1",
+    "tsx": "4.20.6",
+    "typescript": "5.9.3"
+  },
+  "packageManager": "pnpm@11.25.0"
+}

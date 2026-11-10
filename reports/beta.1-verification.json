@@ -57,5 +57,12 @@
     "pass": 4,
     "live_reference_guard": true,
     "source_scope": "release CI helper only; application behavior unchanged"
+  },
+  "ci_environment_followup": {
+    "report": "reports/beta.1-container-config-check.json",
+    "new_tests": 2,
+    "pass": 2,
+    "compiled_probe": true,
+    "production_access_guard_unchanged": true
   }
 }

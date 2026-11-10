@@ -1,6 +1,7 @@
 // Docker/Linux smoke only. The upstream fixture is synthetic, not real Immich.
 import assert from "node:assert/strict";
-import {execFileSync} from "node:child_process";
+import {execFileSync,spawnSync} from "node:child_process";
+import {containerSmokeEnvironment} from "./container-smoke-config.ts";
 import {mkdtemp,writeFile,chmod,mkdir,rm} from "node:fs/promises";
 import {randomBytes,randomUUID} from "node:crypto";
 import {tmpdir} from "node:os";
@@ -55,11 +56,7 @@ try{
   const fixture="require('node:http').createServer((q,s)=>{s.writeHead(q.url==='/api/server/version'?200:404,{'content-type':'application/json'});s.end(q.url==='/api/server/version'?JSON.stringify({major:3,minor:3,patch:5,prerelease:null}):'{}')}).listen(2283,'0.0.0.0')";
   docker(["run","--detach","--name",plan("container",stub),"--label",label+"="+id,"--network",network,"--network-alias","immich-smoke",
     "--read-only","--cap-drop","ALL","--security-opt","no-new-privileges:true","--user","1000:1000","--entrypoint","node",image,"-e",fixture]);
-  const env={
-    IMMICH_BASE_URL:"http://immich-smoke:2283/api",IMMICH_EXPECTED_VERSION:"3.3.5",MCP_PUBLIC_BASE_URL:"https://mcp.example.test",
-    ACCESS_ISSUER:"https://access.example.test",ACCESS_AUDIENCE:"container-smoke",ACCESS_JWKS_URL:"https://access.example.test/jwks",
-    VAULT_MASTER_KEY_FILE:"/run/secrets/vault_master_key",STORAGE_PATH:"/data",DATABASE_PATH:"/data/vault.sqlite"
-  };
+  const env=containerSmokeEnvironment;
   const composeData=join(root,"compose-data"),runtimeEnv=join(root,"runtime.env"),stackEnv=join(root,"stack.env");
   await mkdir(composeData);
   await writeFile(runtimeEnv,Object.entries(env).map(([k,v])=>k+"="+v).join("\n")+"\n",{flag:"wx",mode:0o600});
@@ -86,7 +83,13 @@ try{
     actual_immich_verified:false,cloudflare_verified:false,chatgpt_verified:false,full_acceptance:false};
 }catch(error){
   failure=error;
-  for(const name of [mcp,stub]){try{process.stderr.write(docker(["logs","--tail","40",name])+"\n");}catch{}}
+  for(const name of [mcp,stub])try{
+    const inspected=json(["container","inspect",name])[0];
+    if(inspected.Config.Labels?.[label]!==id)continue;
+    process.stderr.write(JSON.stringify({container:name,state:inspected.State.Status,exit_code:inspected.State.ExitCode})+"\n");
+    const log=spawnSync("docker",["logs","--tail","40",name],{encoding:"utf8",windowsHide:true});
+    process.stderr.write((log.stdout??"")+(log.stderr??"")+"\n");
+  }catch{}
 }finally{
   try{await cleanup();}catch(error){failure??=error;}
 }

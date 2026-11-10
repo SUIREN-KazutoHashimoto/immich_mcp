@@ -43,5 +43,12 @@
   "actual_immich_verified": false,
   "cloudflare_verified": false,
   "chatgpt_verified": false,
-  "full_acceptance": false
+  "full_acceptance": false,
+  "post_focused_document_adjustments": {
+    "files": [
+      "LICENSE",
+      ".editorconfig"
+    ],
+    "reason": "Restore exact original GitHub blob bytes for LICENSE/editor configuration; text content and application code unchanged"
+  }
 }

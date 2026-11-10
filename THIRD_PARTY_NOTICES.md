@@ -9,3 +9,5 @@ tests/workflow-core-manifest.fixture.json reproduces the core plugin manifest fr
 The production Docker image includes the original Immich license under /app/licenses/immich and source metadata under /app/metadata/source-manifest.json. Installed npm dependencies retain their package license files; exact dependency versions and integrity hashes are recorded in pnpm-lock.yaml.
 
 This is an unofficial integration project, independent of the Immich server and official TypeScript SDK.
+
+The image-reading extension uses sharp 0.35.5 (Apache-2.0), from https://github.com/lovell/sharp/tree/v0.35.5. Its platform-specific optional @img packages include native sharp/libvips components with their own notices and license expressions (including LGPL terms). Packaged license files remain in node_modules and the Docker runtime; consult the installed notices and locked versions. These components are not relicensed by this project.

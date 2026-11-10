@@ -2,7 +2,7 @@
 
 ## Scope
 
-The full bundled specification remains the objective: all 279 operations, nine MCP tools, user isolation, Cloudflare/ChatGPT, special authentication, files/streams, durable jobs and operational deliverables. Local passing tests do not complete that scope.
+The full bundled specification remains the objective: all 279 operations, the nine baseline MCP tools plus a read-only image tool, user isolation, Cloudflare/ChatGPT, special authentication, files/streams, durable jobs and operational deliverables. Local passing tests do not complete that scope.
 
 ## Verified evidence (2026-11-10)
 
@@ -48,7 +48,7 @@ Session ownership is proved using getMyApiKey and then that exact key ID with th
 
 Jobs retain their accepted context, generation and callback provenance. Preflight/cancellation do not consume OAuth callbacks; actual sending consumes one validated callback. Recent jobs/request IDs recover lost acknowledgements. Accepted durable jobs run independently of the initial MCP request; explicit cancellation and shutdown abort transfers conservatively.
 
-Result access checks binding/context generation. Every model-facing read uses display data. Known secrets are references; arbitrary JSON values are explicitly withheld. Originals require an authenticated Origin/CSRF-protected control-UI submission and attachment/nosniff/no-store delivery.
+Result access checks binding/context generation. JSON/text result reads use display data. The dedicated image tool decodes a caller-owned complete raster result, rechecks authorization, strips metadata and returns bounded MCP ImageContent. Known secrets are references; arbitrary JSON values are explicitly withheld. Unmodified originals require an authenticated Origin/CSRF-protected control-UI submission and attachment/nosniff/no-store delivery.
 
 Malformed JSONL retains received bytes and the sanitized valid prefix. Interrupted transfers retain an explicitly incomplete encrypted original with received size/hash and return outcome_unknown. Normal sync completion requires SyncCompleteV1 or SyncResetV1. A broken line is never skipped into successful EOF. No automatic replay occurs.
 
@@ -1341,3 +1341,7 @@ The repaired sync/projection/nullable focused group passed all36 tests/one suite
 The independent audit verifies279 operationId/method/path triples,193 paths,41 tags, all nine tool names, all279 core wire checks, unchanged original global components, equal source/compiled registry and exact reversal of the three private nullable-plugin corrections. Empty completion/reset{} remains exact and arbitrary nonempty plugin schemas remain protected. The failed/stopped704 run and earlier failures are historical evidence, not successful full checks.
 
 This completes the requested implementation/local verification stage. Source packaging is guarded by the final report hash, final audit and exact190 source hashes. Actual Immich/all41 real category, Linux/container durability/deployment, Cloudflare and ChatGPT acceptance remains deferred/unverified; full_acceptance remainsfalse. Conditional OAuth, external library, maintenance, SMTP, physical deletion, ML and WASM effects are not established by local models.
+
+## ChatGPT image extension (unreleased, 2026-11-11)
+
+See CHATGPT_IMAGE_TEST.md for limits and ChatGPT acceptance steps. src/images.ts adds the tenth runtime tool without changing the pinned nine-tool source contract. Native HTTP tests cover legacy 2025-11-25 and official SDK 2.4.0 / 2026-07-28. These local checks do not establish that a ChatGPT connection has received or understood an image.

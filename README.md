@@ -1,5 +1,7 @@
 # Immich MCP 1.0.0-beta.3
 
+この開発ソースには未リリースの画像連携修正を含みます。`immich_read_image` がモデル向け画像を返し、既存の9ツールと合わせて10ツールになります。導入とChatGPTでの確認は [画像連携の確認手順](CHATGPT_IMAGE_TEST.md) を参照してください。公開済みbeta.3イメージにはまだ含まれません。
+
 beta.3は接続画面の標準フォームが`Origin: null`になり、キー登録を拒否される不具合を修正します。HTMLのReferrer-Policyを`same-origin`にし、正規OriginとCSRFの検証、外部サイトへのReferer送信抑止を維持します。
 
 Immich **3.3.5 / 3.3.6** に対応します。公式OpenAPIを比較した結果、3.3.6の差分は `info.version` のみで、全279操作・スキーマとサーバーのAPI実装に変更はありませんでした。固定API定義は3.3.5の原本を維持し、未検証のパッチ版・マイナー版・プレリリースは拒否します。比較元のコミットとハッシュは [互換性記録](reports/immich-3.3.6-compatibility.json) にあります。
@@ -8,19 +10,19 @@ TrueNASのCustom App GUIでは `ghcr.io/suiren-kazutohashimoto/immich-mcp:1.0.0-
 
 **1.0.0の最初のベータです。対応APIはImmich 3.3.5です。** Dockerの実機確認は [BETA_DOCKER_TEST.md](BETA_DOCKER_TEST.md) を参照してください。GitHubのプレリリースにソースとlinux/amd64のDocker配布物をまとめます。
 
-A TypeScript implementation for a multi-user Immich MCP server based on the bundled fixed specification. The target remains all 279 official operations, all nine MCP tools and the complete deployment/acceptance requirements. Each user registers their own Immich API key; authorization remains with Immich.
+A TypeScript implementation for a multi-user Immich MCP server based on the bundled fixed specification. The target remains all 279 official operations, the nine baseline MCP tools plus the image-reading extension and the complete deployment/acceptance requirements. Each user registers their own Immich API key; authorization remains with Immich.
 
 ## Current state
 
 Implementation and local verification are the current delivery stage. Real Immich/Linux/container, Cloudflare and ChatGPT acceptance is deferred at the user's request.
 
-The service implements all279 official operations through the common serializer/executor and all nine MCP tools. It includes caller-owned encrypted credentials and results, explicit session/shared-link/public/setup/maintenance contexts, persistent jobs with uncertain-outcome fencing, resumable browser uploads, streaming JSON/JSONL and binary/Range/HLS adapters. Authentication remains with Immich; an API-key refusal never triggers automatic credential fallback.
+The service implements all279 official operations through the common serializer/executor and the nine baseline MCP tools plus the image-reading extension. It includes caller-owned encrypted credentials and results, explicit session/shared-link/public/setup/maintenance contexts, persistent jobs with uncertain-outcome fencing, resumable browser uploads, streaming JSON/JSONL and binary/Range/HLS adapters. Authentication remains with Immich; an API-key refusal never triggers automatic credential fallback.
 
 Verification baseline: the preceding implementation passed all705 local tests/nine suites, with190 unchanged selected inputs. The beta release changes the application version reported by MCP initialize and Docker metadata, plus adds a dedicated beta stack and release CI. API version3.3.5, operation definitions, authentication, storage and executor behavior are unchanged. Release-focused checks are recorded separately in reports/beta.1-verification.json; a new full regression run of the beta release is not claimed. The image smoke uses real Docker with a synthetic upstream and does not establish actual Immich/Cloudflare/ChatGPT acceptance.
 
 | Scope | Implemented | Local evidence | Real integration / upstream refusal | Unmet environment conditions |
 | --- | --- | --- | --- | --- |
-| All279 operations / nine MCP tools | Yes | All279 core wire checks, local SDK/HTTP tests and complete705-test regression passed | Not run / synthetic403 only | Isolated Immich and real gateway/client |
+| All279 operations / ten MCP tools | Yes | Original nine-tool baseline: 705 tests. Image extension and related paths: 50 targeted tests; see reports/image-content-verification-2026-11-11.json | Not run / synthetic403 only | Isolated Immich and real gateway/client |
 | Authentication, protected storage, jobs and special transports | Yes | Native synthetic HTTP, browser, persistence and failure tests passed in the complete705-test regression | Not verified | Real accounts, network and runtime |
 | Eleven isolated feature fixture plans | Yes | All eleven local fixture groups included in the complete705-test regression | All41 actual category gates unverified | Disposable Docker lab; conditional OAuth/library/SMTP/maintenance setup |
 | Backup/rekey/restore/retention and readiness | Yes | Local crash/WAL/recovery and configuration tests | Linux/volume behavior unverified | Linux container host |

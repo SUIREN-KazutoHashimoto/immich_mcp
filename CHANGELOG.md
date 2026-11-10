@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased — ChatGPT image content (2026-11-11)
+
+- Add read-only `immich_read_image` returning top-level MCP ImageContent from a caller-owned completed image result. Preserve the nine existing tools and asynchronous result references.
+- Resize and orient JPEG/PNG/WebP, strip metadata, bound bytes/pixels/concurrency/conversion time and recheck authorization before returning images. Do not publish URLs or persist plaintext previews.
+- Add legacy and modern official-SDK tests over native HTTP, image/security regressions and a Japanese ChatGPT acceptance guide. Actual ChatGPT visual recognition remains an environment acceptance check.
+
 ## 1.0.0-beta.3 — 2026-11-11
 
 - Fix native control-page form submissions being rejected as `invalid_origin`: HTML now uses `Referrer-Policy: same-origin` so the browser sends its same-origin Origin rather than `null`. Other response policies and strict Origin/CSRF checks remain in place.

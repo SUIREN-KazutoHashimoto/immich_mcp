@@ -22,7 +22,7 @@ const toolData=(reply:any)=>{
   assert.ok(reply.result?.structuredContent,"Tool did not return structured content: "+JSON.stringify(reply.result?.content));
   return reply.result.structuredContent;
 };
-test("native HTTP serves nine SDK tools, principal isolation, files, context jobs and cancellation",{timeout:90000},async()=>{
+test("native HTTP serves ten SDK tools, principal isolation, files, context jobs and cancellation",{timeout:90000},async()=>{
   const dir=await mkdtemp(join(tmpdir(),"immich-http-"));
   let version={major:3,minor:3,patch:5,prerelease:null},versionStatus=200,searchHits=0,uploadHits=0,syncMalformed=false;
   let started!:()=>void,release!:()=>void;
@@ -116,14 +116,14 @@ test("native HTTP serves nine SDK tools, principal isolation, files, context job
     assert.equal(init.result.serverInfo.name,"immich-mcp");
     const packageInfo=JSON.parse(await readFile(new URL("../package.json",import.meta.url),"utf8"));
     assert.equal(init.result.serverInfo.version,packageInfo.version);
-    const listed=await rpc("tools/list",{});assert.equal(listed.result.tools.length,9);
+    const listed=await rpc("tools/list",{});assert.equal(listed.result.tools.length,10);
     const connection=toolData(await call("immich_get_connection",{}));assert.equal(connection.binding_state,"active");
     const catalog=toolData(await call("immich_api_catalog",{limit:100}));assert.equal(catalog.total,279);assert.equal(catalog.entries.length,100);
     const described=toolData(await call("immich_api_describe",{operation_ids:["uploadAsset"]}));
     assert.ok(described.result_ref);
     const detail=toolData(await call("immich_read_result",{result_ref:described.result_ref,json_pointer:"/operations/0/operation_id"}));
     assert.equal(detail.data,"uploadAsset");
-    assert.equal((await rpc("tools/list",{})).result.tools.length,9);
+    assert.equal((await rpc("tools/list",{})).result.tools.length,10);
     const normal=toolData(await call("immich_api_call",{operation_id:"getServerVersion",execution_mode:"sync"}));
     assert.equal(normal.upstream.status,200);assert.equal(normal.auth_context_kind,"api_key");
     const denied=await call("immich_api_call",{operation_id:"getSyncAck",execution_mode:"sync"});
@@ -172,7 +172,7 @@ test("native HTTP serves nine SDK tools, principal isolation, files, context job
       await client.connect(new StreamableHTTPClientTransport(new URL(publicOrigin+"/mcp"),{fetch:sdkFetch}));
       assert.equal(client.getProtocolEra(),"modern");assert.equal(client.getNegotiatedProtocolVersion(),"2026-07-28");
       assert.ok(client.getDiscoverResult());
-      const tools=await client.listTools();assert.equal(tools.tools.length,9);
+      const tools=await client.listTools();assert.equal(tools.tools.length,10);
       const connection:any=await client.callTool({name:"immich_get_connection",arguments:{}});
       assert.equal(connection.structuredContent?.binding_state ?? connection.result?.binding_state,"active");
       const result:any=await client.callTool({name:"immich_api_call",arguments:{operation_id:"getServerVersion",execution_mode:"sync"}});

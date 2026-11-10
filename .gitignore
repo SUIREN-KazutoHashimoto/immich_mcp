@@ -52,3 +52,4 @@ coverage/
 !/reports/beta.1-metadata-delta.json
 !/reports/beta.1-tag-guard-check.json
 !/reports/beta.1-container-config-check.json
+!/reports/immich-3.3.6-compatibility.json

@@ -1,4 +1,8 @@
-# Immich MCP 1.0.0-beta.1
+# Immich MCP 1.0.0-beta.2
+
+Immich **3.3.5 / 3.3.6** に対応します。公式OpenAPIを比較した結果、3.3.6の差分は `info.version` のみで、全279操作・スキーマとサーバーのAPI実装に変更はありませんでした。固定API定義は3.3.5の原本を維持し、未検証のパッチ版・マイナー版・プレリリースは拒否します。比較元のコミットとハッシュは [互換性記録](reports/immich-3.3.6-compatibility.json) にあります。
+
+TrueNASのCustom App GUIでは `ghcr.io/suiren-kazutohashimoto/immich-mcp:1.0.0-beta.2` を指定します。利用者ごとのキー、暗号化データ、別マウントのマスター鍵、Cloudflare Access認証の仕組みは共通です。以下のbeta.1に関する記録とアーカイブ手順は初回ベータの履歴です。
 
 **1.0.0の最初のベータです。対応APIはImmich 3.3.5です。** Dockerの実機確認は [BETA_DOCKER_TEST.md](BETA_DOCKER_TEST.md) を参照してください。GitHubのプレリリースにソースとlinux/amd64のDocker配布物をまとめます。
 

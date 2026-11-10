@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.0-beta.2 — 2026-11-10
+
+- Accept stable Immich 3.3.6 after comparing its official OpenAPI and server implementation against 3.3.5. The OpenAPI differs only at `info.version`; the 279 operations, schemas and server API implementation are unchanged.
+- Keep the bundled 3.3.5 contract and reject unreviewed versions and prereleases. Preserve authentication, per-user credentials, storage and master-key handling.
+- Record upstream commit hashes and API hashes in `reports/immich-3.3.6-compatibility.json`; publish a separately versioned GHCR image for GUI upgrades.
+
 ## 1.0.0-beta.1 — 2026-11-10
 
 First beta of the MCP application, targeting Immich3.3.5.

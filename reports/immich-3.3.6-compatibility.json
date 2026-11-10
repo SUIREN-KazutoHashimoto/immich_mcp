@@ -1,0 +1,48 @@
+{
+  "verified_on": "2026-11-10",
+  "api_contract_version": "3.3.5",
+  "reviewed_server_versions": [
+    "3.3.5",
+    "3.3.6"
+  ],
+  "upstream_compare_url": "https://github.com/immich-app/immich/compare/v3.3.5...v3.3.6",
+  "base_commit": "8303cb117e197c700332b33b61b45314c9cc5bb4",
+  "candidate_commit": "587f549f46f1cd1822a06e16dcccecef04ea4565",
+  "commits_compared": 2,
+  "files_changed": [
+    "e2e/package.json",
+    "machine-learning/Dockerfile",
+    "machine-learning/immich_ml/__init__.py",
+    "machine-learning/pyproject.toml",
+    "machine-learning/uv.lock",
+    "mobile/android/fastlane/Fastfile",
+    "mobile/ios/Runner/Info.plist",
+    "mobile/pubspec.yaml",
+    "open-api/immich-openapi-specs.json",
+    "package.json",
+    "packages/cli/package.json",
+    "packages/sdk/package.json",
+    "packages/sdk/src/fetch-client.ts",
+    "server/package.json",
+    "web/package.json"
+  ],
+  "openapi": {
+    "source_path": "open-api/immich-openapi-specs.json",
+    "base_sha256": "632700b84590f6b197fe6ef9a8486db19d08a31a03cf10bc780925e8a32b6bb9",
+    "candidate_sha256": "b7f2a9c2543472a9b3a2f32ece82f56cb4b5660d6745d05f2d7903dfb5ba974b",
+    "bundled_base_bytes_equal": true,
+    "difference_json_pointers": [
+      "/info/version"
+    ],
+    "equal_after_normalizing_only_info_version": true,
+    "paths_equal": true,
+    "components_equal": true,
+    "operation_count": 279,
+    "normalized_sha256": "541a87d36421d77a92490e3a5f49c3d36a6998932c35519cdbe0723af7df830f"
+  },
+  "server_implementation_changes": [],
+  "server_package_json_change": "version only: 3.3.5 to 3.3.6",
+  "sdk_fetch_client_change": "generated version comment only",
+  "decision": "Accept stable Immich 3.3.5 and 3.3.6 only; keep the bundled 3.3.5 API bytes and reject unreviewed versions and prereleases.",
+  "limits": "This source comparison establishes API compatibility. Production integration is validated separately; it does not execute photo mutations."
+}

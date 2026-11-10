@@ -1,5 +1,6 @@
 import { readFile,realpath,lstat } from "node:fs/promises";
 import { resolve,join,dirname,basename,relative,isAbsolute,sep } from "node:path";
+import { supportedImmichVersions } from "./immich-version.js";
 export interface Config {
   upstream:string;publicOrigin:string;issuer:string;audience:string;jwksUrl:string;
   directory:string;masterKey:Buffer;masterKeyFile?:string;host:string;port:number;fileSourceHosts?:string[];maxUploadBytes?:number;storageQuotaBytes?:number;
@@ -14,7 +15,7 @@ export async function config(env:NodeJS.ProcessEnv=process.env):Promise<Config>{
     if(!/^[0-9]+$/.test(text)||!Number.isSafeInteger(value)||value<1||value>max)throw Error("Invalid "+name);
     return value;
   };
-  if(env.IMMICH_EXPECTED_VERSION&&env.IMMICH_EXPECTED_VERSION!=="3.3.5")throw Error("Only Immich 3.3.5 is supported");
+  if(env.IMMICH_EXPECTED_VERSION&&!supportedImmichVersions.includes(env.IMMICH_EXPECTED_VERSION))throw Error("Only reviewed Immich versions "+supportedImmichVersions.join(", ")+" are supported");
   const upstream=new URL(required("IMMICH_BASE_URL"));
   if(!["http:","https:"].includes(upstream.protocol)||upstream.username||upstream.password||upstream.search||upstream.hash||upstream.pathname.replace(/\/$/,"")!=="/api")
     throw Error("IMMICH_BASE_URL must be the fixed origin plus /api");

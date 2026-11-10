@@ -29,3 +29,24 @@ Desktop.ini
 *.swp
 *.swo
 *~
+
+# Dependencies, generated builds and local release staging
+node_modules/
+dist/
+coverage/
+/release/
+# Publish only reviewed, non-secret verification evidence.
+/reports/*
+!/reports/immich-image-manifests.json
+!/reports/operation-coverage.json
+!/reports/fixture-plan-coverage.json
+!/reports/local-final-check-2026-11-10-r2.json
+!/reports/local-final-audit-2026-11-10.json
+!/reports/original-package-byte-audit-2026-11-10.json
+!/reports/empty-sync-source-delta-2026-11-10.json
+!/reports/empty-sync-production-inverse-2026-11-10.json
+!/reports/empty-sync-focused-check-2026-11-10.json
+!/reports/empty-sync-focused-final-audit-2026-11-10.json
+!/reports/beta.1-verification.json
+!/reports/beta1-focused-check-2026-11-10-r2.json
+!/reports/beta.1-metadata-delta.json

@@ -1,0 +1,349 @@
+{
+  "format": "immich-mcp-image-observation",
+  "version": 3,
+  "observed_on": "2026-11-10",
+  "scope": "public_registry_metadata_and_local_reference_configuration",
+  "registry": "ghcr.io",
+  "access": "anonymous public repository pull scope over HTTPS",
+  "method": "GET index by tag with OCI/Docker index Accept types; hash received bytes and compare Docker-Content-Digest; no redirect followed; no token persisted",
+  "observations": [
+    {
+      "image": "ghcr.io/immich-app/immich-server:v3.3.5",
+      "digest": "sha256:485d546a2e31d6a8b4db8423fcba5c109de8c218d93410af115fd1ccfc4352a6",
+      "media_type": "application/vnd.oci.image.index.v1+json",
+      "platforms": [
+        {
+          "os": "linux",
+          "architecture": "arm64",
+          "digest": "sha256:0cb5bfcdc301a00b1c0c221d5b665b54c1b69a3ccc96b13a82cdfec818dcfa27"
+        },
+        {
+          "os": "unknown",
+          "architecture": "unknown",
+          "digest": "sha256:d188a8b7f30f3063beaf2e16df3deef2b96c92985c32a8bf270791bfa793e08e"
+        },
+        {
+          "os": "linux",
+          "architecture": "amd64",
+          "digest": "sha256:1ab81816384ce8e782fdbdb2b7703ab68fd12442bc311a53118dc0d74c2ced24"
+        },
+        {
+          "os": "unknown",
+          "architecture": "unknown",
+          "digest": "sha256:03708365c097a97d30533c33c2a65da2cff3703e277f4a4b0a1f9629613eb2cb"
+        }
+      ],
+      "status": "manifest_observed",
+      "tag": "v3.3.5",
+      "publisher_annotations": {
+        "org.opencontainers.image.revision": "8303cb117e197c700332b33b61b45314c9cc5bb4",
+        "org.opencontainers.image.source": "https://github.com/immich-app/immich",
+        "org.opencontainers.image.version": "v3.3.5"
+      },
+      "sha256_matches_digest_header": true,
+      "annotations_match_fixed_specification": true
+    },
+    {
+      "image": "ghcr.io/immich-app/immich-machine-learning:v3.3.5",
+      "digest": "sha256:5b28c9352c8374b8a1ed96fbdd8d6755fea6e43510ec43fdf6538aa02ea40f56",
+      "media_type": "application/vnd.oci.image.index.v1+json",
+      "platforms": [
+        {
+          "os": "linux",
+          "architecture": "arm64",
+          "digest": "sha256:3719420e1f981955793389c0178bd600cf3bd7edc3a35dc0bb2996e8353280e7"
+        },
+        {
+          "os": "unknown",
+          "architecture": "unknown",
+          "digest": "sha256:be12915d291d035f43ada96246c15722e6d89aff77f80cbce41fcb684ca20519"
+        },
+        {
+          "os": "linux",
+          "architecture": "amd64",
+          "digest": "sha256:1270449e47e1fcd703661c4d728b7904d89aacfb715662c26116cc9dd73f266b"
+        },
+        {
+          "os": "unknown",
+          "architecture": "unknown",
+          "digest": "sha256:bdc04e289948676307daffdc7cc4d08b9ecf37992fba9e9ffba1070ff03bd95b"
+        }
+      ],
+      "status": "manifest_observed",
+      "tag": "v3.3.5",
+      "publisher_annotations": {
+        "org.opencontainers.image.revision": "8303cb117e197c700332b33b61b45314c9cc5bb4",
+        "org.opencontainers.image.source": "https://github.com/immich-app/immich",
+        "org.opencontainers.image.version": "v3.3.5"
+      },
+      "sha256_matches_digest_header": true,
+      "annotations_match_fixed_specification": true
+    }
+  ],
+  "limits": {
+    "index_annotations_are_publisher_claims": true,
+    "image_layers_pulled": false,
+    "image_signatures_verified": false,
+    "containers_executed": false,
+    "all_four_platform_metadata_verified": true,
+    "config_labels_are_publisher_claims": true
+  },
+  "next_work": "Verify filesystem layers, signatures where required, actual pulls, platform/container behavior, Linux operations, full isolated API acceptance and external deployment on an available Docker host.",
+  "integration_lab_source_sha256": "835848e527ac3abba621b6671d8a5015fa7e606e4c0ef5d6f36d0d15e4bb457b",
+  "source_fingerprint_scope": "integration_lab_source_sha256 identifies the initial index-observation implementation",
+  "configuration_status": {
+    "new_payload_version": 2,
+    "new_runs_digest_pinned": true,
+    "existing_v1_policy_preserved": true,
+    "source_sha256": "c780c5e18c439c799d18f0661541803a4e0ddf0301e3648e18b22b220a375668",
+    "legacy_fixture_sha256": "0d3743c99ba8871e56dd2b9cff96c81607cdf7bc5321c57a2990c1abff8bfa77",
+    "local_check": {
+      "command": "pnpm check",
+      "exit_code": 0,
+      "tests": 573,
+      "passed": 573,
+      "failed": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "duration_ms": 361767.2364
+    }
+  },
+  "metadata_follow_up": {
+    "state": "completed_metadata_only",
+    "observed_on": "2026-11-10",
+    "method": "Read each fixed index by digest; require digest header/body SHA-256 equality; verify selected child descriptors and config blob sizes/digests; HTTPS redirects only for blobs to named registry/CDN hosts with cross-host Authorization removed; no environment/config values or tokens persisted",
+    "observations": [
+      {
+        "service": "server",
+        "reference": "ghcr.io/immich-app/immich-server@sha256:485d546a2e31d6a8b4db8423fcba5c109de8c218d93410af115fd1ccfc4352a6",
+        "scope": "public_registry_metadata",
+        "index_verified": true,
+        "platforms": [
+          {
+            "os": "linux",
+            "architecture": "amd64",
+            "manifest_digest": "sha256:1ab81816384ce8e782fdbdb2b7703ab68fd12442bc311a53118dc0d74c2ced24",
+            "manifest_bytes": 4857,
+            "config_digest": "sha256:fb31598c03fbb3d68f6409548ab7b18148ee651bf7d6b40e1d907308edbf0dc2",
+            "config_bytes": 19865,
+            "metadata_hashes_verified": true,
+            "labels": {
+              "org.opencontainers.image.revision": "8303cb117e197c700332b33b61b45314c9cc5bb4",
+              "org.opencontainers.image.source": "https://github.com/immich-app/immich",
+              "org.opencontainers.image.version": "v3.3.5"
+            },
+            "layer_count": 24
+          },
+          {
+            "os": "linux",
+            "architecture": "arm64",
+            "manifest_digest": "sha256:0cb5bfcdc301a00b1c0c221d5b665b54c1b69a3ccc96b13a82cdfec818dcfa27",
+            "manifest_bytes": 4856,
+            "config_digest": "sha256:0d7b7ad3bd1a03ebe1cf78b058f12a8bfcf505a88fcd393b85966c1560ecf568",
+            "config_bytes": 19865,
+            "metadata_hashes_verified": true,
+            "labels": {
+              "org.opencontainers.image.revision": "8303cb117e197c700332b33b61b45314c9cc5bb4",
+              "org.opencontainers.image.source": "https://github.com/immich-app/immich",
+              "org.opencontainers.image.version": "v3.3.5"
+            },
+            "layer_count": 24
+          }
+        ],
+        "image_layers_pulled": false,
+        "container_executed": false,
+        "index_digest": "sha256:485d546a2e31d6a8b4db8423fcba5c109de8c218d93410af115fd1ccfc4352a6",
+        "index_bytes": 2204,
+        "annotations": {
+          "org.opencontainers.image.revision": "8303cb117e197c700332b33b61b45314c9cc5bb4",
+          "org.opencontainers.image.source": "https://github.com/immich-app/immich",
+          "org.opencontainers.image.version": "v3.3.5"
+        },
+        "status": "index_and_platform_metadata_verified"
+      },
+      {
+        "service": "machineLearning",
+        "reference": "ghcr.io/immich-app/immich-machine-learning@sha256:5b28c9352c8374b8a1ed96fbdd8d6755fea6e43510ec43fdf6538aa02ea40f56",
+        "scope": "public_registry_metadata",
+        "index_verified": true,
+        "platforms": [
+          {
+            "os": "linux",
+            "architecture": "amd64",
+            "manifest_digest": "sha256:1270449e47e1fcd703661c4d728b7904d89aacfb715662c26116cc9dd73f266b",
+            "manifest_bytes": 2386,
+            "config_digest": "sha256:fc548ba30a5025dfdd4a5ada9a227b557fbadc95786b6cd52f5ad3cd3f198268",
+            "config_bytes": 12815,
+            "metadata_hashes_verified": true,
+            "labels": {
+              "org.opencontainers.image.revision": "8303cb117e197c700332b33b61b45314c9cc5bb4",
+              "org.opencontainers.image.source": "https://github.com/immich-app/immich",
+              "org.opencontainers.image.version": "v3.3.5"
+            },
+            "layer_count": 11
+          },
+          {
+            "os": "linux",
+            "architecture": "arm64",
+            "manifest_digest": "sha256:3719420e1f981955793389c0178bd600cf3bd7edc3a35dc0bb2996e8353280e7",
+            "manifest_bytes": 2386,
+            "config_digest": "sha256:7b0c7e0c9a3f05cd8c3c238ac131a02efc3052deaf6f56b6811752e758d377f1",
+            "config_bytes": 12769,
+            "metadata_hashes_verified": true,
+            "labels": {
+              "org.opencontainers.image.revision": "8303cb117e197c700332b33b61b45314c9cc5bb4",
+              "org.opencontainers.image.source": "https://github.com/immich-app/immich",
+              "org.opencontainers.image.version": "v3.3.5"
+            },
+            "layer_count": 11
+          }
+        ],
+        "image_layers_pulled": false,
+        "container_executed": false,
+        "index_digest": "sha256:5b28c9352c8374b8a1ed96fbdd8d6755fea6e43510ec43fdf6538aa02ea40f56",
+        "index_bytes": 2204,
+        "annotations": {
+          "org.opencontainers.image.revision": "8303cb117e197c700332b33b61b45314c9cc5bb4",
+          "org.opencontainers.image.source": "https://github.com/immich-app/immich",
+          "org.opencontainers.image.version": "v3.3.5"
+        },
+        "status": "index_and_platform_metadata_verified"
+      },
+      {
+        "service": "redis",
+        "reference": "docker.io/valkey/valkey:9@sha256:c123e3715db63d06d4ad6964884037aa0d5d4d703939b9929954112889708e1d",
+        "scope": "public_registry_metadata",
+        "index_verified": true,
+        "platforms": [
+          {
+            "os": "linux",
+            "architecture": "amd64",
+            "manifest_digest": "sha256:67878c70fc179bb928b1a9b510860aff1c475ff245e91d98d4b2133326bf8e3e",
+            "manifest_bytes": 1619,
+            "config_digest": "sha256:c439a6b7b7dfe74b25d78f9e5d27fbaeb761f676de82eb1a154c5b719a8cfb3e",
+            "config_bytes": 3141,
+            "metadata_hashes_verified": true,
+            "layer_count": 7,
+            "labels": {
+              "org.opencontainers.image.source": "https://github.com/valkey-io/valkey"
+            },
+            "config_redirect_hosts": [
+              "production.cloudfront.docker.com"
+            ]
+          },
+          {
+            "os": "linux",
+            "architecture": "arm64",
+            "manifest_digest": "sha256:5c3b442de7298629138577ebdac0d039a2866df5a2fc61c605b00b91c6d03524",
+            "manifest_bytes": 1619,
+            "config_digest": "sha256:a9a45b7f76118bdb1cbfb464003081386f1fea54e9b67f1d41ec78c5a6bdaa5c",
+            "config_bytes": 3141,
+            "metadata_hashes_verified": true,
+            "layer_count": 7,
+            "labels": {
+              "org.opencontainers.image.source": "https://github.com/valkey-io/valkey"
+            },
+            "config_redirect_hosts": [
+              "production.cloudfront.docker.com"
+            ]
+          }
+        ],
+        "image_layers_pulled": false,
+        "container_executed": false,
+        "index_digest": "sha256:c123e3715db63d06d4ad6964884037aa0d5d4d703939b9929954112889708e1d",
+        "index_bytes": 1216,
+        "annotations": {},
+        "status": "index_and_platform_metadata_verified",
+        "follow_up_report": "reports/valkey-platform-metadata-2026-11-10.json"
+      },
+      {
+        "service": "database",
+        "reference": "ghcr.io/immich-app/postgres:14-vectorchord0.4.3-pgvectors0.2.0@sha256:bcf63357191b76a916ae5eb93464d65c07511da41e3bf7a8416db519b40b1c23",
+        "scope": "public_registry_metadata",
+        "index_verified": true,
+        "platforms": [
+          {
+            "os": "linux",
+            "architecture": "amd64",
+            "manifest_digest": "sha256:b1d33572a9a0634aa6d344077467ad32847812a37fa3859f702952cba22a2f55",
+            "manifest_bytes": 4281,
+            "config_digest": "sha256:178719aeb38df6f0ce8edc1d8320008379fcf04eb3444e76419cc98d9861e331",
+            "config_bytes": 15686,
+            "metadata_hashes_verified": true,
+            "labels": {
+              "org.opencontainers.image.revision": "c5095615488fa07469b5df48a3c3e5cebeed7296",
+              "org.opencontainers.image.source": "https://github.com/immich-app/base-images",
+              "org.opencontainers.image.version": "14-vectorchord0.4.3-pgvector0.8.1-pgvectors0.2.0"
+            },
+            "layer_count": 21
+          },
+          {
+            "os": "linux",
+            "architecture": "arm64",
+            "manifest_digest": "sha256:6244e923bfde05b58bc4fc26b21025415c166c6239b6b9886fb0e806dcc99001",
+            "manifest_bytes": 4281,
+            "config_digest": "sha256:1e66b73624e79cc926fe821507dd1b610989204e71c55c1335b342a6feada854",
+            "config_bytes": 15687,
+            "metadata_hashes_verified": true,
+            "labels": {
+              "org.opencontainers.image.revision": "c5095615488fa07469b5df48a3c3e5cebeed7296",
+              "org.opencontainers.image.source": "https://github.com/immich-app/base-images",
+              "org.opencontainers.image.version": "14-vectorchord0.4.3-pgvector0.8.1-pgvectors0.2.0"
+            },
+            "layer_count": 21
+          }
+        ],
+        "image_layers_pulled": false,
+        "container_executed": false,
+        "index_digest": "sha256:bcf63357191b76a916ae5eb93464d65c07511da41e3bf7a8416db519b40b1c23",
+        "index_bytes": 1609,
+        "annotations": {},
+        "status": "index_and_platform_metadata_verified"
+      }
+    ],
+    "pending_services": [],
+    "index_verified_services": [
+      "server",
+      "machineLearning",
+      "redis",
+      "database"
+    ],
+    "platform_metadata_verified_services": [
+      "server",
+      "machineLearning",
+      "redis",
+      "database"
+    ],
+    "unverified_platform_metadata_services": [],
+    "previous_redis_attempts": {
+      "observation": {
+        "service": "redis",
+        "reference": "docker.io/valkey/valkey:9@sha256:c123e3715db63d06d4ad6964884037aa0d5d4d703939b9929954112889708e1d",
+        "scope": "public_registry_metadata",
+        "index_verified": true,
+        "platforms": [],
+        "image_layers_pulled": false,
+        "container_executed": false,
+        "index_digest": "sha256:c123e3715db63d06d4ad6964884037aa0d5d4d703939b9929954112889708e1d",
+        "index_bytes": 1216,
+        "annotations": {},
+        "status": "incomplete_metadata_verification",
+        "error_type": "HTTPError",
+        "http_status": 401
+      },
+      "bounded_retry": {
+        "deadline_seconds": 60,
+        "deadline_exceeded": true,
+        "observations": [],
+        "scope": "public_registry_metadata_only"
+      }
+    },
+    "redis_curl_follow_up": {
+      "state": "completed",
+      "deadline_seconds": 55,
+      "requests": 8,
+      "scope": "anonymous public immutable metadata only",
+      "report": "reports/valkey-platform-metadata-2026-11-10.json"
+    }
+  }
+}

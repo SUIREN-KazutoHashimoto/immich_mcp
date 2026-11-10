@@ -1,0 +1,32 @@
+{
+  "version": "1.0.0-beta.1",
+  "target_immich_version": "3.3.5",
+  "existing_files": {
+    "package.json": {
+      "before_sha256": "8e168013173e2d286f8abc17e81aae7e19b4daeaf3f83e67986666d653a7284f",
+      "after_sha256": "b1d3f1a0a383b1c565d29afa1b54d13731119edbef9d6bc74a645102db8e2b2c",
+      "exact_inverse": true
+    },
+    "src/tools.ts": {
+      "before_sha256": "047de0705b6b9b79eb1a903c3b5f0546d31bb282039e90829b31c6165667bf4d",
+      "after_sha256": "acc063f314496f806e9cde02d0e6e14447c3e336953b4d34e7a1b97e18b512f4",
+      "exact_inverse": true
+    },
+    "compose.yaml": {
+      "before_sha256": "bbcaa28f24d46911933a6a839326648954abb7a581db0ee08be7053367b0d61b",
+      "after_sha256": "fb11da3e8b6ffdabdfa5b0ebfc9dc2f41b73da6aa43dcb4573e8cd4a58e7ae70",
+      "exact_inverse": true
+    },
+    "deploy/.env.example": {
+      "before_sha256": "8c33751a06c077409fba5611905bc6d382abb4c97b0fb6459fb3e2cbf06f79f9",
+      "after_sha256": "62e324d669de285cbb57239c5a70df39633127d69287cfe22da2f6280970a970",
+      "exact_inverse": true
+    },
+    "Dockerfile": {
+      "before_sha256": "43824e85d83813bbeadda94cc7bfea18b3bf222c6fad92f4d60a315f931ba20a",
+      "after_sha256": "b04fa51f8bd932f6b7fa2d6b7d25bab4f2e4636ff2b891b1fa1869efa11b6960",
+      "exact_inverse": true
+    }
+  },
+  "runtime_application_change": "Only the MCP initialize serverInfo.version string changed; no API/auth/storage/executor changes"
+}

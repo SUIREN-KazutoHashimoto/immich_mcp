@@ -1,0 +1,17 @@
+{
+  "producer": "Python 3.12.14 zipfile ZIP_STORED / nonseekable sink",
+  "sha256": "b1179d8e8e8b34d876ec82bcb3fcc9007caf1608f7bf862d59df6ba4e8e2f9b3",
+  "base64": "UEsDBBQACAgAAIMYIlwAAAAAAAAAAAAAAAAOAAAATUNQLeippumoky50eHRpbmRlcGVuZGVudCBzdG9yZWQgYXJjaGl2ZSBvcmFjbGUA/1BLBwgLkdfZIwAAACMAAABQSwMEFAAIAAAAgxgiXAAAAAAAAAAAAAAAAAkAAABlbXB0eS50eHRQSwcIAAAAAAAAAAAAAAAAUEsBAhQAFAAICAAAgxgiXAuR19kjAAAAIwAAAA4AAAAAAAAAAAAAAIABAAAAAE1DUC3oqabpqJMudHh0UEsBAhQAFAAIAAAAgxgiXAAAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAIABXwAAAGVtcHR5LnR4dFBLBQYAAAAAAgACAHMAAACWAAAAAAA=",
+  "entries": [
+    {
+      "name": "MCP-\u8a66\u9a13.txt",
+      "base64": "aW5kZXBlbmRlbnQgc3RvcmVkIGFyY2hpdmUgb3JhY2xlAP8=",
+      "crc32": 3654783243
+    },
+    {
+      "name": "empty.txt",
+      "base64": "",
+      "crc32": 0
+    }
+  ]
+}

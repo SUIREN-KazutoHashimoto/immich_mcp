@@ -1,0 +1,23 @@
+{
+  "format": "immich-mcp-plugin-method-schema-correction",
+  "version": 1,
+  "immich_version": "3.3.5",
+  "source_commit": "8303cb117e197c700332b33b61b45314c9cc5bb4",
+  "openapi_sha256": "632700b84590f6b197fe6ef9a8486db19d08a31a03cf10bc780925e8a32b6bb9",
+  "method_component_sha256": "5fd5fd3cabd4d4e1f6b3f95640360611945e8f39a6d77c2842bb3b9739ac0c4a",
+  "plugin_component_sha256": "4f5af777294c6578bdabc6107af86c1a9eef6d19003fd293d34143d230a2b970",
+  "operation_ids": [
+    "getPlugin",
+    "searchPlugins",
+    "searchPluginMethods"
+  ],
+  "source_urls": [
+    "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/plugin.controller.ts",
+    "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/plugin.service.ts",
+    "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/repositories/plugin.repository.ts",
+    "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/dtos/plugin.dto.ts",
+    "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/dtos/plugin-manifest.dto.ts",
+    "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/schema/tables/plugin-method.table.ts"
+  ],
+  "evidence_scope": "fixed_source_and_local_reproduction_only; actual Immich acceptance remains unverified"
+}

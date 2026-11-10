@@ -1,0 +1,88 @@
+{
+  "name": "immich-mcp-beta1",
+  "services": {
+    "mcp": {
+      "image": "${MCP_IMAGE:-immich-mcp:1.0.0-beta.1}",
+      "build": {
+        "context": ".",
+        "dockerfile": "Dockerfile",
+        "args": {
+          "NODE_IMAGE": "${NODE_IMAGE:-node:24.22.2-bookworm-slim}"
+        }
+      },
+      "init": true,
+      "user": "1000:1000",
+      "read_only": true,
+      "cap_drop": [
+        "ALL"
+      ],
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "restart": "no",
+      "env_file": [
+        {
+          "path": "${MCP_ENV_FILE:?Set MCP_ENV_FILE to the private runtime env file}",
+          "required": true
+        }
+      ],
+      "environment": {
+        "MCP_LISTEN_HOST": "0.0.0.0",
+        "MCP_LISTEN_PORT": "3000",
+        "STORAGE_PATH": "/data",
+        "DATABASE_PATH": "/data/vault.sqlite",
+        "VAULT_MASTER_KEY_FILE": "/run/secrets/vault_master_key"
+      },
+      "secrets": [
+        {
+          "source": "vault_master_key",
+          "target": "vault_master_key"
+        }
+      ],
+      "volumes": [
+        {
+          "type": "bind",
+          "source": "${MCP_DATA_DIR:?Set MCP_DATA_DIR to an existing data directory}",
+          "target": "/data",
+          "bind": {
+            "create_host_path": false
+          }
+        }
+      ],
+      "tmpfs": [
+        "/tmp:rw,noexec,nosuid,size=134217728,uid=1000,gid=1000,mode=1770"
+      ],
+      "pids_limit": 128,
+      "stop_grace_period": "45s",
+      "networks": {
+        "mcp_egress": {},
+        "immich": {
+          "aliases": [
+            "immich-mcp-beta1"
+          ]
+        }
+      },
+      "ports": [
+        {
+          "target": 3000,
+          "published": "${MCP_TEST_PORT:-3000}",
+          "host_ip": "127.0.0.1",
+          "protocol": "tcp"
+        }
+      ],
+      "pull_policy": "never"
+    }
+  },
+  "networks": {
+    "mcp_egress": {},
+    "immich": {
+      "external": true,
+      "name": "${IMMICH_NETWORK:?Set IMMICH_NETWORK to the existing API network}"
+    }
+  },
+  "secrets": {
+    "vault_master_key": {
+      "file": "${MCP_MASTER_KEY_FILE:?Set MCP_MASTER_KEY_FILE to the separate 32-byte key file}"
+    }
+  }
+}

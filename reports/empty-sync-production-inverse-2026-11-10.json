@@ -1,0 +1,24 @@
+{
+  "observed_at": "2026-11-10T08:40:03.419899+00:00",
+  "production_reversals": [
+    {
+      "source": "src/projection.ts",
+      "current_sha256": "d663bceb7678556e8c6feeefe943668e129abdba65cf71979eaa6f15ccfe261f",
+      "previous_sha256": "e3ec98336836da9856c1395fd8fc0812a0c2beeeb8dd7bd599046b9f2159fa85",
+      "inverse_sha256": "e3ec98336836da9856c1395fd8fc0812a0c2beeeb8dd7bd599046b9f2159fa85",
+      "exact_inverse": true
+    },
+    {
+      "source": "src/json-projection.ts",
+      "current_sha256": "898dbc3f2d33c29d6eae56c24cbdae10a28c4942537882ee18d7ebed4b10d7cb",
+      "previous_sha256": "5f3db9cfbd337ad04fcbda75b6b1457ef3d2d1b8e4f654492123b27e4bf20cfd",
+      "inverse_sha256": "5f3db9cfbd337ad04fcbda75b6b1457ef3d2d1b8e4f654492123b27e4bf20cfd",
+      "exact_inverse": true,
+      "compact_start": true,
+      "compact_end": true,
+      "line_endings": "CRLF"
+    }
+  ],
+  "all_production_changes_exactly_reversible": true,
+  "live_sources_not_modified": true
+}

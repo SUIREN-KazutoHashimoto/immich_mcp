@@ -1,0 +1,24 @@
+{
+  "format": "immich-mcp-workflow-log-index-correction",
+  "version": 1,
+  "immich_version": "3.3.5",
+  "source_commit": "8303cb117e197c700332b33b61b45314c9cc5bb4",
+  "openapi_sha256": "632700b84590f6b197fe6ef9a8486db19d08a31a03cf10bc780925e8a32b6bb9",
+  "operation_id": "getWorkflowLogs",
+  "http_method": "GET",
+  "api_relative_path": "/workflows/{id}/logs",
+  "openapi_operation_pointer": "#/paths/~1workflows~1{id}~1logs/get",
+  "status_code": 200,
+  "content_type": "application/json",
+  "component_name": "WorkflowLogEntryDto",
+  "component_sha256": "6701a6a67fd6a8cf08f1162e6ccba74243bd1a1fa68632c23087e5799b324543",
+  "component_property_pointer": "/properties/lastStep/properties/index",
+  "source_urls": [
+    "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/controllers/workflow.controller.ts",
+    "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/workflow.service.ts",
+    "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/repositories/workflow.repository.ts",
+    "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/dtos/workflow.dto.ts",
+    "https://github.com/immich-app/immich/blob/8303cb117e197c700332b33b61b45314c9cc5bb4/server/src/services/workflow-execution.service.ts"
+  ],
+  "evidence_scope": "fixed_source_and_local_reproduction_only; actual Immich acceptance remains unverified"
+}

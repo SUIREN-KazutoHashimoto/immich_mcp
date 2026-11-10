@@ -1,0 +1,10 @@
+{
+  "ok": true,
+  "version": "3.3.5",
+  "source_commit": "8303cb117e197c700332b33b61b45314c9cc5bb4",
+  "operations": 279,
+  "paths": 193,
+  "primary_tags": 41,
+  "hidden_patch_aliases": 14,
+  "openapi_sha256": "632700b84590f6b197fe6ef9a8486db19d08a31a03cf10bc780925e8a32b6bb9"
+}

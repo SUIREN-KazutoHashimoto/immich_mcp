@@ -1,0 +1,2144 @@
+{
+  "artifact_type": "mcp_tool_contract_design",
+  "schema_version": "1.0.0",
+  "status": "specification_only_not_application_implementation",
+  "json_schema_dialect": "https://json-schema.org/draft/2020-12/schema",
+  "target": {
+    "version": "3.3.5",
+    "operation_count": 279,
+    "openapi_sha256": "632700b84590f6b197fe6ef9a8486db19d08a31a03cf10bc780925e8a32b6bb9"
+  },
+  "normative_notes": [
+    "これはMCP wrapper契約。各operationの詳細入力は固定OpenAPIで別途validateする。",
+    "自由形式に見えるpath/query/headers/bodyも任意HTTP proxyを許すものではない。",
+    "全toolへMCP利用者認証を適用する。公開Immich operationでもMCP入口は匿名にしない。",
+    "OAuth securitySchemesとdiscoveryは実際のCloudflare Managed OAuthおよびChatGPT接続仕様に合わせてdescriptorへ追加する。Immich permissionsをOAuth scopeへ複製しない。",
+    "outputSchemaはstructuredContentの契約。MCP content/image/resource_link/isErrorはprotocolに従い別に返す。",
+    "入力の省略とnullは区別する。schemaにdefaultを追加して上流省略時挙動を変更しない。",
+    "context_refは本人の上流契約に対応するworkflowだけを選択する。汎用session実行を既定で開放しない。",
+    "大きなdescribeやresultは参照へ退避し、秘密置換済み表示をread_resultで完全取得できること。",
+    "JSON PointerはRFC6901。秘密補正契約の配列wildcardとこの利用者入力を混同しない。",
+    "annotationは認可ではない。クライアント実装との互換性は別途試験する。"
+  ],
+  "sources": [
+    "https://modelcontextprotocol.io/specification/2026-07-28/server/tools",
+    "https://developers.openai.com/plugins/reference",
+    "https://developers.openai.com/plugins/build/auth"
+  ],
+  "tools": [
+    {
+      "name": "immich_get_connection",
+      "description": "本人の接続状態と固定版を返す。秘密値や他利用者情報を返さない。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "target_version": {
+            "const": "3.3.5"
+          },
+          "openapi_sha256": {
+            "type": "string"
+          },
+          "binding_state": {
+            "enum": [
+              "unregistered",
+              "active",
+              "invalid",
+              "disconnected",
+              "unreachable",
+              "version_mismatch"
+            ]
+          },
+          "connection_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "connect_url": {
+            "type": "string"
+          },
+          "credential_revision": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "diagnostic": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "source": {
+                    "enum": [
+                      "mcp_bridge",
+                      "upstream"
+                    ]
+                  },
+                  "upstream_error": {},
+                  "details": {},
+                  "retryable": {
+                    "type": "boolean"
+                  }
+                },
+                "additionalProperties": true,
+                "required": [
+                  "code",
+                  "message",
+                  "source"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "target_version",
+          "openapi_sha256",
+          "binding_state",
+          "connect_url"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "_meta": {}
+    },
+    {
+      "name": "immich_api_catalog",
+      "description": "固定版の全279操作を検索する。権限不足でも操作を除外しない。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string"
+          },
+          "tag": {
+            "type": "string"
+          },
+          "cursor": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          }
+        },
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "const": 279
+          },
+          "matched": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "entries": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "operation_id": {
+                  "type": "string"
+                },
+                "method": {
+                  "type": "string"
+                },
+                "path": {
+                  "type": "string"
+                },
+                "tag": {
+                  "type": "string"
+                },
+                "summary": {
+                  "type": "string"
+                },
+                "state": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "auth_requirements": {
+                  "type": "object",
+                  "additionalProperties": {}
+                }
+              },
+              "additionalProperties": true,
+              "required": [
+                "operation_id",
+                "method",
+                "path",
+                "tag"
+              ]
+            }
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 512
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "source_sha256": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "total",
+          "matched",
+          "entries",
+          "next_cursor",
+          "source_sha256"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "_meta": {}
+    },
+    {
+      "name": "immich_api_describe",
+      "description": "操作の完全な上流schema、参照定義、認証条件と補正を返す。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "operation_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 1,
+            "maxItems": 10,
+            "uniqueItems": true
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "operation_ids"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "operations": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": {}
+            }
+          },
+          "definitions": {
+            "type": "object",
+            "additionalProperties": {}
+          },
+          "source_sha256": {
+            "type": "string"
+          },
+          "result_ref": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 512
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "truncated": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "operations",
+          "definitions",
+          "source_sha256",
+          "result_ref",
+          "truncated"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "_meta": {}
+    },
+    {
+      "name": "immich_api_call",
+      "description": "全279操作を本人の登録APIキーで実行する。上流拒否時に他認証へ切り替えない。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "operation_id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "固定3.3.5レジストリのoperationId。実行時に全279操作の集合と照合する。"
+          },
+          "path": {
+            "type": "object",
+            "additionalProperties": {}
+          },
+          "query": {
+            "type": "object",
+            "additionalProperties": {}
+          },
+          "headers": {
+            "type": "object",
+            "additionalProperties": {}
+          },
+          "content_type": {
+            "type": "string",
+            "minLength": 1
+          },
+          "body": {},
+          "files": {
+            "type": "object",
+            "additionalProperties": {
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/FilePart"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/$defs/FilePart"
+                  }
+                }
+              ]
+            }
+          },
+          "secret_bindings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/SecretBinding"
+            }
+          },
+          "result_mode": {
+            "enum": [
+              "auto",
+              "inline",
+              "reference"
+            ]
+          },
+          "execution_mode": {
+            "enum": [
+              "auto",
+              "sync",
+              "async"
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "operation_id"
+        ],
+        "$defs": {
+          "FilePart": {
+            "type": "object",
+            "properties": {
+              "file_ref": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 512
+              },
+              "file_name": {
+                "type": "string"
+              },
+              "mime_type": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "file_ref"
+            ]
+          },
+          "SecretBinding": {
+            "type": "object",
+            "properties": {
+              "location": {
+                "enum": [
+                  "body",
+                  "query",
+                  "headers",
+                  "form"
+                ]
+              },
+              "pointer": {
+                "type": "string",
+                "pattern": "^(?:/(?:[^~/]|~[01])*)*$"
+              },
+              "secret_ref": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 512
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "location",
+              "pointer",
+              "secret_ref"
+            ]
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "schema_version": {
+            "const": "1"
+          },
+          "operation_id": {
+            "type": "string"
+          },
+          "request_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512
+          },
+          "upstream": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "integer",
+                    "minimum": 100,
+                    "maximum": 599
+                  },
+                  "content_type": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "headers": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "string"
+                    }
+                  },
+                  "redirects": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "status": {
+                          "type": "integer"
+                        },
+                        "safe_location": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "secret_receipt_ref": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 512
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      },
+                      "additionalProperties": false,
+                      "required": [
+                        "status"
+                      ]
+                    }
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "status",
+                  "content_type"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "state": {
+            "enum": [
+              "queued",
+              "running",
+              "completed",
+              "failed",
+              "outcome_unknown",
+              "cancel_requested",
+              "cancelled"
+            ]
+          },
+          "auth_context_kind": {
+            "enum": [
+              "api_key",
+              "session_special",
+              "shared_link",
+              "public_auth",
+              "maintenance",
+              "explicit_session_workflow"
+            ]
+          },
+          "data": {},
+          "result_ref": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 512
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "job_ref": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 512
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "truncated": {
+            "type": "boolean"
+          },
+          "diagnostic": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "source": {
+                    "enum": [
+                      "mcp_bridge",
+                      "upstream"
+                    ]
+                  },
+                  "upstream_error": {},
+                  "details": {},
+                  "retryable": {
+                    "type": "boolean"
+                  }
+                },
+                "additionalProperties": true,
+                "required": [
+                  "code",
+                  "message",
+                  "source"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "secret_receipt_refs": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512
+            }
+          },
+          "delivery": {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "enum": [
+                  "json",
+                  "jsonl",
+                  "binary",
+                  "hls",
+                  "text",
+                  "empty",
+                  "redirect"
+                ]
+              },
+              "mime_type": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "size_bytes": {
+                "anyOf": [
+                  {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "sha256": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "authenticated_download_url": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "kind"
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "schema_version",
+          "operation_id",
+          "request_id",
+          "upstream",
+          "state",
+          "auth_context_kind",
+          "result_ref",
+          "job_ref",
+          "truncated",
+          "diagnostic"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "_meta": {}
+    },
+    {
+      "name": "immich_api_call_context",
+      "description": "本人が設定画面で明示的に接続した特殊認証workflowを実行する。APIキーscopeは継承されず、通常callの自動fallbackには使用しない。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "context_ref": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512
+          },
+          "call": {
+            "$ref": "#/$defs/CallRequest"
+          },
+          "adapter_inputs": {
+            "type": "object",
+            "properties": {
+              "oauth_callback_ref": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 512
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "context_ref",
+          "call"
+        ],
+        "$defs": {
+          "FilePart": {
+            "type": "object",
+            "properties": {
+              "file_ref": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 512
+              },
+              "file_name": {
+                "type": "string"
+              },
+              "mime_type": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "file_ref"
+            ]
+          },
+          "SecretBinding": {
+            "type": "object",
+            "properties": {
+              "location": {
+                "enum": [
+                  "body",
+                  "query",
+                  "headers",
+                  "form"
+                ]
+              },
+              "pointer": {
+                "type": "string",
+                "pattern": "^(?:/(?:[^~/]|~[01])*)*$"
+              },
+              "secret_ref": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 512
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "location",
+              "pointer",
+              "secret_ref"
+            ]
+          },
+          "CallRequest": {
+            "type": "object",
+            "properties": {
+              "operation_id": {
+                "type": "string",
+                "minLength": 1,
+                "description": "固定3.3.5レジストリのoperationId。実行時に全279操作の集合と照合する。"
+              },
+              "path": {
+                "type": "object",
+                "additionalProperties": {}
+              },
+              "query": {
+                "type": "object",
+                "additionalProperties": {}
+              },
+              "headers": {
+                "type": "object",
+                "additionalProperties": {}
+              },
+              "content_type": {
+                "type": "string",
+                "minLength": 1
+              },
+              "body": {},
+              "files": {
+                "type": "object",
+                "additionalProperties": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/$defs/FilePart"
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/$defs/FilePart"
+                      }
+                    }
+                  ]
+                }
+              },
+              "secret_bindings": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/SecretBinding"
+                }
+              },
+              "result_mode": {
+                "enum": [
+                  "auto",
+                  "inline",
+                  "reference"
+                ]
+              },
+              "execution_mode": {
+                "enum": [
+                  "auto",
+                  "sync",
+                  "async"
+                ]
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "operation_id"
+            ]
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "schema_version": {
+            "const": "1"
+          },
+          "operation_id": {
+            "type": "string"
+          },
+          "request_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512
+          },
+          "upstream": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "integer",
+                    "minimum": 100,
+                    "maximum": 599
+                  },
+                  "content_type": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "headers": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "string"
+                    }
+                  },
+                  "redirects": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "status": {
+                          "type": "integer"
+                        },
+                        "safe_location": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "secret_receipt_ref": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 512
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      },
+                      "additionalProperties": false,
+                      "required": [
+                        "status"
+                      ]
+                    }
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "status",
+                  "content_type"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "state": {
+            "enum": [
+              "queued",
+              "running",
+              "completed",
+              "failed",
+              "outcome_unknown",
+              "cancel_requested",
+              "cancelled"
+            ]
+          },
+          "auth_context_kind": {
+            "enum": [
+              "api_key",
+              "session_special",
+              "shared_link",
+              "public_auth",
+              "maintenance",
+              "explicit_session_workflow"
+            ]
+          },
+          "data": {},
+          "result_ref": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 512
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "job_ref": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 512
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "truncated": {
+            "type": "boolean"
+          },
+          "diagnostic": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "source": {
+                    "enum": [
+                      "mcp_bridge",
+                      "upstream"
+                    ]
+                  },
+                  "upstream_error": {},
+                  "details": {},
+                  "retryable": {
+                    "type": "boolean"
+                  }
+                },
+                "additionalProperties": true,
+                "required": [
+                  "code",
+                  "message",
+                  "source"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "secret_receipt_refs": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512
+            }
+          },
+          "delivery": {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "enum": [
+                  "json",
+                  "jsonl",
+                  "binary",
+                  "hls",
+                  "text",
+                  "empty",
+                  "redirect"
+                ]
+              },
+              "mime_type": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "size_bytes": {
+                "anyOf": [
+                  {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "sha256": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "authenticated_download_url": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "kind"
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "schema_version",
+          "operation_id",
+          "request_id",
+          "upstream",
+          "state",
+          "auth_context_kind",
+          "result_ref",
+          "job_ref",
+          "truncated",
+          "diagnostic"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "_meta": {}
+    },
+    {
+      "name": "immich_stage_files",
+      "description": "ChatGPTの添付ファイルを本人所有のfile_refへ取り込む。URLは検証済みの添付取得だけに使う。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "files": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "$ref": "#/$defs/OpenAIFile"
+            }
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "files"
+        ],
+        "$defs": {
+          "OpenAIFile": {
+            "type": "object",
+            "properties": {
+              "download_url": {
+                "type": "string"
+              },
+              "file_id": {
+                "type": "string"
+              },
+              "mime_type": {
+                "type": "string"
+              },
+              "file_name": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "download_url",
+              "file_id"
+            ]
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "files": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "file_ref": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 512
+                },
+                "file_name": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "mime_type": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "size_bytes": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "sha256": {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{64}$"
+                },
+                "expires_at": {
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false,
+              "required": [
+                "file_ref",
+                "size_bytes",
+                "sha256",
+                "expires_at"
+              ]
+            }
+          },
+          "job_ref": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 512
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "state": {
+            "enum": [
+              "queued",
+              "running",
+              "completed",
+              "failed"
+            ]
+          },
+          "diagnostic": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "source": {
+                    "enum": [
+                      "mcp_bridge",
+                      "upstream"
+                    ]
+                  },
+                  "upstream_error": {},
+                  "details": {},
+                  "retryable": {
+                    "type": "boolean"
+                  }
+                },
+                "additionalProperties": true,
+                "required": [
+                  "code",
+                  "message",
+                  "source"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "files",
+          "job_ref",
+          "state",
+          "diagnostic"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "_meta": {
+        "openai/fileParams": [
+          "files"
+        ]
+      }
+    },
+    {
+      "name": "immich_read_result",
+      "description": "本人の結果のモデル向け表示を読む。secret原本には到達させない。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "result_ref": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512
+          },
+          "json_pointer": {
+            "type": "string",
+            "pattern": "^(?:/(?:[^~/]|~[01])*)*$"
+          },
+          "cursor": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "mode": {
+            "enum": [
+              "json",
+              "jsonl",
+              "text",
+              "metadata",
+              "preview"
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "result_ref"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result_ref": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512
+          },
+          "data": {},
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 512
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "complete": {
+            "type": "boolean"
+          },
+          "truncated": {
+            "type": "boolean"
+          },
+          "diagnostic": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "source": {
+                    "enum": [
+                      "mcp_bridge",
+                      "upstream"
+                    ]
+                  },
+                  "upstream_error": {},
+                  "details": {},
+                  "retryable": {
+                    "type": "boolean"
+                  }
+                },
+                "additionalProperties": true,
+                "required": [
+                  "code",
+                  "message",
+                  "source"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "result_ref",
+          "next_cursor",
+          "complete",
+          "truncated",
+          "diagnostic"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "_meta": {}
+    },
+    {
+      "name": "immich_get_job",
+      "description": "本人のjobの状態と完了結果を返す。上流の受付と実処理完了を区別する。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "job_ref": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "job_ref"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "job_ref": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512
+          },
+          "state": {
+            "enum": [
+              "queued",
+              "running",
+              "completed",
+              "failed",
+              "outcome_unknown",
+              "cancel_requested",
+              "cancelled"
+            ]
+          },
+          "sent_upstream": {
+            "type": "boolean"
+          },
+          "upstream_response_received": {
+            "type": "boolean"
+          },
+          "progress": {
+            "type": "object",
+            "additionalProperties": {}
+          },
+          "result": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "schema_version": {
+                    "const": "1"
+                  },
+                  "operation_id": {
+                    "type": "string"
+                  },
+                  "request_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 512
+                  },
+                  "upstream": {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "status": {
+                            "type": "integer",
+                            "minimum": 100,
+                            "maximum": 599
+                          },
+                          "content_type": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "headers": {
+                            "type": "object",
+                            "additionalProperties": {
+                              "type": "string"
+                            }
+                          },
+                          "redirects": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "status": {
+                                  "type": "integer"
+                                },
+                                "safe_location": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "secret_receipt_ref": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string",
+                                      "minLength": 1,
+                                      "maxLength": 512
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                }
+                              },
+                              "additionalProperties": false,
+                              "required": [
+                                "status"
+                              ]
+                            }
+                          }
+                        },
+                        "additionalProperties": false,
+                        "required": [
+                          "status",
+                          "content_type"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "state": {
+                    "enum": [
+                      "queued",
+                      "running",
+                      "completed",
+                      "failed",
+                      "outcome_unknown",
+                      "cancel_requested",
+                      "cancelled"
+                    ]
+                  },
+                  "auth_context_kind": {
+                    "enum": [
+                      "api_key",
+                      "session_special",
+                      "shared_link",
+                      "public_auth",
+                      "maintenance",
+                      "explicit_session_workflow"
+                    ]
+                  },
+                  "data": {},
+                  "result_ref": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 512
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "job_ref": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 512
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "truncated": {
+                    "type": "boolean"
+                  },
+                  "diagnostic": {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "code": {
+                            "type": "string"
+                          },
+                          "message": {
+                            "type": "string"
+                          },
+                          "source": {
+                            "enum": [
+                              "mcp_bridge",
+                              "upstream"
+                            ]
+                          },
+                          "upstream_error": {},
+                          "details": {},
+                          "retryable": {
+                            "type": "boolean"
+                          }
+                        },
+                        "additionalProperties": true,
+                        "required": [
+                          "code",
+                          "message",
+                          "source"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "secret_receipt_refs": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 512
+                    }
+                  },
+                  "delivery": {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "enum": [
+                          "json",
+                          "jsonl",
+                          "binary",
+                          "hls",
+                          "text",
+                          "empty",
+                          "redirect"
+                        ]
+                      },
+                      "mime_type": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "size_bytes": {
+                        "anyOf": [
+                          {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "sha256": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "pattern": "^[a-f0-9]{64}$"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "authenticated_download_url": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "additionalProperties": false,
+                    "required": [
+                      "kind"
+                    ]
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "schema_version",
+                  "operation_id",
+                  "request_id",
+                  "upstream",
+                  "state",
+                  "auth_context_kind",
+                  "result_ref",
+                  "job_ref",
+                  "truncated",
+                  "diagnostic"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "diagnostic": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "source": {
+                    "enum": [
+                      "mcp_bridge",
+                      "upstream"
+                    ]
+                  },
+                  "upstream_error": {},
+                  "details": {},
+                  "retryable": {
+                    "type": "boolean"
+                  }
+                },
+                "additionalProperties": true,
+                "required": [
+                  "code",
+                  "message",
+                  "source"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "job_ref",
+          "state",
+          "sent_upstream",
+          "upstream_response_received",
+          "result",
+          "diagnostic"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "_meta": {}
+    },
+    {
+      "name": "immich_cancel_job",
+      "description": "本人の未送信jobまたは転送を停止する。上流の既存効果が取り消されたとは限らない。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "job_ref": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "job_ref"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "job_ref": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512
+          },
+          "state": {
+            "enum": [
+              "queued",
+              "running",
+              "completed",
+              "failed",
+              "outcome_unknown",
+              "cancel_requested",
+              "cancelled"
+            ]
+          },
+          "sent_upstream": {
+            "type": "boolean"
+          },
+          "upstream_response_received": {
+            "type": "boolean"
+          },
+          "progress": {
+            "type": "object",
+            "additionalProperties": {}
+          },
+          "result": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "schema_version": {
+                    "const": "1"
+                  },
+                  "operation_id": {
+                    "type": "string"
+                  },
+                  "request_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 512
+                  },
+                  "upstream": {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "status": {
+                            "type": "integer",
+                            "minimum": 100,
+                            "maximum": 599
+                          },
+                          "content_type": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "headers": {
+                            "type": "object",
+                            "additionalProperties": {
+                              "type": "string"
+                            }
+                          },
+                          "redirects": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "status": {
+                                  "type": "integer"
+                                },
+                                "safe_location": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "secret_receipt_ref": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string",
+                                      "minLength": 1,
+                                      "maxLength": 512
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                }
+                              },
+                              "additionalProperties": false,
+                              "required": [
+                                "status"
+                              ]
+                            }
+                          }
+                        },
+                        "additionalProperties": false,
+                        "required": [
+                          "status",
+                          "content_type"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "state": {
+                    "enum": [
+                      "queued",
+                      "running",
+                      "completed",
+                      "failed",
+                      "outcome_unknown",
+                      "cancel_requested",
+                      "cancelled"
+                    ]
+                  },
+                  "auth_context_kind": {
+                    "enum": [
+                      "api_key",
+                      "session_special",
+                      "shared_link",
+                      "public_auth",
+                      "maintenance",
+                      "explicit_session_workflow"
+                    ]
+                  },
+                  "data": {},
+                  "result_ref": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 512
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "job_ref": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 512
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "truncated": {
+                    "type": "boolean"
+                  },
+                  "diagnostic": {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "code": {
+                            "type": "string"
+                          },
+                          "message": {
+                            "type": "string"
+                          },
+                          "source": {
+                            "enum": [
+                              "mcp_bridge",
+                              "upstream"
+                            ]
+                          },
+                          "upstream_error": {},
+                          "details": {},
+                          "retryable": {
+                            "type": "boolean"
+                          }
+                        },
+                        "additionalProperties": true,
+                        "required": [
+                          "code",
+                          "message",
+                          "source"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "secret_receipt_refs": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 512
+                    }
+                  },
+                  "delivery": {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "enum": [
+                          "json",
+                          "jsonl",
+                          "binary",
+                          "hls",
+                          "text",
+                          "empty",
+                          "redirect"
+                        ]
+                      },
+                      "mime_type": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "size_bytes": {
+                        "anyOf": [
+                          {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "sha256": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "pattern": "^[a-f0-9]{64}$"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "authenticated_download_url": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "additionalProperties": false,
+                    "required": [
+                      "kind"
+                    ]
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "schema_version",
+                  "operation_id",
+                  "request_id",
+                  "upstream",
+                  "state",
+                  "auth_context_kind",
+                  "result_ref",
+                  "job_ref",
+                  "truncated",
+                  "diagnostic"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "diagnostic": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "source": {
+                    "enum": [
+                      "mcp_bridge",
+                      "upstream"
+                    ]
+                  },
+                  "upstream_error": {},
+                  "details": {},
+                  "retryable": {
+                    "type": "boolean"
+                  }
+                },
+                "additionalProperties": true,
+                "required": [
+                  "code",
+                  "message",
+                  "source"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "job_ref",
+          "state",
+          "sent_upstream",
+          "upstream_response_received",
+          "result",
+          "diagnostic"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "_meta": {}
+    }
+  ]
+}

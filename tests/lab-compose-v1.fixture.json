@@ -1,0 +1,152 @@
+{
+  "name": "immich-mcp-it-00000000000040008000000000000001",
+  "services": {
+    "immich-server": {
+      "image": "ghcr.io/immich-app/immich-server:v3.3.5",
+      "labels": {
+        "io.immich-mcp.integration.run": "00000000-0000-4000-8000-000000000001"
+      },
+      "restart": "no",
+      "environment": {
+        "DB_HOSTNAME": "database",
+        "DB_PORT": "5432",
+        "DB_USERNAME": "postgres",
+        "DB_DATABASE_NAME": "immich",
+        "DB_PASSWORD": "${DB_PASSWORD:?Use the private generated env file}",
+        "REDIS_HOSTNAME": "redis",
+        "REDIS_PORT": "6379",
+        "IMMICH_LOG_LEVEL": "warn"
+      },
+      "volumes": [
+        "library:/data"
+      ],
+      "ports": [
+        {
+          "target": 2283,
+          "published": "22835",
+          "host_ip": "127.0.0.1",
+          "protocol": "tcp"
+        }
+      ],
+      "depends_on": {
+        "redis": {
+          "condition": "service_healthy"
+        },
+        "database": {
+          "condition": "service_healthy"
+        }
+      },
+      "healthcheck": {
+        "disable": false
+      },
+      "networks": [
+        "isolated",
+        "egress"
+      ]
+    },
+    "immich-machine-learning": {
+      "image": "ghcr.io/immich-app/immich-machine-learning:v3.3.5",
+      "labels": {
+        "io.immich-mcp.integration.run": "00000000-0000-4000-8000-000000000001"
+      },
+      "restart": "no",
+      "volumes": [
+        "models:/cache"
+      ],
+      "healthcheck": {
+        "disable": false
+      },
+      "networks": [
+        "isolated",
+        "egress"
+      ]
+    },
+    "redis": {
+      "image": "docker.io/valkey/valkey:9@sha256:c123e3715db63d06d4ad6964884037aa0d5d4d703939b9929954112889708e1d",
+      "labels": {
+        "io.immich-mcp.integration.run": "00000000-0000-4000-8000-000000000001"
+      },
+      "restart": "no",
+      "volumes": [
+        "redis:/data"
+      ],
+      "networks": [
+        "isolated"
+      ],
+      "healthcheck": {
+        "test": [
+          "CMD",
+          "redis-cli",
+          "ping"
+        ],
+        "interval": "5s",
+        "timeout": "3s",
+        "retries": 30
+      }
+    },
+    "database": {
+      "image": "ghcr.io/immich-app/postgres:14-vectorchord0.4.3-pgvectors0.2.0@sha256:bcf63357191b76a916ae5eb93464d65c07511da41e3bf7a8416db519b40b1c23",
+      "labels": {
+        "io.immich-mcp.integration.run": "00000000-0000-4000-8000-000000000001"
+      },
+      "restart": "no",
+      "environment": {
+        "POSTGRES_PASSWORD": "${DB_PASSWORD:?Use the private generated env file}",
+        "POSTGRES_USER": "postgres",
+        "POSTGRES_DB": "immich",
+        "POSTGRES_INITDB_ARGS": "--data-checksums"
+      },
+      "volumes": [
+        "database:/var/lib/postgresql/data"
+      ],
+      "shm_size": "128mb",
+      "networks": [
+        "isolated"
+      ],
+      "healthcheck": {
+        "disable": false
+      }
+    }
+  },
+  "volumes": {
+    "library": {
+      "name": "immich-mcp-it-00000000000040008000000000000001_library",
+      "labels": {
+        "io.immich-mcp.integration.run": "00000000-0000-4000-8000-000000000001"
+      }
+    },
+    "database": {
+      "name": "immich-mcp-it-00000000000040008000000000000001_database",
+      "labels": {
+        "io.immich-mcp.integration.run": "00000000-0000-4000-8000-000000000001"
+      }
+    },
+    "models": {
+      "name": "immich-mcp-it-00000000000040008000000000000001_models",
+      "labels": {
+        "io.immich-mcp.integration.run": "00000000-0000-4000-8000-000000000001"
+      }
+    },
+    "redis": {
+      "name": "immich-mcp-it-00000000000040008000000000000001_redis",
+      "labels": {
+        "io.immich-mcp.integration.run": "00000000-0000-4000-8000-000000000001"
+      }
+    }
+  },
+  "networks": {
+    "isolated": {
+      "name": "immich-mcp-it-00000000000040008000000000000001_isolated",
+      "internal": true,
+      "labels": {
+        "io.immich-mcp.integration.run": "00000000-0000-4000-8000-000000000001"
+      }
+    },
+    "egress": {
+      "name": "immich-mcp-it-00000000000040008000000000000001_egress",
+      "labels": {
+        "io.immich-mcp.integration.run": "00000000-0000-4000-8000-000000000001"
+      }
+    }
+  }
+}

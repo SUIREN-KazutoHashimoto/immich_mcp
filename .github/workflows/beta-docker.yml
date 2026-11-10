@@ -1,0 +1,92 @@
+{
+  "name": "Beta Docker build and smoke",
+  "on": {
+    "workflow_dispatch": {
+      "inputs": {
+        "tag": {
+          "description": "Existing draft prerelease tag, e.g. v1.0.0-beta.1",
+          "required": true,
+          "type": "string"
+        }
+      }
+    }
+  },
+  "permissions": {
+    "contents": "read"
+  },
+  "concurrency": {
+    "group": "beta-docker-${{ inputs.tag }}",
+    "cancel-in-progress": false
+  },
+  "jobs": {
+    "image": {
+      "runs-on": "ubuntu-24.04",
+      "timeout-minutes": 30,
+      "permissions": {
+        "contents": "write"
+      },
+      "env": {
+        "GH_TOKEN": "${{ github.token }}",
+        "GH_REPO": "${{ github.repository }}",
+        "RELEASE_TAG": "${{ inputs.tag }}"
+      },
+      "steps": [
+        {
+          "name": "Check out the release tag",
+          "uses": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "with": {
+            "ref": "${{ github.sha }}",
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Set up Node",
+          "uses": "actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1",
+          "with": {
+            "node-version": "24.22.2"
+          }
+        },
+        {
+          "name": "Verify version and existing release state",
+          "id": "metadata",
+          "run": "node --input-type=module <<'NODE'\nimport fs from 'node:fs';\nimport assert from 'node:assert/strict';\nimport {spawnSync} from 'node:child_process';\nconst p=JSON.parse(fs.readFileSync('package.json','utf8'));\nassert.match(p.version,/^\\d+\\.\\d+\\.\\d+-beta\\.[1-9]\\d*$/);\nassert.equal(process.env.RELEASE_TAG,'v'+p.version);\nconst r=await fetch('https://api.github.com/repos/'+process.env.GH_REPO+'/commits/'+encodeURIComponent(process.env.RELEASE_TAG),{headers:{authorization:'Bearer '+process.env.GH_TOKEN,accept:'application/vnd.github+json'}});\nif(r.status===200)assert.equal((await r.json()).sha,process.env.GITHUB_SHA,'Existing tag points to a different source commit');\nelse assert.equal(r.status,404,'Could not verify release tag state');\nconst existing=spawnSync('gh',['release','view',process.env.RELEASE_TAG,'--json','isDraft,isPrerelease,targetCommitish'],{encoding:'utf8'});\nif(existing.status===0){\n const d=JSON.parse(existing.stdout);assert.equal(d.isDraft,true);assert.equal(d.isPrerelease,true);assert.equal(d.targetCommitish,process.env.GITHUB_SHA);\n}\nfs.appendFileSync(process.env.GITHUB_OUTPUT,'version='+p.version+'\\nimage=immich-mcp:'+p.version+'\\n');\nNODE"
+        },
+        {
+          "name": "Set up Docker Buildx",
+          "uses": "docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069"
+        },
+        {
+          "name": "Build Linux amd64 image",
+          "uses": "docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc",
+          "with": {
+            "context": ".",
+            "file": "Dockerfile",
+            "platforms": "linux/amd64",
+            "load": true,
+            "tags": "${{ steps.metadata.outputs.image }}",
+            "provenance": false
+          }
+        },
+        {
+          "name": "Run real-container smoke and restart",
+          "run": "node scripts/container-smoke.mjs \"${{ steps.metadata.outputs.image }}\" \"$RUNNER_TEMP/immich-mcp-${{ steps.metadata.outputs.version }}-linux-amd64.smoke.json\""
+        },
+        {
+          "name": "Export Docker image and checksums",
+          "env": {
+            "VERSION": "${{ steps.metadata.outputs.version }}",
+            "IMAGE": "${{ steps.metadata.outputs.image }}"
+          },
+          "run": "set -euo pipefail\ndocker save \"$IMAGE\" | gzip -1 > \"$RUNNER_TEMP/immich-mcp-$VERSION-linux-amd64.tar.gz\"\ngit archive --format=zip --prefix=\"immich-mcp-$VERSION/\" --output=\"$RUNNER_TEMP/immich-mcp-$VERSION-source.zip\" \"$GITHUB_SHA\"\nnode --input-type=module <<'NODE'\nimport fs from 'node:fs';\nimport {createHash} from 'node:crypto';\nimport path from 'node:path';\nconst base='immich-mcp-'+process.env.VERSION,linux=base+'-linux-amd64';\nconst hashFile=async name=>{\n const h=createHash('sha256');\n for await(const part of fs.createReadStream(path.join(process.env.RUNNER_TEMP,name)))h.update(part);\n return h.digest('hex')+'  '+name;\n};\nconst dockerNames=[linux+'.tar.gz',linux+'.smoke.json'],dockerLines=[];\nfor(const name of dockerNames)dockerLines.push(await hashFile(name));\nfs.writeFileSync(path.join(process.env.RUNNER_TEMP,linux+'.SHA256SUMS'),dockerLines.join('\\n')+'\\n',{flag:'wx'});\nconst names=[base+'-source.zip',...dockerNames,linux+'.SHA256SUMS'],lines=[];\nfor(const name of names)lines.push(await hashFile(name));\nfs.writeFileSync(path.join(process.env.RUNNER_TEMP,'SHA256SUMS'),lines.join('\\n')+'\\n',{flag:'wx'});\nNODE"
+        },
+        {
+          "name": "Create or resume draft prerelease and upload verified assets",
+          "env": {
+            "VERSION": "${{ steps.metadata.outputs.version }}"
+          },
+          "run": "node --input-type=module <<'NODE'\nimport assert from 'node:assert/strict';\nimport {spawnSync,execFileSync} from 'node:child_process';\nimport path from 'node:path';\nconst tag=process.env.RELEASE_TAG,version=process.env.VERSION,sha=process.env.GITHUB_SHA;\nlet existing=spawnSync('gh',['release','view',tag,'--json','isDraft,isPrerelease,targetCommitish'],{encoding:'utf8'});\nif(existing.status!==0)execFileSync('gh',['release','create',tag,'--target',sha,'--title','Immich MCP '+version,'--draft','--prerelease','--notes-file','RELEASE_NOTES.md'],{stdio:'inherit'});\nconst release=JSON.parse(execFileSync('gh',['release','view',tag,'--json','isDraft,isPrerelease,targetCommitish'],{encoding:'utf8'}));\nassert.equal(release.isDraft,true);assert.equal(release.isPrerelease,true);assert.equal(release.targetCommitish,sha);\nconst base='immich-mcp-'+version,linux=base+'-linux-amd64';\nconst names=[base+'-source.zip',linux+'.tar.gz',linux+'.smoke.json',linux+'.SHA256SUMS','SHA256SUMS'];\nexecFileSync('gh',['release','upload',tag,...names.map(n=>path.join(process.env.RUNNER_TEMP,n)),'--clobber'],{stdio:'inherit'});\nNODE"
+        }
+      ]
+    }
+  }
+}

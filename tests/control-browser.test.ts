@@ -45,6 +45,9 @@ test("native browser key forms preserve same-origin Origin and still enforce CSR
     const savedResponse=page.waitForResponse(response=>response.request().method()==="POST"&&new URL(response.url()).pathname==="/connect/key");
     await page.getByRole("button",{name:"Validate and save key",exact:true}).click();
     assert.equal((await savedResponse).status(),303,"Native form Origin: "+origins[0]);
+    // Playwright only routes the initial URL in a redirect chain. Open the
+    // destination explicitly to inspect the persisted binding in this fixture.
+    await page.goto(config.publicOrigin+"/connect");
     await page.getByText("Status: active",{exact:true}).waitFor();
     assert.deepEqual(origins,[config.publicOrigin]);assert.equal(registrations,1);
     assert.equal(vault.credential(principal).key,canary);

@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.0-beta.3 — 2026-11-11
+
+- Fix native control-page form submissions being rejected as `invalid_origin`: HTML now uses `Referrer-Policy: same-origin` so the browser sends its same-origin Origin rather than `null`. Other response policies and strict Origin/CSRF checks remain in place.
+- Add a real-browser regression for key registration, redirect completion, secret-free rendering and CSRF rejection. Explicitly retain rejection of null and missing Origins.
+- Use a version-neutral connection heading for the reviewed Immich 3.3.5 and 3.3.6 servers.
+
 ## 1.0.0-beta.2 — 2026-11-10
 
 - Accept stable Immich 3.3.6 after comparing its official OpenAPI and server implementation against 3.3.5. The OpenAPI differs only at `info.version`; the 279 operations, schemas and server API implementation are unchanged.

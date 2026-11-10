@@ -21,7 +21,9 @@ const security={
   "referrer-policy":"no-referrer"
 };
 const html=(body:string,cookie?:string)=>new Response("<!doctype html><html lang=\"en\"><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width\"><title>Immich connection</title><style>body{font:16px system-ui;max-width:760px;margin:40px auto;padding:0 20px}label{display:block;margin:12px 0}input,textarea,button{font:inherit;padding:8px}code{overflow-wrap:anywhere}</style><main>"+body+"</main></html>",
-  {headers:{...security,"content-type":"text/html; charset=utf-8",...(cookie?{"set-cookie":cookie}:{})}});
+  // Native HTML form POSTs serialize Origin as null under no-referrer.
+  // Keep their same-origin Origin while suppressing cross-origin referrers.
+  {headers:{...security,"referrer-policy":"same-origin","content-type":"text/html; charset=utf-8",...(cookie?{"set-cookie":cookie}:{})}});
 export class Control {
   private csrf:Csrf;
   private contextControl?:ContextControl;
@@ -52,7 +54,7 @@ export class Control {
         const recentJobs=this.jobs?.recent(principal) ?? [];
         const restored=this.vault.db.prepare("SELECT 1 FROM records WHERE principal='__system' AND id='restore_notice' AND kind='restore_notice'").get();
         const recent=this.vault.db.prepare("SELECT id,expires FROM records WHERE principal=? AND kind='result' ORDER BY rowid DESC LIMIT 10").all(principal) as any[];
-        return html('<h1>Immich 3.3.5 connection</h1><p>Status: '+escape(binding?.state ?? "unregistered")+'</p>'+
+        return html('<h1>Immich connection</h1><p>Status: '+escape(binding?.state ?? "unregistered")+'</p>'+
           (restored?'<p role="status">Recovered from an offline backup. Jobs pending in that backup are held for review because effects since the backup are unknown. Additional authentication contexts must be connected again.</p>':"")+
           '<p>Connection label: <code>'+escape(principal.slice(0,12))+'</code></p>'+
           '<p>Storage including reservations: '+storage.used_bytes+' / '+storage.quota_bytes+' bytes. Expired data is reclaimed automatically.</p>'+

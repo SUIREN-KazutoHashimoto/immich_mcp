@@ -45,6 +45,8 @@ test("control UI authenticates, applies Origin/CSRF, and scopes secrets and resu
       method:"POST",headers:{"cf-access-jwt-assertion":jwt,origin,cookie,"content-type":"application/x-www-form-urlencoded"},
       body:new URLSearchParams({csrf,...values})}));
     assert.equal((await post("/connect/key",{revision:"0",key:"API-KEY-CANARY"},"https://evil.example")).status,403);
+    assert.equal((await post("/connect/key",{revision:"0",key:"API-KEY-CANARY"},"null")).status,403);
+    assert.equal((await control.fetch(new Request(config.publicOrigin+"/connect/key",{method:"POST",headers:{"cf-access-jwt-assertion":assertion,cookie,"content-type":"application/x-www-form-urlencoded"},body:new URLSearchParams({csrf,revision:"0",key:"API-KEY-CANARY"})}))).status,403);
     assert.equal((await post("/connect/key",{revision:"0",key:"API-KEY-CANARY",csrf:"bad"})).status,403);
     assert.equal((await post("/connect/key",{revision:"0",key:"API-KEY-CANARY"})).status,303);
     assert.equal(v.credential(principal).key,"API-KEY-CANARY");

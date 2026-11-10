@@ -21,6 +21,7 @@ import { decodedResponse } from "./content-encoding.js";
 import { UpstreamError } from "./upstream.js";
 import { runtimeIntegrity } from "./runtime-integrity.js";
 import { inspectLocal,localReady,type LocalReadiness } from "./readiness.js";
+import { supportsImmichVersion } from "./immich-version.js";
 export interface AppOptions {http?:typeof fetch;jwks?:JWTVerifyGetKey;downloads?:DownloadPolicy;databasePath?:string;versionIntervalMs?:number;cleanupIntervalMs?:number;localIntervalMs?:number;runtimeIntegrity?:()=>Promise<"ok"|"error">;}
 const noStore={"cache-control":"no-store","x-content-type-options":"nosniff"};
 export class Application {
@@ -104,7 +105,7 @@ export class Application {
           const bytes=await decodedResponse(response,16384);
           const value=JSON.parse(new TextDecoder("utf-8",{fatal:true}).decode(bytes));
           validator(operation("getServerVersion").definition.responses["200"].content["application/json"].schema,registry.schemas)(value);
-          state=value.major===3&&value.minor===3&&value.patch===5&&value.prerelease===null?"ok":"version_mismatch";
+          state=supportsImmichVersion(value)?"ok":"version_mismatch";
         }else await response.body?.cancel();
       }catch(error){
         // A locally cancelled wait did not inspect the upstream at all.

@@ -102,7 +102,7 @@ export class ToolService {
     }
   }
   server(principal:string,signal?:AbortSignal) {
-    const server=new McpServer({name:"immich-mcp",version:"1.0.0-beta.1"});
+    const server=new McpServer({name:"immich-mcp",version:"1.0.0-beta.2"});
     for(const tool of descriptors){
       server.registerTool(tool.name,{description:tool.description+" Large schema/result references can be read through immich_read_result using JSON Pointers.",
         inputSchema:fromJsonSchema<any>(tool.inputSchema as any),outputSchema:fromJsonSchema<any>(tool.outputSchema as any),

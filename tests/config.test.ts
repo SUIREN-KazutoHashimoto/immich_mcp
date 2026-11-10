@@ -41,5 +41,18 @@ test("application wires size/TTL/job limits and reports cleanup failures through
     upstreamVersion={major:3,minor:3,patch:5};await app.checkVersion();assert.equal(app.health.state,"unreachable");
     upstreamVersion={major:3,minor:3,patch:5,prerelease:1};await app.checkVersion();assert.equal(app.health.state,"version_mismatch");
     upstreamVersion={major:3,minor:3,patch:5,prerelease:null};await app.checkVersion();assert.equal(app.health.state,"ok");
+    upstreamVersion={major:3,minor:3,patch:6,prerelease:null};await app.checkVersion();assert.equal(app.health.state,"ok");
+    assert.equal((await app.fetch(new Request(url))).status,200);
+    for(const value of [{major:3,minor:3,patch:7,prerelease:null},{major:3,minor:4,patch:0,prerelease:null},{major:3,minor:3,patch:6,prerelease:1}]){
+      upstreamVersion=value;await app.checkVersion();assert.equal(app.health.state,"version_mismatch");
+      assert.equal((await app.fetch(new Request(url))).status,503);
+      assert.throws(()=>app.assertVersion("getMyUser"),{code:"version_mismatch"});
+    }
+    upstreamVersion={major:3,minor:3,patch:6,prerelease:null};await app.checkVersion();assert.equal(app.health.state,"ok");
   }finally{await app.close();}
+}));
+
+test("configuration permits the reviewed 3.3.6 patch without allowing future versions",()=>fixture(async(env)=>{
+  for(const version of ["3.3.5","3.3.6"])await config({...env,IMMICH_EXPECTED_VERSION:version});
+  for(const version of ["3.3.4","3.3.7","3.4.0","3.3.6-rc.1"])await assert.rejects(config({...env,IMMICH_EXPECTED_VERSION:version}),/reviewed Immich versions/);
 }));

@@ -51,3 +51,4 @@ coverage/
 !/reports/beta1-focused-check-2026-11-10-r2.json
 !/reports/beta.1-metadata-delta.json
 !/reports/beta.1-tag-guard-check.json
+!/reports/beta.1-container-config-check.json

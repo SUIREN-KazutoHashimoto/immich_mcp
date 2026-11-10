@@ -1,0 +1,39 @@
+{
+  "observed_at": "2026-11-10T13:47:31.930814+00:00",
+  "failure_fixed": "Synthetic Docker fixture used /jwks instead of production-required /cdn-cgi/access/certs",
+  "counts": {
+    "tests": 8,
+    "suites": 0,
+    "pass": 8,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "todo": 0
+  },
+  "new_environment_tests": 2,
+  "command": [
+    "node",
+    "--import",
+    "tsx",
+    "--test",
+    "--test-concurrency=2",
+    "tests/container-smoke-config.test.ts",
+    "tests/release-tag-guard.test.ts",
+    "tests/beta-deployment.test.ts"
+  ],
+  "build": {
+    "exit_code": 0,
+    "runtime_assets": 7,
+    "integrity": "ok"
+  },
+  "compiled_application_and_native_typescript_probe": true,
+  "production_access_guard_unchanged": true,
+  "source_sha256": {
+    "scripts/container-smoke.mjs": "a84fd4d48d50b0de655a212b8de926da567b7bae6ce76137aff5dabf56287c9a",
+    "scripts/container-smoke-config.ts": "ec1a4dfbcb8a295d040a453c73ae8a1235b9898e39cf96abc2b8c4be15f497b0",
+    "tests/container-smoke-config.test.ts": "1f7a48243bae61e9c7103caa6526f95e877798ff556c4b9236d14e6099dfe32e",
+    "src/access.ts": "a866f0f03f507b57663100e3cb9fbecc6f2346fc09f6bb980c7783ac433b8251"
+  },
+  "actual_immich_verified": false,
+  "full_acceptance": false
+}

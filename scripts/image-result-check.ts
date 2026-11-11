@@ -3,11 +3,13 @@ import { readFile,stat } from "node:fs/promises";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import sharp from "sharp";
+import { imageEnvelope } from "../src/image-response.js";
 
 export async function inspectImageResult(value:any){
-  const result=value?.jsonrpc==="2.0"?value.result:value;
+  const result=imageEnvelope(value)??value;
   const parts=Array.isArray(result?.content)?result.content.filter((p:any)=>p?.type==="image"):[];
-  const report={ok:false,image_parts:parts.length,structured_metadata_present:!!result?.structuredContent,
+  const report={ok:false,code:parts.length?"image_content_present":"image_content_missing",image_parts:parts.length,structured_metadata_present:!!result?.structuredContent||result?.content_type==="image",
+    model_input_delivery:"unknown",ui_preview_displayed:"unknown",visual_description_verified:"unknown",
     viewer_image_present:result?._meta?.image_content?.type==="image",images:[] as Array<{mime_type:string;bytes:number;width:number;height:number;sha256:string}>};
   if(result?.isError)throw new Error("mcp_tool_error");
   for(const p of parts){

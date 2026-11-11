@@ -17,13 +17,14 @@ export interface ImageInput {result_ref:string;max_width?:number;max_height?:num
 export interface ImageTrace {
   event:"image_read";request_id:string;result_ref_hash?:string;stage:string;code:string;
   input_mime?:string;input_bytes?:number;output_mime?:string;output_bytes?:number;content_type?:"image";
+  timings_ms?:Record<string,number>;total_ms?:number;
 }
 export class ImageReadError extends BridgeError {
   constructor(code:string,message:string,readonly requestId:string){super(code,message);}
 }
 export const imageDescriptor={
   name:"immich_read_image",
-  description:"Use this when ChatGPT needs to see or describe an image already fetched by viewAsset or another image operation. Wait for the API job to complete, then pass its result_ref. Returns a model-visible MCP image content part, resized and stripped of metadata. immich_read_result preview is JSON metadata only. Does not fetch URLs or repeat upstream requests. JPEG, PNG and single-frame WebP inputs; JPEG (default) or WebP output. Read one image at a time when summarizing several photos. In Code Mode, forward every returned image content block with image(block); inspecting structuredContent alone discards the pixels. The linked MCP App attempts to display the private preview to the user. A successful tool result or HTTP200 only means the server prepared image bytes: display_status remains unconfirmed. Do not claim the image was displayed unless the component reports display_status displayed. The UI preview is not a native ChatGPT file attachment. A failed preview is not display success; model recognition is a separate check.",
+  description:"Use this to read actual pixels from an already completed image result_ref. For a new random photo or asset_id use immich_get_image first. Returns model-visible MCP ImageContent and a private preview without fetching upstream again. In Code Mode forward content image blocks with image(block). If only metadata is exposed, stop and report image_content_missing; do not repeat requests or infer image contents. The preview explanation button provides a separate image-context path. HTTP200 and display_status unconfirmed mean prepared bytes, not display or visual recognition. A displayed UI preview is not a native ChatGPT attachment.",
   inputSchema:{type:"object",properties:{
     result_ref:{type:"string",pattern:resultPattern.source,description:"Image result_ref returned by a completed Immich API call or job."},
     max_width:{type:"integer",minimum:1,maximum:MAX_DIMENSION,default:1600,description:"Maximum output width; aspect ratio is preserved and small images are not enlarged."},
@@ -62,6 +63,8 @@ export class Images {
     return this.vault.get(principal,ref,"result");
   }
   async read(principal:string,input:ImageInput,signal?:AbortSignal){
+    const started=performance.now(),timings:Record<string,number>={};let checkpoint=started;
+    const measured=(name:string)=>{const now=performance.now();timings[name]=Math.round((now-checkpoint)*1000)/1000;checkpoint=now;};
     const requestId="img_"+randomUUID();
     const event:ImageTrace={event:"image_read",request_id:requestId,stage:"validate",code:"image_failed"};
     let release:(()=>void)|undefined,acquired=false;
@@ -89,7 +92,7 @@ export class Images {
         fail("image_size_exceeded","Image source exceeds the 32 MiB input limit");
       if(this.active>=MAX_ACTIVE)fail("image_busy","Two image reads are already active; retry after they finish");
       this.active++;acquired=true;release=this.vault.pin(principal,input.result_ref);
-      event.stage="read";
+      measured("authorize");event.stage="read";
       let bytes:Buffer;
       try{bytes=await readDecoded(this.vault.rawStream(principal,result.raw.raw_ref),result.raw.content_encoding ?? "identity",MAX_INPUT_BYTES,signal);}
       catch(error){
@@ -97,7 +100,7 @@ export class Images {
         if(error instanceof BridgeError&&["result_limit","decoded_result_limit"].includes(error.code))fail("image_size_exceeded","Decoded image exceeds the 32 MiB input limit");
         fail("image_decode_failed","Stored image could not be read completely");
       }
-      checkSignal();event.stage="decode";
+      checkSignal();measured("read");event.stage="decode";
       const actual=signature(bytes!);
       if(!actual)fail("image_decode_failed","Image data is not a supported raster image");
       if(actual!==expected)fail("image_mime_mismatch","Image bytes do not match the declared MIME type");
@@ -107,7 +110,7 @@ export class Images {
         fail("image_size_exceeded","Image exceeds the 40 megapixel input limit");
       if(metadata.format!==expected)fail("image_mime_mismatch","Decoded format does not match the declared MIME type");
       if((metadata.pages ?? 1)!==1)fail("image_unsupported_mime","Animated or multi-page images are not supported");
-      checkSignal();event.stage="encode";
+      checkSignal();measured("decode");event.stage="encode";
       const encode=(w:number,h:number,quality:number)=>{
         const pipeline=sharp(bytes!,options).rotate().resize({width:w,height:h,fit:"inside",withoutEnlargement:true})
           .flatten({background:"#ffffff"}).toColourspace("srgb").timeout({seconds:5});
@@ -117,7 +120,7 @@ export class Images {
       let output=await encode(width,height,80);checkSignal();
       if(output.data.length>MAX_OUTPUT_BYTES){output=await encode(Math.min(width,1024),Math.min(height,1024),60);checkSignal();}
       if(output.data.length<1||output.data.length>MAX_OUTPUT_BYTES)fail("image_size_exceeded","Converted image exceeds the 1 MiB output limit");
-      event.stage="authorize_return";
+      measured("encode");event.stage="authorize_return";
       // Recheck TTL, credential revision and context generation after asynchronous decoding.
       this.authorized(principal,input.result_ref);
       this.vault.get(principal,result.raw.raw_ref,"raw");checkSignal();
@@ -125,17 +128,19 @@ export class Images {
       const meta={request_id:requestId,result_ref:input.result_ref,mime_type:mimeType,width:output.info.width,height:output.info.height,
         size_bytes:output.data.length,metadata_removed:true,content_type:"image",display_status:"unconfirmed"};
       event.stage="return";event.code="ok";event.output_mime=mimeType;event.output_bytes=output.data.length;event.content_type="image";
+      measured("authorize_return");event.timings_ms=timings;event.total_ms=Math.round((performance.now()-started)*1000)/1000;
       this.emit(event);
-      return {content:[{type:"image" as const,data:output.data.toString("base64"),mimeType},
+      const part={type:"image"as const,data:output.data.toString("base64"),mimeType};
+      return {content:[part,
         {type:"text" as const,text:JSON.stringify(meta)}],structuredContent:meta,
-        _meta:{image_content:{type:"image",data:output.data.toString("base64"),mimeType}}};
+        _meta:{image_content:part}};
     }catch(error){
       const native=error instanceof Error?error.message:"";
       const normalized=error instanceof BridgeError?error:
         /pixel limit/i.test(native)?new BridgeError("image_size_exceeded","Image exceeds the 40 megapixel input limit"):
         /timeout/i.test(native)?new BridgeError("image_conversion_timeout","Image conversion exceeded its time limit"):
         new BridgeError(event.stage==="decode"?"image_decode_failed":"image_conversion_failed","Image decoding or conversion failed");
-      event.code=normalized.code;this.emit(event);
+      event.code=normalized.code;event.timings_ms=timings;event.total_ms=Math.round((performance.now()-started)*1000)/1000;this.emit(event);
       throw new ImageReadError(normalized.code,normalized.message,requestId);
     }finally{release?.();if(acquired)this.active--;}
   }

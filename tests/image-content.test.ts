@@ -107,6 +107,10 @@ test("image artifacts reach legacy MCP and the official modern client as ImageCo
     assert.equal(modernImage.mimeType,"image/webp");assert.equal((await sharp(Buffer.from(modernImage.data,"base64")).metadata()).format,"webp");
     assert.ok(wire.some(t=>t.includes('"type":"image"')));
     assert.equal(viewHits,1,"Reading an image artifact must not repeat the upstream request");
+    const fast:any=await client.callTool({name:"immich_get_image",arguments:{source:"asset",asset_id:uuid,max_width:80,max_height:80}});
+    assert.equal(fast.isError,undefined);assert.equal(fast.structuredContent.asset_id,uuid);
+    assert.deepEqual(fast.content.find((c:any)=>c.type==="image"),content,"The one-call image must survive the MCP transport with identical pixels");
+    assert.equal(viewHits,2);
     assert.ok(!wire.join("").includes("IMAGE-KEY-CANARY"));assert.ok(!wire.join("").includes("PRIVATE-EXIF-CANARY"));
     const original=app.vault.get(principal,ref,"result");const chunks:Buffer[]=[];
     for await(const chunk of app.vault.rawStream(principal,original.raw.raw_ref))chunks.push(Buffer.from(chunk));

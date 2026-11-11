@@ -37,16 +37,45 @@ test("image viewer renders pixels and forwards them through the host context on 
     await h.frame.getByRole("img",{name:"Immichの画像プレビュー"}).waitFor({state:"visible"});
     assert.deepEqual(await h.frame.locator("img").evaluate((img:HTMLImageElement)=>[img.naturalWidth,img.naturalHeight]),[240,120]);
     assert.match(await h.frame.getByRole("link",{name:"画像を保存"}).getAttribute("href") ?? "",/^data:image\/jpeg;base64,/);
+    await h.page.waitForFunction(()=>(window as any).messages.some((m:any)=>m.method==="ui/update-model-context"&&m.params.content.some((p:any)=>p.type==="image")));
+    assert.equal(await h.page.evaluate(()=>(window as any).messages.filter((m:any)=>m.method==="ui/message").length),0,"Preparation must not create a user turn");
     await h.frame.getByRole("button",{name:"この画像を説明",exact:true}).click();
     await h.frame.getByRole("status").filter({hasText:"画像の説明を依頼しました。"}).waitFor();
     const messages=await h.page.evaluate(()=>(window as any).messages);
     assert.equal(messages.filter((m:any)=>m.method==="ui/initialize").length,1);
-    assert.deepEqual(messages.find((m:any)=>m.method==="ui/update-model-context"&&m.params.content.some((p:any)=>p.type==="image")).params.content,[f.image]);
+    const prepared=messages.filter((m:any)=>m.method==="ui/update-model-context"&&m.params.content.some((p:any)=>p.type==="image"));
+    assert.equal(prepared.length,1,"The same image is prepared once, not resent on explanation clicks");
+    assert.deepEqual(prepared[0].params.content.filter((p:any)=>p.type==="image"),[f.image]);
+    assert.equal(JSON.parse(prepared[0].params.content.find((p:any)=>p.type==="text").text).display_status,"displayed");
     const message=messages.find((m:any)=>m.method==="ui/message");
     assert.equal(message.params.role,"user");assert.equal(message.params.content.length,1);
     await h.page.setViewportSize({width:390,height:760});
     assert.ok(await h.frame.locator("body").evaluate(el=>el.scrollWidth<=document.documentElement.clientWidth),"mobile viewer must not overflow");
     if(process.env.MCP_IMAGE_VIEWER_SCREENSHOT)await h.page.screenshot({path:process.env.MCP_IMAGE_VIEWER_SCREENSHOT,fullPage:true});
+  }finally{await h.close();}
+});
+
+test("three different previews prepare the correct model pixels once per image without refetch or replay",{timeout:90000},async()=>{
+  const f=await fixture(),h=await host(f.result);
+  try{
+    await h.frame.getByRole("img").waitFor({state:"visible"});
+    for(let index=0;index<3;index++){
+      const data=(await sharp({create:{width:160,height:80,channels:3,background:["red","green","blue"][index]!}}).jpeg().toBuffer()).toString("base64");
+      const part={type:"image",mimeType:"image/jpeg",data},id="img_22222222-2222-4222-8222-22222222222"+index;
+      const result={content:[part],structuredContent:{request_id:id,display_status:"unconfirmed"}};
+      await h.send(result);
+      await h.page.waitForFunction(id=>(window as any).messages.some((m:any)=>m.method==="ui/update-model-context"&&m.params.content.some((p:any)=>p.type==="text"&&JSON.parse(p.text).request_id===id)),id);
+      const before=await h.page.evaluate(()=>(window as any).messages.length);
+      await h.frame.getByRole("button",{name:"この画像を説明",exact:true}).click();
+      await h.frame.getByRole("status").filter({hasText:"画像の説明を依頼しました。"}).waitFor();
+      const after=await h.page.evaluate(start=>(window as any).messages.slice(start),before);
+      assert.equal(after.filter((m:any)=>m.method==="ui/update-model-context").length,0,"An already prepared image is not uploaded again on click");
+      assert.equal(after.filter((m:any)=>m.method==="ui/message").length,1);
+      const contexts=await h.page.evaluate(id=>(window as any).messages.filter((m:any)=>m.method==="ui/update-model-context"&&m.params.content.some((p:any)=>p.type==="text"&&JSON.parse(p.text).request_id===id)),id);
+      assert.deepEqual(contexts[0].params.content.find((p:any)=>p.type==="image"),part);assert.equal(contexts.length,1);
+      await h.send(result);
+    }
+    assert.equal(await h.frame.locator("body").evaluate(()=>performance.getEntriesByName("immich-explain-dispatch").length),3);
   }finally{await h.close();}
 });
 

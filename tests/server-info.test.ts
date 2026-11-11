@@ -45,8 +45,8 @@ test("authenticated MCP server information distinguishes application/API version
     assert.equal(info.immich.api_contract_version,"3.3.5");assert.deepEqual(info.immich.supported_versions,["3.3.5","3.3.6"]);
     assert.equal(info.immich.observed_version,"3.3.6");assert.equal(info.immich.state,"ok");
     assert.equal(info.readiness.ready,true);assert.equal(info.readiness.local_checks.database,"ok");
-    assert.equal(info.capabilities.tool_count,11);assert.deepEqual(info.capabilities.tools,descriptors.map(t=>t.name));
-    assert.equal(listing.length,11);assert.equal(hits,before,"server information must not trigger upstream requests");
+    assert.equal(info.capabilities.tool_count,12);assert.deepEqual(info.capabilities.tools,descriptors.map(t=>t.name));
+    assert.equal(listing.length,12);assert.equal(hits,before,"server information must not trigger upstream requests");
     assert.ok(Number.isFinite(Date.parse(info.server.started_at)));assert.ok(info.server.uptime_seconds>=0);
     assert.deepEqual(JSON.parse(reply.result.content[0].text),info);
     const encoded=JSON.stringify(reply);

@@ -37,3 +37,19 @@ export function describe(id: string) {
   return {operation_id:id, method:op.method,path:op.path, upstream:op.definition,
     components:{schemas:registry.schemas}, input_schemas:schemas,auth_requirements:op.auth, secret_rules:registry.secretRules.filter(r=>r.bindings.some((b:any)=>b.operation_id===id)), overrides:op.override ?? null};
 }
+export function referencedSchemas(values:unknown[],schemas:Record<string,Schema>=registry.schemas){
+  const selected:Record<string,Schema>=Object.create(null);
+  const visit=(value:any):void=>{
+    if(Array.isArray(value)){for(const item of value)visit(item);return;}
+    if(!value||typeof value!=="object")return;
+    for(const [key,item]of Object.entries(value)){
+      if(key==="$ref"&&typeof item==="string"&&item.startsWith("#/components/schemas/")){
+        const name=item.slice("#/components/schemas/".length);
+        if(!Object.hasOwn(schemas,name))throw new BridgeError("schema_reference","Referenced schema is unavailable");
+        if(!Object.hasOwn(selected,name)){selected[name]=schemas[name]!;visit(schemas[name]);}
+      }else visit(item);
+    }
+  };
+  for(const value of values)visit(value);
+  return selected;
+}

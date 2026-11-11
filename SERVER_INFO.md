@@ -20,7 +20,7 @@ beta.6 で読み取り専用の `immich_get_server_info` を追加しました�
 
 | 項目 | 意味 |
 | --- | --- |
-| `server.version` | MCPアプリのバージョン。今回の公開版は `1.0.0-beta.8` |
+| `server.version` | MCPアプリのバージョン。今回の公開版は `1.0.0-beta.9` |
 | `server.build_revision` | 公開コンテナのソースコミット。ビルド時に指定がないローカル版は `null` |
 | `server.started_at` / `uptime_seconds` | 稼働インスタンスの開始日時と経過秒数。呼び出しごとにはリセットしない |
 | `readiness.ready` | 上流とローカルの検査を合わせた利用準備状態 |
@@ -38,7 +38,7 @@ MCPの本人認証は必須です。Immichの個人APIキー登録前でも照�
 
 ## 更新後の操作
 
-1. TrueNAS等で `ghcr.io/suiren-kazutohashimoto/immich-mcp:beta` を取得し直してコンテナを更新します。固定版は `:1.0.0-beta.8` です。既存データとマスター鍵を維持してください。
+1. TrueNAS等で `ghcr.io/suiren-kazutohashimoto/immich-mcp:beta` を取得し直してコンテナを更新します。固定版は `:1.0.0-beta.9` です。既存データとマスター鍵を維持してください。
 2. CloudflareでMCPサーバーの能力を同期し、ポータルで新しい `immich_get_server_info` が有効か確認します。
 3. ChatGPTでSUIREN MCPのツール定義を更新し、新しい会話で接続を選び直します。
 4. 本ツールの `server.version` と `build_revision` が公開版に一致するか確認します。

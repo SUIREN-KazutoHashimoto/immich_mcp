@@ -43,7 +43,7 @@ test("orients, resizes and strips EXIF/GPS/XMP without changing the encrypted or
   const part=reply.content[0];assert.ok(part);assert.equal(part.type,"image");assert.ok("data" in part);
   const bytes=Buffer.from((part as {data:string}).data,"base64"),meta=await sharp(bytes).metadata();
   assert.equal(meta.width,20);assert.equal(meta.height,40);assert.equal(meta.exif,undefined);assert.equal(meta.xmp,undefined);assert.equal(meta.icc,undefined);
-  assert.equal(reply.structuredContent.metadata_removed,true);assert.equal(reply.structuredContent.size_bytes,bytes.length);
+  assert.equal(reply._meta.image_info.metadata_removed,true);assert.equal(reply._meta.image_info.size_bytes,bytes.length);
   const stored=v.get("A",ref,"result"),parts:Buffer[]=[];for await(const chunk of v.rawStream("A",stored.raw.raw_ref))parts.push(Buffer.from(chunk));
   assert.deepEqual(Buffer.concat(parts),source);
   const logs=JSON.stringify(trace);for(const secret of [ref,"PERSON-CANARY","GPS-CANARY","KEY-CANARY","image/jpeg;base64"])assert.ok(!logs.includes(secret));
@@ -56,13 +56,13 @@ test("PNG transparency and WebP are decoded as raster images and emitted in the 
   const rgb=await sharp(Buffer.from((reply.content[0] as {data:string}).data,"base64")).raw().toBuffer();
   assert.ok([...rgb].every(value=>value>=250),"Transparent pixels should be flattened on white");
   const webp=await sharp(await jpeg()).webp().toBuffer(),other=await images.read("A",{result_ref:await save(webp,{mime:"image/webp"}),format:"webp"});
-  assert.equal(other.structuredContent.mime_type,"image/webp");assert.equal(other.structuredContent.width,80);
+  assert.equal(other._meta.image_info.mime_type,"image/webp");assert.equal(other._meta.image_info.width,80);
 }));
 
 test("keeps large noisy images within the output byte budget by shrinking them",()=>setup(async({images,save})=>{
   const png=await sharp(randomBytes(2048*2048*3),{raw:{width:2048,height:2048,channels:3}}).png().toBuffer();
   const reply=await images.read("A",{result_ref:await save(png,{mime:"image/png"}),max_width:2048,max_height:2048});
-  assert.ok(reply.structuredContent.size_bytes<=1024*1024);assert.ok(reply.structuredContent.width<=1024);
+  assert.ok(reply._meta.image_info.size_bytes<=1024*1024);assert.ok(reply._meta.image_info.width<=1024);
 }));
 
 test("rejects missing, foreign, expired, rotated and disconnected references",()=>setup(async({v,images,save})=>{
@@ -80,7 +80,7 @@ test("rejects missing, foreign, expired, rotated and disconnected references",()
 test("enforces explicit context ownership and revocation",()=>setup(async({images,contexts,save})=>{
   const context=await contexts.register("A",{kind:"public",acknowledge:true});
   const ref=await save(await jpeg(),{record:{context_ref:context.context_ref,context_generation:context.generation}});
-  assert.equal((await images.read("A",{result_ref:ref})).structuredContent.mime_type,"image/jpeg");
+  assert.equal((await images.read("A",{result_ref:ref}))._meta.image_info.mime_type,"image/jpeg");
   await assert.rejects(images.read("B",{result_ref:ref}),{code:"invalid_reference"});
   contexts.revoke("A",context.context_ref,context.generation);
   await assert.rejects(images.read("A",{result_ref:ref}),{code:"image_reference_forbidden"});
@@ -106,7 +106,7 @@ test("rejects unsupported MIME, MIME mismatch, corrupt images and incomplete res
 
 test("bounds compressed input, wire size and declared pixel dimensions before returning data",()=>setup(async({v,images,save})=>{
   const compressed=await save(gzipSync(await jpeg()),{encoding:"gzip"});
-  assert.equal((await images.read("A",{result_ref:compressed})).structuredContent.width,80);
+  assert.equal((await images.read("A",{result_ref:compressed}))._meta.image_info.width,80);
   const bomb=await save(gzipSync(Buffer.alloc(32*1024*1024+1)),{encoding:"gzip"});
   await assert.rejects(images.read("A",{result_ref:bomb}),{code:"image_size_exceeded"});
   const tooBig=await save(await jpeg()),record=v.get("A",tooBig,"result"),raw=v.get("A",record.raw.raw_ref,"raw");
@@ -127,7 +127,7 @@ test("bounds simultaneous reads and releases slots and vault pins after cancella
   try{await assert.rejects(images.read("A",{result_ref:ref}),{code:"image_busy"});}finally{release();}
   await Promise.all([one,two]);v.rawStream=original;
   await assert.rejects(images.read("A",{result_ref:ref},AbortSignal.abort()),{code:"image_cancelled"});
-  assert.equal((await images.read("A",{result_ref:ref})).structuredContent.width,80);
+  assert.equal((await images.read("A",{result_ref:ref}))._meta.image_info.width,80);
   assert.equal(v.isPinned("A",ref),false);
 }));
 
@@ -148,6 +148,6 @@ test("cancelling an in-progress read releases its slot and active vault objects"
   v.rawStream=(principal,id)=>Readable.from((async function*(){controller.abort();for await(const chunk of original(principal,id))yield chunk;})());
   await assert.rejects(images.read("A",{result_ref:ref},controller.signal),{code:"image_cancelled"});
   v.rawStream=original;
-  assert.equal((await images.read("A",{result_ref:ref})).structuredContent.width,80);
+  assert.equal((await images.read("A",{result_ref:ref}))._meta.image_info.width,80);
   assert.equal(v.isPinned("A",ref),false);
 }));

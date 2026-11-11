@@ -3,12 +3,13 @@ import { Executor } from "./executor.js";
 import { Control } from "./control.js";
 import { Images,imageDescriptor,type ImageInput } from "./images.js";
 import { BridgeError,type ApiCall } from "./types.js";
+import { imageMetadata,imageSummary } from "./image-response.js";
 
 export interface ImageFetchInput {source:"random"|"asset";asset_id?:string;max_width?:number;max_height?:number;format?:"jpeg"|"webp";}
 const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 export const imageFetchDescriptor={
   name:"immich_get_image",
-  description:"Use this first to display or describe one Immich photo: choose source random, or source asset with an asset_id. Fetches and returns the actual model-visible image in one call without catalog, schema lookup or job polling. For an existing completed result_ref use immich_read_image instead. Do not fetch the photo again to explain it: use the returned ImageContent. In Code Mode forward image content blocks with image(block); a metadata-only wrapper is not image input: stop and report image_content_missing instead of repeating requests or guessing. Server display_status is unconfirmed; UI display and visual recognition are separate checks.",
+  description:"Use this first to display or describe one Immich photo: choose source random, or source asset with an asset_id. Fetches and returns the actual model-visible image in one call without catalog, schema lookup or job polling. For an existing completed result_ref use immich_read_image instead. Do not fetch the photo again to explain it: use the returned ImageContent. Returns native image content rather than JSON structuredContent; diagnostics are private image_info. In Code Mode forward image content blocks with image(block); a metadata-only wrapper is not image input: stop and report image_content_missing instead of repeating requests or guessing. Server display_status is unconfirmed; UI display and visual recognition are separate checks.",
   inputSchema:{type:"object",properties:{source:{type:"string",enum:["random","asset"]},asset_id:{type:"string",pattern:uuid.source},
     max_width:imageDescriptor.inputSchema.properties.max_width,max_height:imageDescriptor.inputSchema.properties.max_height,format:imageDescriptor.inputSchema.properties.format},
     required:["source"],additionalProperties:false,oneOf:[{properties:{source:{const:"asset"}},required:["asset_id"]},{properties:{source:{const:"random"}},not:{required:["asset_id"]}}]},
@@ -51,9 +52,9 @@ export class ImageFetch {
       const before=performance.now();
       const result=await this.images.read(principal,{result_ref:fetched.result_ref!,...(input.max_width!==undefined?{max_width:input.max_width}:{}),
         ...(input.max_height!==undefined?{max_height:input.max_height}:{}),...(input.format?{format:input.format}:{})}as ImageInput,signal);
-      imageRequestId=result.structuredContent.request_id;timings.image_read=Math.round((performance.now()-before)*1000)/1000;check();code="ok";
-      const meta={...result.structuredContent,asset_id:assetId!};
-      return {...result,content:[result.content[0]!,{type:"text"as const,text:JSON.stringify(meta)}],structuredContent:meta};
+      const info=imageMetadata(result);imageRequestId=info.request_id;timings.image_read=Math.round((performance.now()-before)*1000)/1000;check();code="ok";
+      const meta={...info,asset_id:assetId!};
+      return {...result,content:[result.content[0]!,{type:"text"as const,text:imageSummary(meta)}],_meta:{...result._meta,image_info:meta}};
     }catch(error){
       if(signal.aborted){code=deadline.aborted?"image_fetch_timeout":"image_cancelled";throw new BridgeError(code,deadline.aborted?"Image retrieval exceeded 30 seconds":"Image retrieval was cancelled");}
       code=error instanceof BridgeError?error.code:"image_failed";throw error;

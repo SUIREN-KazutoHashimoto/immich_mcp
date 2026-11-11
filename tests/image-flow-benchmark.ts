@@ -60,7 +60,7 @@ try{
           result=await call("immich_read_image",{result_ref:done.result.result_ref});
         }else result=await call("immich_get_image",{source:"random"});
         const part=result.content.find((p:any)=>p.type==="image");assert.ok(part);pixelHashes.push(createHash("sha256").update(Buffer.from(part.data,"base64")).digest("hex"));
-        samples.push({ms:performance.now()-before,mcp_calls:roundTrips-callsBefore,response_bytes:wireBytes-bytesBefore,output_bytes:result.structuredContent.size_bytes});
+        samples.push({ms:performance.now()-before,mcp_calls:roundTrips-callsBefore,response_bytes:wireBytes-bytesBefore,output_bytes:(result.structuredContent??result._meta.image_info).size_bytes});
       }
       hashes.push(pixelHashes);const sorted=samples.map(s=>s.ms).sort((a,b)=>a-b);
       reports.push({mode,samples:30,median_ms:sorted[14],p95_ms:sorted[28],mcp_calls:roundTrips,upstream_calls:upstream,response_bytes:wireBytes,description_complete_inline:!description.truncated,definition_count:Object.keys(description.definitions).length,measurements:samples});

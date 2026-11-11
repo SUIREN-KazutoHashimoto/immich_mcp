@@ -1,3 +1,4 @@
+import { imageMetadata } from "../src/image-response.js";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { mkdtemp,rm } from "node:fs/promises";
@@ -31,8 +32,8 @@ async function fixture(run:(app:Application,h:{calls:string[];bodies:any[];set:(
 test("one asset call returns native pixels with identical quality and no job polling",()=>fixture(async(app,h)=>{
   for(const format of ["jpeg","webp"]as const)for(const size of [700,1600,2048]){
     const result=await app.tools.invoke("A","immich_get_image",{source:"asset",asset_id:uuid,max_width:size,max_height:size,format});
-    assert.equal(requireImageContent(result),result);assert.equal(result.structuredContent.asset_id,uuid);assert.equal(result.structuredContent.display_status,"unconfirmed");
-    const old=await app.tools.invoke("A","immich_read_image",{result_ref:result.structuredContent.result_ref,max_width:size,max_height:size,format});
+    assert.equal(requireImageContent(result),result);assert.equal(imageMetadata(result).asset_id,uuid);assert.equal(imageMetadata(result).display_status,"unconfirmed");
+    const old=await app.tools.invoke("A","immich_read_image",{result_ref:imageMetadata(result).result_ref,max_width:size,max_height:size,format});
     assert.deepEqual(result.content[0],old.content[0]);assert.equal(result._meta.image_content,result.content[0]);
     assert.equal((await sharp(Buffer.from(result.content[0].data,"base64")).metadata()).exif,undefined);
   }

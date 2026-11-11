@@ -1,3 +1,8 @@
+# 1.0.0-beta.9
+
+- Image tools now return native image content without structured JSON output schemas; private UI diagnostics move to _meta.image_info. Beta image metadata clients must migrate; generic API/job contracts remain unchanged.
+- Follow-up to real ChatGPT beta.8 acceptance: initial metadata-only response reproduced, explanation button visual recognition passed.
+
 # 1.0.0-beta.8
 
 - One-call image retrieval with native image-response preservation, explicit metadata-only diagnostics, pre-staged image context and reachable schema definitions.

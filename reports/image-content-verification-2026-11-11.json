@@ -1,0 +1,129 @@
+{
+  "date": "2026-11-11",
+  "status": "local_implementation_verified_unreleased",
+  "base_commit": "9203773c3764a29deb99fafc578d6154e0acb39b",
+  "base_application_version": "1.0.0-beta.3",
+  "scope": "Read-only model-visible image content from retained caller-owned results; existing nine-tool source contract preserved.",
+  "new_tests": 12,
+  "targeted_tests": {
+    "tests": 50,
+    "pass": 50,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "todo": 0
+  },
+  "test_files": [
+    "tests/images.test.ts",
+    "tests/image-content.test.ts",
+    "tests/transport.test.ts",
+    "tests/views.test.ts",
+    "tests/contexts.test.ts",
+    "tests/context-jobs.test.ts",
+    "tests/readiness.test.ts",
+    "tests/content-encoding.test.ts",
+    "tests/cleanup.test.ts",
+    "tests/control.test.ts"
+  ],
+  "full_regression_rerun": false,
+  "steps": [
+    {
+      "name": "generate",
+      "exit_code": 0,
+      "wall_seconds": 0.891
+    },
+    {
+      "name": "build",
+      "exit_code": 0,
+      "wall_seconds": 6.39
+    },
+    {
+      "name": "verify_openapi",
+      "exit_code": 0,
+      "wall_seconds": 0.078
+    },
+    {
+      "name": "verify_original_package",
+      "exit_code": 0,
+      "wall_seconds": 0.235
+    },
+    {
+      "name": "targeted_regression",
+      "exit_code": 0,
+      "wall_seconds": 63.515
+    },
+    {
+      "name": "production_frozen_install",
+      "exit_code": 0,
+      "wall_seconds": 2.344
+    },
+    {
+      "name": "production_native_image_probe",
+      "exit_code": 0,
+      "wall_seconds": 0.156
+    }
+  ],
+  "frozen_inputs_during_validation": 257,
+  "source_unchanged_during_validation": true,
+  "post_validation_documentation_changes": [
+    "CHATGPT_IMAGE_TEST.md",
+    "README.md"
+  ],
+  "log_sha256": "44872d658dda97c8348b04e9d02d0e785c0c3afafd9322106f052a93998f0376",
+  "runtime_tools": 10,
+  "legacy_protocol": "2025-11-25",
+  "modern_protocol": "2026-07-28",
+  "official_mcp_sdk": "2.4.0",
+  "native_production_probe": {
+    "platform": "win32",
+    "sharp": "0.35.5",
+    "scripts_disabled_install": true,
+    "compiled_image_module": true,
+    "jpeg_encode_decode": true
+  },
+  "verified": {
+    "native_http_image_content": true,
+    "asynchronous_view_asset_to_image": true,
+    "image_base64_decode": true,
+    "exif_orientation_and_metadata_removal": true,
+    "preserved_encrypted_original": true,
+    "ownership_and_expiry": true,
+    "credential_and_context_revocation": true,
+    "post_read_authorization": true,
+    "compressed_and_pixel_bombs_rejected": true,
+    "output_bytes_and_concurrency_limits": true,
+    "cancelled_read_releases_resources": true,
+    "secret_free_traces": true,
+    "fixed_openapi_and_package": true
+  },
+  "source": {
+    "existing_src_files_changed": [
+      "src/tools.ts"
+    ],
+    "new_src_files": [
+      "src/images.ts"
+    ],
+    "hashes": {
+      "src/images.ts": "27084441b63818ef1b8cc17702e64d9b864dde7b1b1ca2f31c9c8da6f6ba2e44",
+      "src/tools.ts": "07ee030f18a5dec783af62ac5c8e528e53b8306deac81391ae4d5b3aae0c830e",
+      "tests/images.test.ts": "9a2fa5eedb6f521ad9b1e219b125bc1ce58f8cdb38f59f6dfd4299201ffaf2ff",
+      "tests/image-content.test.ts": "a98c91a77a0056058daed73082bd2d7001231eb849c3945e9f6614b293fe3c43",
+      "package.json": "fb7dd9819507af0e5a89f8c49ce02cef831cce34b727cf0ae96dd8a5264d5853",
+      "pnpm-lock.yaml": "be6881454710cd54d764301dc9368f5b4cd00272c75a5670e25f21394f441b2c"
+    }
+  },
+  "actual_immich_verified": false,
+  "actual_cloudflare_verified": false,
+  "actual_chatgpt_verified": false,
+  "chatgpt_visual_recognition_verified": false,
+  "linux_docker_image_fix_verified": false,
+  "remaining": "Build this development source and refresh the ChatGPT MCP tool definitions; verify actual image descriptions in the connected environment. No new release or registry image was published by this local fix.",
+  "guide": "CHATGPT_IMAGE_TEST.md",
+  "connected_portal_status_probe": {
+    "binding_state": "active",
+    "target_version": "3.3.5",
+    "diagnostic_code": null,
+    "image_tool_available": false,
+    "scope": "Connected portal status/tool inventory only; no photo data accessed"
+  }
+}

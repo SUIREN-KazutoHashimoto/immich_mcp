@@ -8,6 +8,7 @@ import { Control } from "./control.js";
 import { Staging } from "./staging.js";
 import { Jobs } from "./jobs.js";
 import { Views } from "./views.js";
+import { Images,ImageReadError,imageDescriptor } from "./images.js";
 import { BridgeError,type ApiCall } from "./types.js";
 export interface Readiness {state:"ok"|"unreachable"|"version_mismatch";checked_at:string;}
 function extend(schema:any):any {
@@ -20,13 +21,13 @@ function extend(schema:any):any {
   }
   return result;
 }
-export const descriptors=source.tools.map(t=>({...structuredClone(t),outputSchema:extend(t.outputSchema)}));
+export const descriptors=[...source.tools.map(t=>({...structuredClone(t),outputSchema:extend(t.outputSchema)})),imageDescriptor];
 const diagnostic=(d:any)=>d?{...d,source:d.source ?? (d.code==="upstream_error"?"upstream":"mcp_bridge")}:null;
 export class ToolService {
-  readonly views:Views;private gate?:()=>void;
+  readonly views:Views;readonly images:Images;private gate?:()=>void;
   constructor(readonly vault:Vault,readonly executor:Executor,readonly contexts:Contexts,readonly control:Control,
     readonly staging:Staging,readonly jobs:Jobs,readonly publicOrigin:string,readonly readiness:()=>Readiness,limits:{inlineBytes?:number;resultTtlMs?:number;gate?:()=>void}={}) {
-    this.gate=limits.gate;this.views=new Views(vault,control,limits.inlineBytes,limits.resultTtlMs);
+    this.gate=limits.gate;this.views=new Views(vault,control,limits.inlineBytes,limits.resultTtlMs);this.images=new Images(vault,control);
   }
   private permittedVersion(id:string) {
     this.gate?.();
@@ -96,24 +97,26 @@ export class ToolService {
           job_ref:null,state:"completed",diagnostic:null};
       }
       case "immich_read_result":return this.views.read(principal,input);
+      case "immich_read_image":this.gate?.();return this.images.read(principal,input,signal);
       case "immich_get_job":return this.job(principal,input.job_ref);
       case "immich_cancel_job":return this.job(principal,input.job_ref,true);
       default:throw new BridgeError("unknown_tool","Unknown MCP tool");
     }
   }
   server(principal:string,signal?:AbortSignal) {
-    const server=new McpServer({name:"immich-mcp",version:"1.0.0-beta.3"});
+    const server=new McpServer({name:"immich-mcp",version:"1.0.0-beta.4"});
     for(const tool of descriptors){
-      server.registerTool(tool.name,{description:tool.description+" Large schema/result references can be read through immich_read_result using JSON Pointers.",
+      server.registerTool(tool.name,{description:tool.description+(tool.name==="immich_read_image"?"":" Large schema/result references can be read through immich_read_result using JSON Pointers.")+(tool.name==="immich_read_result"?" Preview returns metadata, not image pixels; use immich_read_image to see an image in ChatGPT.":""),
         inputSchema:fromJsonSchema<any>(tool.inputSchema as any),outputSchema:fromJsonSchema<any>(tool.outputSchema as any),
         annotations:tool.annotations,_meta:tool._meta},async(args:any)=>{
         try{
           const data=await this.invoke(principal,tool.name,args,signal);
+          if(tool.name==="immich_read_image")return data;
           return {content:[{type:"text" as const,text:JSON.stringify(data)}],structuredContent:data,
             ...((tool.name==="immich_api_call"||tool.name==="immich_api_call_context")&&(data.state==="outcome_unknown"||data.state==="failed"||data.upstream?.status>=400)?{isError:true}:{})};
         }catch(error){
           const code=error instanceof BridgeError?error.code:"tool_failed";
-          return {isError:true,content:[{type:"text" as const,text:JSON.stringify({code,message:error instanceof BridgeError?error.message:"Request failed; inspect authenticated diagnostics",source:"mcp_bridge"})}]};
+          return {isError:true,content:[{type:"text" as const,text:JSON.stringify({code,message:error instanceof BridgeError?error.message:"Request failed; inspect authenticated diagnostics",source:"mcp_bridge",...(error instanceof ImageReadError?{request_id:error.requestId}:{})})}]};
         }
       });
     }

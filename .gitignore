@@ -54,3 +54,4 @@ coverage/
 !/reports/beta.1-container-config-check.json
 !/reports/immich-3.3.6-compatibility.json
 !/reports/image-flow-benchmark-beta.8.json
+!/reports/image-flow-benchmark-beta.9.json

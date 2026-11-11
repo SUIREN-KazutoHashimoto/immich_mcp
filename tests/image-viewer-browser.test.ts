@@ -28,7 +28,7 @@ async function host(result:any,rejectContext=false,options:{imagePolicy?:string;
 async function fixture(){
   const bytes=await sharp({create:{width:240,height:120,channels:3,background:"#dd2233"}}).jpeg().toBuffer();
   const image={type:"image",data:bytes.toString("base64"),mimeType:"image/jpeg"};
-  return {image,result:{content:[image,{type:"text",text:"Preview ready"}],structuredContent:{width:240,height:120,size_bytes:bytes.length,display_status:"unconfirmed",request_id:"img_11111111-1111-4111-8111-111111111111",result_ref:"PRIVATE-REF"},_meta:{image_content:image}}};
+  return {image,result:{content:[image,{type:"text",text:"Preview ready"}],_meta:{image_content:image,image_info:{width:240,height:120,size_bytes:bytes.length,display_status:"unconfirmed",request_id:"img_11111111-1111-4111-8111-111111111111",result_ref:"PRIVATE-REF"}}}};
 }
 
 test("image viewer renders pixels and forwards them through the host context on an explicit explanation request",{timeout:90000},async()=>{

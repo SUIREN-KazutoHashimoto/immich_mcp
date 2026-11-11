@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 
-export const IMAGE_VIEWER_URI="ui://immich/image-preview/v3.html";
+export const IMAGE_VIEWER_URI="ui://immich/image-preview/v4.html";
+export const BETA8_IMAGE_VIEWER_URI="ui://immich/image-preview/v3.html";
 export const PREVIOUS_IMAGE_VIEWER_URI="ui://immich/image-preview/v2.html";
 export const LEGACY_IMAGE_VIEWER_URI="ui://immich/image-preview/v1.html";
 export const IMAGE_VIEWER_MIME="text/html;profile=mcp-app";

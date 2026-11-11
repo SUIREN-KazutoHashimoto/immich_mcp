@@ -11,7 +11,7 @@ import { Views } from "./views.js";
 import { Images,ImageReadError,imageDescriptor } from "./images.js";
 import { ImageFetch,imageFetchDescriptor } from "./image-fetch.js";
 import { imageToolNames,requireImageContent } from "./image-response.js";
-import { IMAGE_VIEWER_URI,PREVIOUS_IMAGE_VIEWER_URI,LEGACY_IMAGE_VIEWER_URI,IMAGE_VIEWER_MIME,imageViewerResource } from "./image-viewer.js";
+import { IMAGE_VIEWER_URI,BETA8_IMAGE_VIEWER_URI,PREVIOUS_IMAGE_VIEWER_URI,LEGACY_IMAGE_VIEWER_URI,IMAGE_VIEWER_MIME,imageViewerResource } from "./image-viewer.js";
 import { APPLICATION_VERSION,ServerInfo,serverInfoDescriptor,type ServerStatus } from "./server-info.js";
 import { BridgeError,type ApiCall } from "./types.js";
 export interface Readiness {state:"ok"|"unreachable"|"version_mismatch";checked_at:string;}
@@ -113,11 +113,13 @@ export class ToolService {
   }
   server(principal:string,signal?:AbortSignal) {
     const server=new McpServer({name:"immich-mcp",version:APPLICATION_VERSION});
-    for(const [index,uri]of [IMAGE_VIEWER_URI,PREVIOUS_IMAGE_VIEWER_URI,LEGACY_IMAGE_VIEWER_URI].entries())
+    for(const [index,uri]of [IMAGE_VIEWER_URI,BETA8_IMAGE_VIEWER_URI,PREVIOUS_IMAGE_VIEWER_URI,LEGACY_IMAGE_VIEWER_URI].entries())
       server.registerResource("immich_image_preview_"+index,uri,{mimeType:IMAGE_VIEWER_MIME,description:"Private Immich image preview"},async()=>({contents:[imageViewerResource(uri)]}));
     for(const tool of descriptors){
       server.registerTool(tool.name,{description:tool.description+(tool.name==="immich_get_connection"?" target_version is the fixed Immich API contract, not this MCP application version. Use immich_get_server_info to inspect the running MCP release.":"")+(tool.name==="immich_read_image"?"":" Large schema/result references can be read through immich_read_result using JSON Pointers.")+(tool.name==="immich_read_result"?" Preview returns metadata, not image pixels; use immich_read_image to see an image in ChatGPT.":""),
-        inputSchema:fromJsonSchema<any>(tool.inputSchema as any),outputSchema:fromJsonSchema<any>(tool.outputSchema as any),
+        inputSchema:fromJsonSchema<any>(tool.inputSchema as any),
+        // Advertise native image content, rather than a metadata-only structured result.
+        ...(imageToolNames.has(tool.name)?{}:{outputSchema:fromJsonSchema<any>(tool.outputSchema as any)}),
         annotations:tool.annotations,_meta:tool._meta},async(args:any)=>{
         try{
           const data=await this.invoke(principal,tool.name,args,signal);

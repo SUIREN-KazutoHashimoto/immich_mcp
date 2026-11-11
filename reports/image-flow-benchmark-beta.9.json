@@ -1,0 +1,587 @@
+{
+  "format": "immich-image-flow-benchmark",
+  "scope": "real local HTTP MCP with synthetic upstream; no Cloudflare, ChatGPT inference or phone timing",
+  "pending_job_poll_interval_ms": 100,
+  "quality_bytes_identical": true,
+  "reports": [
+    {
+      "mode": "baseline_auto",
+      "samples": 30,
+      "median_ms": 1300.6471999999994,
+      "p95_ms": 2343.9794999999995,
+      "mcp_calls": 311,
+      "upstream_calls": 60,
+      "response_bytes": 18771541,
+      "description_complete_inline": false,
+      "definition_count": 0,
+      "measurements": [
+        {
+          "ms": 2343.9794999999995,
+          "mcp_calls": 14,
+          "response_bytes": 78985,
+          "output_bytes": 26007
+        },
+        {
+          "ms": 1684.4944000000005,
+          "mcp_calls": 11,
+          "response_bytes": 88118,
+          "output_bytes": 29940
+        },
+        {
+          "ms": 1093.0058000000008,
+          "mcp_calls": 12,
+          "response_bytes": 1712702,
+          "output_bytes": 638986
+        },
+        {
+          "ms": 2395.733,
+          "mcp_calls": 11,
+          "response_bytes": 77630,
+          "output_bytes": 26007
+        },
+        {
+          "ms": 712.7286000000004,
+          "mcp_calls": 8,
+          "response_bytes": 86756,
+          "output_bytes": 29940
+        },
+        {
+          "ms": 2070.310300000001,
+          "mcp_calls": 13,
+          "response_bytes": 1713156,
+          "output_bytes": 638986
+        },
+        {
+          "ms": 1466.6875999999993,
+          "mcp_calls": 12,
+          "response_bytes": 78084,
+          "output_bytes": 26007
+        },
+        {
+          "ms": 2132.8397000000004,
+          "mcp_calls": 12,
+          "response_bytes": 88572,
+          "output_bytes": 29940
+        },
+        {
+          "ms": 1300.6471999999994,
+          "mcp_calls": 10,
+          "response_bytes": 1711800,
+          "output_bytes": 638986
+        },
+        {
+          "ms": 1607.6846000000005,
+          "mcp_calls": 13,
+          "response_bytes": 78551,
+          "output_bytes": 26007
+        },
+        {
+          "ms": 2230.408299999999,
+          "mcp_calls": 11,
+          "response_bytes": 88129,
+          "output_bytes": 29940
+        },
+        {
+          "ms": 2075.446100000001,
+          "mcp_calls": 13,
+          "response_bytes": 1713169,
+          "output_bytes": 638986
+        },
+        {
+          "ms": 1604.4148999999998,
+          "mcp_calls": 8,
+          "response_bytes": 76276,
+          "output_bytes": 26007
+        },
+        {
+          "ms": 1349.8528000000006,
+          "mcp_calls": 10,
+          "response_bytes": 87674,
+          "output_bytes": 29940
+        },
+        {
+          "ms": 1465.056199999999,
+          "mcp_calls": 9,
+          "response_bytes": 1711349,
+          "output_bytes": 638986
+        },
+        {
+          "ms": 1031.096300000001,
+          "mcp_calls": 8,
+          "response_bytes": 76276,
+          "output_bytes": 26007
+        },
+        {
+          "ms": 1091.132800000003,
+          "mcp_calls": 9,
+          "response_bytes": 87219,
+          "output_bytes": 29940
+        },
+        {
+          "ms": 1364.448199999999,
+          "mcp_calls": 13,
+          "response_bytes": 1713169,
+          "output_bytes": 638986
+        },
+        {
+          "ms": 1072.2033999999985,
+          "mcp_calls": 10,
+          "response_bytes": 77186,
+          "output_bytes": 26007
+        },
+        {
+          "ms": 823.3958999999959,
+          "mcp_calls": 8,
+          "response_bytes": 86764,
+          "output_bytes": 29940
+        },
+        {
+          "ms": 408.775999999998,
+          "mcp_calls": 6,
+          "response_bytes": 1709984,
+          "output_bytes": 638986
+        },
+        {
+          "ms": 1199.525499999996,
+          "mcp_calls": 11,
+          "response_bytes": 77641,
+          "output_bytes": 26007
+        },
+        {
+          "ms": 1042.0717000000004,
+          "mcp_calls": 10,
+          "response_bytes": 87674,
+          "output_bytes": 29940
+        },
+        {
+          "ms": 1137.4313000000038,
+          "mcp_calls": 10,
+          "response_bytes": 1711804,
+          "output_bytes": 638986
+        },
+        {
+          "ms": 1184.2618000000002,
+          "mcp_calls": 8,
+          "response_bytes": 76276,
+          "output_bytes": 26007
+        },
+        {
+          "ms": 822.7245000000039,
+          "mcp_calls": 8,
+          "response_bytes": 86764,
+          "output_bytes": 29940
+        },
+        {
+          "ms": 1041.4870999999985,
+          "mcp_calls": 10,
+          "response_bytes": 1711804,
+          "output_bytes": 638986
+        },
+        {
+          "ms": 1645.086000000003,
+          "mcp_calls": 15,
+          "response_bytes": 79461,
+          "output_bytes": 26007
+        },
+        {
+          "ms": 1724.9564000000028,
+          "mcp_calls": 12,
+          "response_bytes": 88584,
+          "output_bytes": 29940
+        },
+        {
+          "ms": 721.9643999999971,
+          "mcp_calls": 6,
+          "response_bytes": 1709984,
+          "output_bytes": 638986
+        }
+      ]
+    },
+    {
+      "mode": "baseline_sync",
+      "samples": 30,
+      "median_ms": 709.8628000000026,
+      "p95_ms": 1975.4677999999985,
+      "mcp_calls": 90,
+      "upstream_calls": 60,
+      "response_bytes": 18652933,
+      "description_complete_inline": false,
+      "definition_count": 0,
+      "measurements": [
+        {
+          "ms": 1868.351300000002,
+          "mcp_calls": 3,
+          "response_bytes": 73393,
+          "output_bytes": 26007
+        },
+        {
+          "ms": 2249.1826999999976,
+          "mcp_calls": 3,
+          "response_bytes": 83881,
+          "output_bytes": 29940
+        },
+        {
+          "ms": 1250.172000000006,
+          "mcp_calls": 3,
+          "response_bytes": 1708013,
+          "output_bytes": 638986
+        },
+        {
+          "ms": 793.0650999999998,
+          "mcp_calls": 3,
+          "response_bytes": 73396,
+          "output_bytes": 26007
+        },
+        {
+          "ms": 910.8667999999961,
+          "mcp_calls": 3,
+          "response_bytes": 83884,
+          "output_bytes": 29940
+        },
+        {
+          "ms": 649.8061000000016,
+          "mcp_calls": 3,
+          "response_bytes": 1708014,
+          "output_bytes": 638986
+        },
+        {
+          "ms": 127.53750000000582,
+          "mcp_calls": 3,
+          "response_bytes": 73396,
+          "output_bytes": 26007
+        },
+        {
+          "ms": 1585.8084000000017,
+          "mcp_calls": 3,
+          "response_bytes": 83884,
+          "output_bytes": 29940
+        },
+        {
+          "ms": 765.7822000000015,
+          "mcp_calls": 3,
+          "response_bytes": 1708014,
+          "output_bytes": 638986
+        },
+        {
+          "ms": 1066.183299999997,
+          "mcp_calls": 3,
+          "response_bytes": 73396,
+          "output_bytes": 26007
+        },
+        {
+          "ms": 376.16040000000066,
+          "mcp_calls": 3,
+          "response_bytes": 83884,
+          "output_bytes": 29940
+        },
+        {
+          "ms": 502.56299999999464,
+          "mcp_calls": 3,
+          "response_bytes": 1708014,
+          "output_bytes": 638986
+        },
+        {
+          "ms": 756.6273000000074,
+          "mcp_calls": 3,
+          "response_bytes": 73396,
+          "output_bytes": 26007
+        },
+        {
+          "ms": 495.351800000004,
+          "mcp_calls": 3,
+          "response_bytes": 83884,
+          "output_bytes": 29940
+        },
+        {
+          "ms": 525.5082999999868,
+          "mcp_calls": 3,
+          "response_bytes": 1708014,
+          "output_bytes": 638986
+        },
+        {
+          "ms": 1363.487500000003,
+          "mcp_calls": 3,
+          "response_bytes": 73396,
+          "output_bytes": 26007
+        },
+        {
+          "ms": 515.8012000000017,
+          "mcp_calls": 3,
+          "response_bytes": 83884,
+          "output_bytes": 29940
+        },
+        {
+          "ms": 934.1744999999937,
+          "mcp_calls": 3,
+          "response_bytes": 1708014,
+          "output_bytes": 638986
+        },
+        {
+          "ms": 976.8439000000071,
+          "mcp_calls": 3,
+          "response_bytes": 73396,
+          "output_bytes": 26007
+        },
+        {
+          "ms": 709.8628000000026,
+          "mcp_calls": 3,
+          "response_bytes": 83884,
+          "output_bytes": 29940
+        },
+        {
+          "ms": 865.8898000000045,
+          "mcp_calls": 3,
+          "response_bytes": 1708014,
+          "output_bytes": 638986
+        },
+        {
+          "ms": 452.88520000000426,
+          "mcp_calls": 3,
+          "response_bytes": 73396,
+          "output_bytes": 26007
+        },
+        {
+          "ms": 403.4475999999995,
+          "mcp_calls": 3,
+          "response_bytes": 83884,
+          "output_bytes": 29940
+        },
+        {
+          "ms": 466.7198999999964,
+          "mcp_calls": 3,
+          "response_bytes": 1708014,
+          "output_bytes": 638986
+        },
+        {
+          "ms": 492.0384000000049,
+          "mcp_calls": 3,
+          "response_bytes": 73396,
+          "output_bytes": 26007
+        },
+        {
+          "ms": 1975.4677999999985,
+          "mcp_calls": 3,
+          "response_bytes": 83884,
+          "output_bytes": 29940
+        },
+        {
+          "ms": 744.9118000000017,
+          "mcp_calls": 3,
+          "response_bytes": 1708014,
+          "output_bytes": 638986
+        },
+        {
+          "ms": 285.7871000000014,
+          "mcp_calls": 3,
+          "response_bytes": 73396,
+          "output_bytes": 26007
+        },
+        {
+          "ms": 306.6435999999958,
+          "mcp_calls": 3,
+          "response_bytes": 83884,
+          "output_bytes": 29940
+        },
+        {
+          "ms": 672.3741999999911,
+          "mcp_calls": 3,
+          "response_bytes": 1708014,
+          "output_bytes": 638986
+        }
+      ]
+    },
+    {
+      "mode": "candidate",
+      "samples": 30,
+      "median_ms": 689.6205000000045,
+      "p95_ms": 1588.0429000000004,
+      "mcp_calls": 30,
+      "upstream_calls": 60,
+      "response_bytes": 18556743,
+      "description_complete_inline": true,
+      "definition_count": 30,
+      "measurements": [
+        {
+          "ms": 658.4585999999981,
+          "mcp_calls": 1,
+          "response_bytes": 70189,
+          "output_bytes": 26007
+        },
+        {
+          "ms": 328.53579999999783,
+          "mcp_calls": 1,
+          "response_bytes": 80677,
+          "output_bytes": 29940
+        },
+        {
+          "ms": 571.9575000000041,
+          "mcp_calls": 1,
+          "response_bytes": 1704806,
+          "output_bytes": 638986
+        },
+        {
+          "ms": 857.2901999999885,
+          "mcp_calls": 1,
+          "response_bytes": 70189,
+          "output_bytes": 26007
+        },
+        {
+          "ms": 796.1888999999937,
+          "mcp_calls": 1,
+          "response_bytes": 80677,
+          "output_bytes": 29940
+        },
+        {
+          "ms": 1662.1368000000075,
+          "mcp_calls": 1,
+          "response_bytes": 1704806,
+          "output_bytes": 638986
+        },
+        {
+          "ms": 1060.9233999999997,
+          "mcp_calls": 1,
+          "response_bytes": 70189,
+          "output_bytes": 26007
+        },
+        {
+          "ms": 328.58890000000247,
+          "mcp_calls": 1,
+          "response_bytes": 80678,
+          "output_bytes": 29940
+        },
+        {
+          "ms": 1075.9416000000056,
+          "mcp_calls": 1,
+          "response_bytes": 1704807,
+          "output_bytes": 638986
+        },
+        {
+          "ms": 363.18099999999686,
+          "mcp_calls": 1,
+          "response_bytes": 70190,
+          "output_bytes": 26007
+        },
+        {
+          "ms": 330.29790000000503,
+          "mcp_calls": 1,
+          "response_bytes": 80678,
+          "output_bytes": 29940
+        },
+        {
+          "ms": 1527.8012000000017,
+          "mcp_calls": 1,
+          "response_bytes": 1704807,
+          "output_bytes": 638986
+        },
+        {
+          "ms": 386.09610000000976,
+          "mcp_calls": 1,
+          "response_bytes": 70190,
+          "output_bytes": 26007
+        },
+        {
+          "ms": 920.9579999999987,
+          "mcp_calls": 1,
+          "response_bytes": 80678,
+          "output_bytes": 29940
+        },
+        {
+          "ms": 709.8043999999936,
+          "mcp_calls": 1,
+          "response_bytes": 1704807,
+          "output_bytes": 638986
+        },
+        {
+          "ms": 483.8377999999939,
+          "mcp_calls": 1,
+          "response_bytes": 70190,
+          "output_bytes": 26007
+        },
+        {
+          "ms": 1588.0429000000004,
+          "mcp_calls": 1,
+          "response_bytes": 80678,
+          "output_bytes": 29940
+        },
+        {
+          "ms": 1110.3869000000122,
+          "mcp_calls": 1,
+          "response_bytes": 1704807,
+          "output_bytes": 638986
+        },
+        {
+          "ms": 1438.100099999996,
+          "mcp_calls": 1,
+          "response_bytes": 70190,
+          "output_bytes": 26007
+        },
+        {
+          "ms": 360.64830000000075,
+          "mcp_calls": 1,
+          "response_bytes": 80678,
+          "output_bytes": 29940
+        },
+        {
+          "ms": 700.5495999999985,
+          "mcp_calls": 1,
+          "response_bytes": 1704807,
+          "output_bytes": 638986
+        },
+        {
+          "ms": 1420.95640000001,
+          "mcp_calls": 1,
+          "response_bytes": 70190,
+          "output_bytes": 26007
+        },
+        {
+          "ms": 854.5292999999947,
+          "mcp_calls": 1,
+          "response_bytes": 80678,
+          "output_bytes": 29940
+        },
+        {
+          "ms": 889.1322999999975,
+          "mcp_calls": 1,
+          "response_bytes": 1704807,
+          "output_bytes": 638986
+        },
+        {
+          "ms": 413.665599999993,
+          "mcp_calls": 1,
+          "response_bytes": 70190,
+          "output_bytes": 26007
+        },
+        {
+          "ms": 463.62609999999404,
+          "mcp_calls": 1,
+          "response_bytes": 80678,
+          "output_bytes": 29940
+        },
+        {
+          "ms": 152.21119999999064,
+          "mcp_calls": 1,
+          "response_bytes": 1704807,
+          "output_bytes": 638986
+        },
+        {
+          "ms": 132.78719999999157,
+          "mcp_calls": 1,
+          "response_bytes": 70190,
+          "output_bytes": 26007
+        },
+        {
+          "ms": 219.87450000000536,
+          "mcp_calls": 1,
+          "response_bytes": 80678,
+          "output_bytes": 29940
+        },
+        {
+          "ms": 689.6205000000045,
+          "mcp_calls": 1,
+          "response_bytes": 1704807,
+          "output_bytes": 638986
+        }
+      ]
+    }
+  ]
+}

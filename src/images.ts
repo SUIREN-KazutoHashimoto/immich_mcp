@@ -5,6 +5,7 @@ import { Control } from "./control.js";
 import { readDecoded } from "./content-encoding.js";
 import { BridgeError } from "./types.js";
 import { IMAGE_VIEWER_URI } from "./image-viewer.js";
+import { imageSummary } from "./image-response.js";
 
 // Cache neither originals nor previews in libvips. All retained originals stay in the encrypted vault.
 sharp.cache(false);
@@ -24,7 +25,7 @@ export class ImageReadError extends BridgeError {
 }
 export const imageDescriptor={
   name:"immich_read_image",
-  description:"Use this to read actual pixels from an already completed image result_ref. For a new random photo or asset_id use immich_get_image first. Returns model-visible MCP ImageContent and a private preview without fetching upstream again. In Code Mode forward content image blocks with image(block). If only metadata is exposed, stop and report image_content_missing; do not repeat requests or infer image contents. The preview explanation button provides a separate image-context path. HTTP200 and display_status unconfirmed mean prepared bytes, not display or visual recognition. A displayed UI preview is not a native ChatGPT attachment.",
+  description:"Use this to read actual pixels from an already completed image result_ref. For a new random photo or asset_id use immich_get_image first. Returns model-visible MCP ImageContent and a private preview without fetching upstream again. Returns native image content rather than JSON structuredContent; diagnostics are private image_info. In Code Mode forward content image blocks with image(block). If only metadata is exposed, stop and report image_content_missing; do not repeat requests or infer image contents. The preview explanation button provides a separate image-context path. HTTP200 and display_status unconfirmed mean prepared bytes, not display or visual recognition. A displayed UI preview is not a native ChatGPT attachment.",
   inputSchema:{type:"object",properties:{
     result_ref:{type:"string",pattern:resultPattern.source,description:"Image result_ref returned by a completed Immich API call or job."},
     max_width:{type:"integer",minimum:1,maximum:MAX_DIMENSION,default:1600,description:"Maximum output width; aspect ratio is preserved and small images are not enlarged."},
@@ -131,9 +132,8 @@ export class Images {
       measured("authorize_return");event.timings_ms=timings;event.total_ms=Math.round((performance.now()-started)*1000)/1000;
       this.emit(event);
       const part={type:"image"as const,data:output.data.toString("base64"),mimeType};
-      return {content:[part,
-        {type:"text" as const,text:JSON.stringify(meta)}],structuredContent:meta,
-        _meta:{image_content:part}};
+      return {content:[part,{type:"text"as const,text:imageSummary(meta)}],
+        _meta:{image_content:part,image_info:meta}};
     }catch(error){
       const native=error instanceof Error?error.message:"";
       const normalized=error instanceof BridgeError?error:

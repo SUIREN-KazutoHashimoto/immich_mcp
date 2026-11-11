@@ -63,7 +63,8 @@ button,a{font:inherit;font-size:14px;border-radius:8px;padding:9px 14px}button{b
     const result=envelope(raw);
     if(!result){if(notification){clear();lastPayload=null;status.textContent="画像本体が届いていません。画像を取得し直してください。";previewContext("failed","missing_image",null);resize();}return;}
     const part=result.content?.find(x=>x?.type==="image")??result._meta?.image_content;
-    const rawId=result.structuredContent?.request_id;
+    const info=result.structuredContent??result._meta?.image_info;
+    const rawId=info?.request_id;
     const requestId=typeof rawId==="string"&&/^img_[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(rawId)?rawId:null;
     const payload={data:typeof part?.data==="string"?part.data:null,mime:part?.mimeType??null,requestId,error:!!result.isError};
     if(lastPayload&&Object.keys(payload).every(k=>payload[k]===lastPayload[k]))return;
@@ -74,7 +75,7 @@ button,a{font:inherit;font-size:14px;border-radius:8px;padding:9px 14px}button{b
       if(part.type!=="image"||!["image/jpeg","image/webp"].includes(part.mimeType)||typeof part.data!=="string"||part.data.length>1398104||!part.data.length||part.data.length%4||!/^[A-Za-z0-9+/]*={0,2}$/.test(part.data))throw new Error("invalid image");
       const byteLength=part.data.length/4*3-(part.data.endsWith("==")?2:part.data.endsWith("=")?1:0);
       if(!byteLength||byteLength>1048576)throw new Error("image limit");
-      const expected=result.structuredContent?.size_bytes;
+      const expected=info?.size_bytes;
       if(Number.isSafeInteger(expected)&&expected!==byteLength)throw new Error("incomplete image");
       const serial=generation,renderStarted=performance.now();
       let triedBlob=false;
@@ -132,7 +133,7 @@ button,a{font:inherit;font-size:14px;border-radius:8px;padding:9px 14px}button{b
       if(message.id!==undefined)window.parent.postMessage({jsonrpc:"2.0",id:message.id,result:{}},"*");
     }
   });
-  request("ui/initialize",{appInfo:{name:"immich-image-preview",version:"1.0.0-beta.8"},appCapabilities:{},protocolVersion:"2026-01-26"}).then(()=>{
+  request("ui/initialize",{appInfo:{name:"immich-image-preview",version:"1.0.0-beta.9"},appCapabilities:{},protocolVersion:"2026-01-26"}).then(()=>{
     ready=true;notify("ui/notifications/initialized",{});describe.disabled=!current||image.hidden;sendPreviewContext();resize();
   }).catch(()=>{if(!current){status.textContent="画像を受信できませんでした。対応するChatGPTの接続で表示し直してください。";resize();}});
   // Older ChatGPT UI hosts expose the full MCP envelope through this compatibility property.

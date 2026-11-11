@@ -1,23 +1,19 @@
-# Immich MCP 1.0.0-beta.5
+# Immich MCP 1.0.0-beta.6
 
-画像を取得できてもチャットに表示されず、モデルがメタデータだけを扱う報告への修正です。`immich_read_image` に画像プレビューと「この画像を説明」操作を追加します。
+ChatGPTから実際に稼働しているMCP本体の情報を取得できる、読み取り専用の `immich_get_server_info` を追加しました。
 
-- MCP ImageContent に加え、同じ認証済みプレビューを画面専用メタデータにも渡します。公開画像 URL は作りません。
-- 画面で表示・保存でき、ボタン操作で実画像をモデルのコンテキストまたはユーザーメッセージへ渡します。
-- Code Mode の画像転送方法と、生応答を調べる機密情報を含まない診断出力を追加しました。中継側の障害と断定していません。
+- MCP本体のバージョン、ビルド元コミット、開始日時・稼働時間を返します。
+- キャッシュされた健全性、対応・確認済みImmichバージョン、利用可能な11ツールを返します。
+- ImmichのAPIキー未登録時や、上流・ローカル検査の失敗時も照会できます。MCP本人認証は必須です。
+- APIキー、認証トークン、写真、利用者情報、内部URLや保存場所は返しません。
+- MCP本体のバージョンと、固定API定義 `3.3.5` を明確に区別します。
 
-## 更新
+固定版: `ghcr.io/suiren-kazutohashimoto/immich-mcp:1.0.0-beta.6`
+更新チャンネル: `ghcr.io/suiren-kazutohashimoto/immich-mcp:beta`
+Linux amd64 / Immich 3.3.5・3.3.6対応
 
-- 固定版: `ghcr.io/suiren-kazutohashimoto/immich-mcp:1.0.0-beta.5`
-- チャンネル: `ghcr.io/suiren-kazutohashimoto/immich-mcp:beta`
-- Linux amd64 / Immich 3.3.5・3.3.6 対応
+コンテナ更新後、Cloudflareの能力同期とChatGPTのツール定義更新を行い、新しい会話で「Immich MCPサーバーの情報を取得して」と依頼してください。
 
-データとマスター鍵を維持してコンテナを更新し、Cloudflare の能力再同期、ChatGPT のツール定義更新を行ってください。**新しい会話**で画像表示と画像内容の説明をそれぞれ確認します。ツール数は10のままです。
+[サーバー情報の項目・確認手順](https://github.com/SUIREN-KazutoHashimoto/immich_mcp/blob/v1.0.0-beta.6/SERVER_INFO.md)
 
-[更新・画像連携の手順](https://github.com/SUIREN-KazutoHashimoto/immich_mcp/blob/v1.0.0-beta.5/CHATGPT_IMAGE_TEST.md) / [更新チャンネル](https://github.com/SUIREN-KazutoHashimoto/immich_mcp/blob/v1.0.0-beta.5/CONTAINER_CHANNELS.md)
-
-## 検証の範囲
-
-実ブラウザーの画像描画・明示的な画像転送、MCP 通信の画像・リソース取得、権限とメタデータ除去を検証しています。公開パイプラインで全件回帰試験と実 Linux Docker の非root・読み取り専用起動、再起動、画像変換、表示画面読込を確認してから公開します。
-
-合成データと模擬ホストの試験は、実 ChatGPT の視認成功を証明しません。導入後の画像表示と画像認識は別々の確認項目です。**OCR の `projection_mismatch` は今回修正していません。**
+MCP通信の認証境界、キー未登録・障害時の取得、秘密情報の除外とバージョンの整合を検証します。公開パイプラインは全件回帰試験と実Linux Dockerでのサーバー情報取得・ビルド元照合・起動・再起動・画像処理を確認してから公開します。実ChatGPTでの確認は導入・定義更新後に行います。OCRは今回も変更していません。

@@ -10,6 +10,7 @@ test("publisher validates stable/beta releases, retains full checks and preserve
  const a=steps.findIndex((s:any)=>s.run==="node scripts/container-channels.ts prepare"),b=steps.findIndex((s:any)=>s.name==="Build Linux amd64 image"),c=steps.findIndex((s:any)=>s.name==="Publish the fixed version");
  assert.ok(a<b&&b<c);assert.equal(steps[c].if,"steps.existing.outputs.reuse != 'true'");assert.equal(steps[b].if,steps[c].if);
  assert.equal(p.jobs.publish.permissions.packages,"write");
+ assert.equal(steps[b].with["build-args"],"MCP_BUILD_REVISION=$"+"{{ github.sha }}");
  assert.ok((await readFile(new URL("../scripts/container-smoke.mjs",import.meta.url),"utf8")).includes("assert.ok(containerVersion(version)"));
 });
 test("refresh uses trusted default-context checkout, successful publisher events and dry runs",async()=>{

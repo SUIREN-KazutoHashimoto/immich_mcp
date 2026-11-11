@@ -121,7 +121,8 @@
             "load": true,
             "tags": "${{ needs.metadata.outputs.image }}",
             "labels": "org.opencontainers.image.source=https://github.com/SUIREN-KazutoHashimoto/immich_mcp\norg.opencontainers.image.revision=${{ github.sha }}",
-            "provenance": false
+            "provenance": false,
+            "build-args": "MCP_BUILD_REVISION=${{ github.sha }}"
           }
         },
         {

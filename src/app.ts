@@ -21,6 +21,7 @@ import { decodedResponse } from "./content-encoding.js";
 import { UpstreamError } from "./upstream.js";
 import { runtimeIntegrity } from "./runtime-integrity.js";
 import { inspectLocal,localReady,type LocalReadiness } from "./readiness.js";
+import { observedImmichVersion } from "./server-info.js";
 import { supportsImmichVersion } from "./immich-version.js";
 export interface AppOptions {http?:typeof fetch;jwks?:JWTVerifyGetKey;downloads?:DownloadPolicy;databasePath?:string;versionIntervalMs?:number;cleanupIntervalMs?:number;localIntervalMs?:number;runtimeIntegrity?:()=>Promise<"ok"|"error">;}
 const noStore={"cache-control":"no-store","x-content-type-options":"nosniff"};
@@ -28,6 +29,7 @@ export class Application {
   readonly vault:Vault;readonly executor:Executor;readonly contexts:Contexts;readonly access:AccessAuth;
   readonly staging:Staging;readonly uploads:Uploads;readonly jobs:Jobs;readonly control:Control;readonly tools:ToolService;
   readonly mcp:ReturnType<typeof createMcpHandler>;
+  observedVersion:string|null=null;
   health:Readiness={state:"unreachable",checked_at:new Date(0).toISOString()};
   private pending=new Set<Promise<Response>>();private closing?:Promise<void>;private cleaning?:Promise<void>;private cleanupTimer?:ReturnType<typeof setInterval>;
   localHealth:LocalReadiness={database:"error",migration:"error",master_key:"error",storage:"error",registry:"error",checked_at:new Date(0).toISOString()};
@@ -50,7 +52,7 @@ export class Application {
     this.jobs=new Jobs(this.vault,this.executor,(p,o,c)=>control.resolver(p,o,c),
       {autoStart:false,maxPendingPerPrincipal:config.maxJobsPerPrincipal,gate:id=>this.assertVersion(id)},this.contexts);
     this.control=control=new Control(this.access,this.vault,this.executor,config.masterKey,this.staging,this.jobs,this.uploads,this.contexts);
-    this.tools=new ToolService(this.vault,this.executor,this.contexts,this.control,this.staging,this.jobs,config.publicOrigin,()=>this.health,{inlineBytes:config.inlineResultMaxBytes,resultTtlMs:config.resultTtlMs,gate:()=>this.assertLocalReady()});
+    this.tools=new ToolService(this.vault,this.executor,this.contexts,this.control,this.staging,this.jobs,config.publicOrigin,()=>this.health,{inlineBytes:config.inlineResultMaxBytes,resultTtlMs:config.resultTtlMs,gate:()=>this.assertLocalReady(),serverStatus:()=>({ready:!this.stopping&&this.health.state==="ok"&&this.cleanupState==="ok"&&localReady(this.localHealth),local:this.localHealth,cleanup:this.cleanupState,observedVersion:this.observedVersion})});
     this.mcp=createMcpHandler(ctx=>{
       const principal=ctx.authInfo?.extra?.principal;
       if(typeof principal!=="string" || !principal)throw new Error("Verified principal is required");
@@ -97,7 +99,7 @@ export class Application {
   async checkVersion() {
     if(this.checking)return this.checking;
     this.checking=(async()=>{
-      let state:Readiness["state"]="unreachable";
+      let state:Readiness["state"]="unreachable",observed:string|null=null;
       try{
         const url=new URL(this.config.upstream+"/server/version");
         const response=await this.executor.http(url,{redirect:"manual",signal:AbortSignal.timeout(5000)});
@@ -105,12 +107,14 @@ export class Application {
           const bytes=await decodedResponse(response,16384);
           const value=JSON.parse(new TextDecoder("utf-8",{fatal:true}).decode(bytes));
           validator(operation("getServerVersion").definition.responses["200"].content["application/json"].schema,registry.schemas)(value);
+          observed=observedImmichVersion(value);
           state=supportsImmichVersion(value)?"ok":"version_mismatch";
         }else await response.body?.cancel();
       }catch(error){
         // A locally cancelled wait did not inspect the upstream at all.
         if(!this.stopping&&error instanceof BridgeError&&!(error instanceof UpstreamError)&&["upstream_cancelled","upstream_busy"].includes(error.code))return;
       }
+      this.observedVersion=observed;
       this.health={state,checked_at:new Date().toISOString()};
     })();
     try{await this.checking;}finally{this.checking=undefined;}

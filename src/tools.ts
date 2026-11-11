@@ -10,6 +10,7 @@ import { Jobs } from "./jobs.js";
 import { Views } from "./views.js";
 import { Images,ImageReadError,imageDescriptor } from "./images.js";
 import { IMAGE_VIEWER_URI,IMAGE_VIEWER_MIME,imageViewerResource } from "./image-viewer.js";
+import { APPLICATION_VERSION,ServerInfo,serverInfoDescriptor,type ServerStatus } from "./server-info.js";
 import { BridgeError,type ApiCall } from "./types.js";
 export interface Readiness {state:"ok"|"unreachable"|"version_mismatch";checked_at:string;}
 function extend(schema:any):any {
@@ -22,12 +23,13 @@ function extend(schema:any):any {
   }
   return result;
 }
-export const descriptors=[...source.tools.map(t=>({...structuredClone(t),outputSchema:extend(t.outputSchema)})),imageDescriptor];
+export const descriptors=[...source.tools.map(t=>({...structuredClone(t),outputSchema:extend(t.outputSchema)})),imageDescriptor,serverInfoDescriptor];
 const diagnostic=(d:any)=>d?{...d,source:d.source ?? (d.code==="upstream_error"?"upstream":"mcp_bridge")}:null;
 export class ToolService {
-  readonly views:Views;readonly images:Images;private gate?:()=>void;
+  readonly views:Views;readonly images:Images;readonly serverInfo:ServerInfo;private gate?:()=>void;
   constructor(readonly vault:Vault,readonly executor:Executor,readonly contexts:Contexts,readonly control:Control,
-    readonly staging:Staging,readonly jobs:Jobs,readonly publicOrigin:string,readonly readiness:()=>Readiness,limits:{inlineBytes?:number;resultTtlMs?:number;gate?:()=>void}={}) {
+    readonly staging:Staging,readonly jobs:Jobs,readonly publicOrigin:string,readonly readiness:()=>Readiness,limits:{inlineBytes?:number;resultTtlMs?:number;gate?:()=>void;serverStatus?:()=>ServerStatus}={}) {
+    this.serverInfo=new ServerInfo(descriptors.map(t=>t.name),readiness,limits.serverStatus);
     this.gate=limits.gate;this.views=new Views(vault,control,limits.inlineBytes,limits.resultTtlMs);this.images=new Images(vault,control);
   }
   private permittedVersion(id:string) {
@@ -75,6 +77,7 @@ export class ToolService {
   }
   async invoke(principal:string,name:string,input:any,signal?:AbortSignal):Promise<any> {
     switch(name){
+      case "immich_get_server_info":return this.serverInfo.read();
       case "immich_get_connection":{
         const binding=this.vault.binding(principal),health=this.readiness();
         return {target_version:"3.3.5",openapi_sha256:registry.sha256,binding_state:health.state==="ok"?(binding?.state ?? "unregistered"):health.state,
@@ -105,10 +108,10 @@ export class ToolService {
     }
   }
   server(principal:string,signal?:AbortSignal) {
-    const server=new McpServer({name:"immich-mcp",version:"1.0.0-beta.5"});
+    const server=new McpServer({name:"immich-mcp",version:APPLICATION_VERSION});
     server.registerResource("immich_image_preview",IMAGE_VIEWER_URI,{mimeType:IMAGE_VIEWER_MIME,description:"Private Immich image preview"},async()=>({contents:[imageViewerResource()]}));
     for(const tool of descriptors){
-      server.registerTool(tool.name,{description:tool.description+(tool.name==="immich_read_image"?"":" Large schema/result references can be read through immich_read_result using JSON Pointers.")+(tool.name==="immich_read_result"?" Preview returns metadata, not image pixels; use immich_read_image to see an image in ChatGPT.":""),
+      server.registerTool(tool.name,{description:tool.description+(tool.name==="immich_get_connection"?" target_version is the fixed Immich API contract, not this MCP application version. Use immich_get_server_info to inspect the running MCP release.":"")+(tool.name==="immich_read_image"?"":" Large schema/result references can be read through immich_read_result using JSON Pointers.")+(tool.name==="immich_read_result"?" Preview returns metadata, not image pixels; use immich_read_image to see an image in ChatGPT.":""),
         inputSchema:fromJsonSchema<any>(tool.inputSchema as any),outputSchema:fromJsonSchema<any>(tool.outputSchema as any),
         annotations:tool.annotations,_meta:tool._meta},async(args:any)=>{
         try{

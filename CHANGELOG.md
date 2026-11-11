@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.0-beta.6 — 2026-11-11
+
+- Add authenticated read-only `immich_get_server_info` for the running MCP application version/build revision, stable instance uptime, cached local/upstream health, observed/supported Immich versions and registered capabilities. Keep the fixed API contract version separate.
+- Permit diagnostics before API-key registration and while readiness is degraded. Explicitly project public fields without credentials, user data, internal URLs/paths or new upstream probes. Preserve the baseline nine tool contracts and image extension.
+- Bake the source revision into production build metadata, verify it against OCI labels in real-container smoke, and document ChatGPT/portal metadata refresh. OCR remains deferred.
+
 ## 1.0.0-beta.5 — 2026-11-11
 
 - Add a private MCP Apps resource linked to `immich_read_image`, with responsive image preview, local save and an explicit image-to-model explanation action. Include the HTML in the production image.

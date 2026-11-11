@@ -143,3 +143,7 @@ No production Immich endpoint, credentials, Access application or ChatGPT connec
 ## License and upstream material
 
 このプロジェクトで独自に作成した内容には既存の [Apache License 2.0](LICENSE) を適用します。第三者の定義・資料のライセンスは維持し、再ライセンスを主張しません。現在はImmich3.3.5のOpenAPI原本と生成定義を同梱しています。[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) と同梱の元ライセンス・出典を参照してください。このプロジェクトはImmichの非公式連携プロジェクトです。
+
+## Container release channels
+
+`stable` tracks published stable releases; `beta` tracks successfully published beta images. Fixed version tags remain available. See [CONTAINER_CHANNELS.md](CONTAINER_CHANNELS.md) for publication, validation and initial channel availability. Host-side container updates are configured separately.

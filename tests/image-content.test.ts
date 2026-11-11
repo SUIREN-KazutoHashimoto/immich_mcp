@@ -13,6 +13,7 @@ import { Client,StreamableHTTPClientTransport } from "@modelcontextprotocol/clie
 import { Application } from "../src/app.js";
 import { waitForTestJob } from "./job-wait.js";
 import { uuid } from "./fixtures.js";
+import { IMAGE_VIEWER_URI,IMAGE_VIEWER_MIME } from "../src/image-viewer.js";
 
 test("image artifacts reach legacy MCP and the official modern client as ImageContent",{timeout:30000},async()=>{
   const dir=await mkdtemp(join(tmpdir(),"immich-image-wire-"));
@@ -73,6 +74,7 @@ test("image artifacts reach legacy MCP and the official modern client as ImageCo
     const content=reply.result.content.find((c:any)=>c.type==="image");
     assert.ok(content,"MCP must contain a top-level image, not a JSON representation of one");
     assert.equal(content.mimeType,"image/jpeg");
+    assert.deepEqual(reply.result._meta.image_content,content,"Viewer fallback must use exactly the authorized preview pixels");
     const bytes=Buffer.from(content.data,"base64"),meta=await sharp(bytes).metadata();
     assert.equal(meta.width,80);assert.equal(meta.height,40);assert.equal(meta.exif,undefined);
     assert.equal(reply.result.structuredContent.size_bytes,bytes.length);assert.equal(reply.result.structuredContent.result_ref,ref);
@@ -83,6 +85,11 @@ test("image artifacts reach legacy MCP and the official modern client as ImageCo
     const tools=(await rpc("tools/list",{})).result.tools;
     const descriptor=tools.find((t:any)=>t.name==="immich_read_image");assert.ok(descriptor);
     assert.equal(descriptor.annotations.readOnlyHint,true);assert.equal(descriptor.annotations.destructiveHint,false);
+    assert.equal(descriptor._meta.ui.resourceUri,IMAGE_VIEWER_URI);
+    const resources=(await rpc("resources/list",{})).result.resources;assert.ok(resources.some((r:any)=>r.uri===IMAGE_VIEWER_URI));
+    const resource=(await rpc("resources/read",{uri:IMAGE_VIEWER_URI})).result.contents[0];
+    assert.equal(resource.mimeType,IMAGE_VIEWER_MIME);assert.ok(resource.text.includes("ui/notifications/tool-result"));
+    assert.ok(!resource.text.includes(content.data));assert.ok(!resource.text.includes("IMAGE-KEY-CANARY"));
     client=new Client({name:"image-modern-sdk",version:"1"},{versionNegotiation:{mode:{pin:"2026-07-28"}}});
     const wire:any[]=[];
     const transportFetch:typeof fetch=async(input,init)=>{

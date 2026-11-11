@@ -1,4 +1,6 @@
-# Immich MCP 1.0.0-beta.4
+# Immich MCP 1.0.0-beta.5
+
+beta.5は画像プレビュー画面と「この画像を説明」操作を追加します。公開URLを作らず、認証済みの画像を画面とモデルへ渡します。中継・呼び出し側の診断方法も追加しました。更新後は新しい会話で表示と画像認識を個別に確認してください。
 
 beta.4はChatGPT向け画像経路を追加します。`immich_read_image` がMCPの画像コンテンツを返し、既存の9ツールと合わせて10ツールになります。導入後はChatGPTと中継ポータルのツール定義も更新してください。[画像連携の確認手順](CHATGPT_IMAGE_TEST.md) を参照してください。OCRの修正は今回含みません。
 
@@ -6,7 +8,7 @@ beta.3は接続画面の標準フォームが`Origin: null`になり、キー登
 
 Immich **3.3.5 / 3.3.6** に対応します。公式OpenAPIを比較した結果、3.3.6の差分は `info.version` のみで、全279操作・スキーマとサーバーのAPI実装に変更はありませんでした。固定API定義は3.3.5の原本を維持し、未検証のパッチ版・マイナー版・プレリリースは拒否します。比較元のコミットとハッシュは [互換性記録](reports/immich-3.3.6-compatibility.json) にあります。
 
-TrueNASのCustom App GUIでは `ghcr.io/suiren-kazutohashimoto/immich-mcp:beta`（固定版は`1.0.0-beta.4`） を指定します。利用者ごとのキー、暗号化データ、別マウントのマスター鍵、Cloudflare Access認証の仕組みは共通です。以下のbeta.1に関する記録とアーカイブ手順は初回ベータの履歴です。
+TrueNASのCustom App GUIでは `ghcr.io/suiren-kazutohashimoto/immich-mcp:beta`（固定版は`1.0.0-beta.5`） を指定します。利用者ごとのキー、暗号化データ、別マウントのマスター鍵、Cloudflare Access認証の仕組みは共通です。以下のbeta.1に関する記録とアーカイブ手順は初回ベータの履歴です。
 
 **1.0.0の最初のベータです。対応APIはImmich 3.3.5です。** Dockerの実機確認は [BETA_DOCKER_TEST.md](BETA_DOCKER_TEST.md) を参照してください。GitHubのプレリリースにソースとlinux/amd64のDocker配布物をまとめます。
 
@@ -14,11 +16,11 @@ A TypeScript implementation for a multi-user Immich MCP server based on the bund
 
 ## Current state
 
-Implementation and local verification are the current delivery stage. Real Immich/Linux/container, Cloudflare and ChatGPT acceptance is deferred at the user's request.
+The image extension is published through the protected PR and GHCR pipeline. The release pipeline runs the complete synthetic regression and real Linux Docker startup/restart/image smoke before publishing. Actual ChatGPT visual recognition and chat display are separate deployment acceptance checks; synthetic tests do not establish either. OCR remains deferred.
 
 The service implements all279 official operations through the common serializer/executor and the nine baseline MCP tools plus the image-reading extension. It includes caller-owned encrypted credentials and results, explicit session/shared-link/public/setup/maintenance contexts, persistent jobs with uncertain-outcome fencing, resumable browser uploads, streaming JSON/JSONL and binary/Range/HLS adapters. Authentication remains with Immich; an API-key refusal never triggers automatic credential fallback.
 
-Verification baseline: the preceding implementation passed all705 local tests/nine suites, with190 unchanged selected inputs. The beta release changes the application version reported by MCP initialize and Docker metadata, plus adds a dedicated beta stack and release CI. API version3.3.5, operation definitions, authentication, storage and executor behavior are unchanged. Release-focused checks are recorded separately in reports/beta.1-verification.json; a new full regression run of the beta release is not claimed. The image smoke uses real Docker with a synthetic upstream and does not establish actual Immich/Cloudflare/ChatGPT acceptance.
+Historical beta.1 verification baseline: the preceding implementation passed all705 local tests/nine suites, with190 unchanged selected inputs. The beta release changes the application version reported by MCP initialize and Docker metadata, plus adds a dedicated beta stack and release CI. API version3.3.5, operation definitions, authentication, storage and executor behavior are unchanged. Release-focused checks are recorded separately in reports/beta.1-verification.json; a new full regression run of the beta release is not claimed. The image smoke uses real Docker with a synthetic upstream and does not establish actual Immich/Cloudflare/ChatGPT acceptance.
 
 | Scope | Implemented | Local evidence | Real integration / upstream refusal | Unmet environment conditions |
 | --- | --- | --- | --- | --- |

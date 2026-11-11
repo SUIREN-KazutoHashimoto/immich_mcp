@@ -1,12 +1,27 @@
 # ChatGPT の画像解析連携を確認する
 
-beta.4 で ChatGPT 向け画像経路を公開します。対応 Immich は 3.3.5 / 3.3.6 です。公開イメージは `ghcr.io/suiren-kazutohashimoto/immich-mcp:1.0.0-beta.4`、更新チャンネルは `:beta` です。
+beta.5 は ChatGPT 向け画像経路に表示画面を追加します。対応 Immich は 3.3.5 / 3.3.6 です。公開イメージは `ghcr.io/suiren-kazutohashimoto/immich-mcp:1.0.0-beta.5`、更新チャンネルは `:beta` です。
 
 ## 修正した境界
 
-従来は画像を暗号化保存しても、MCP に返すのは JSON メタデータだけでした。既存9ツールに読み取り専用の `immich_read_image` を追加し、`content` 配列の直下に `type: "image"`、Base64 の `data`、`mimeType` を返します。`structuredContent` は寸法などの小さなメタデータだけです。
+beta.4 より前は画像を暗号化保存しても、MCP に返すのは JSON メタデータだけでした。既存9ツールに読み取り専用の `immich_read_image` を追加し、`content` 配列の直下に `type: "image"`、Base64 の `data`、`mimeType` を返します。`structuredContent` は寸法などの小さなメタデータだけです。
 
 `searchAssets`、`viewAsset`、非同期ジョブ、`result_ref`、`immich_read_result` の JSON/テキスト経路は維持しています。匿名公開する画像 URL は作りません。
+
+## beta.5 の表示と説明
+
+`immich_read_image` に MCP Apps の表示リソースを関連付けました。対応ホストでは画像プレビュー、「この画像を説明」、「画像を保存」を表示します。保存対象は縮小・メタデータ除去済みの画像です。
+
+トップレベルの ImageContent と同じ画像を、画面専用の `_meta.image_content` にも渡します。後者はモデルには公開されません。画面内では一時的な Blob URL を使い、外部への通信や匿名公開は行いません。説明ボタンは実画像をモデルのコンテキストに渡して説明を依頼します。非対応ホストには画像付きメッセージを試み、拒否された場合は失敗を表示します。
+
+**チャット内の表示と、モデルによる画像認識は別の合格条件です。** 報告には MCP 生応答がなく、どの層で画像が失われたかは断定していません。
+
+## 更新後の操作
+
+1. TrueNAS の Custom App を更新します。`:beta` は常に取得する設定を確認し、取り違えが疑われる場合は固定版 `:1.0.0-beta.5` を指定します。データとマスター鍵を維持してください。
+2. Cloudflare で MCP サーバーの能力を再同期し、ポータルの画像ツールが有効か確認します。表示用リソースの要求も通る必要があります。
+3. ChatGPT の SUIREN MCP 管理画面でツール定義を更新し、**新しい会話**で接続を選び直します。ツール数は10のままですが UI を追加した定義が必要です。
+4. 新しい画像結果を取得し、画面表示と「この画像を説明」での物体・色・配置の説明を個別に確認します。
 
 ## Docker で修正版を使う
 
@@ -78,14 +93,38 @@ JSON ログの `event: "image_read"` と `request_id` を応答と照合でき�
 
 `stage: "return"` / `code: "ok"` / `content_type: "image"` はサーバーが画像パートを作成した証拠です。ChatGPT が受信・視認した証拠ではありません。上流の画像取得 → MCP 生応答の画像パートとデコード → ChatGPT の定義更新 → 実際の内容説明の順に確認します。共有するログは該当の request_id・コード・段階だけで十分です。
 
-## ローカル検証と公式資料
+## 中継・Code Mode の診断
 
-`tests/image-content.test.ts` は非同期取得から MCP 生応答と公式 SDK の画像受信まで、`tests/images.test.ts` は変換・所有権・期限・認証変更・圧縮爆弾・上限・ログを検証します。ChatGPT で画像内容を説明する確認は、接続先環境で別途行います。
+Code Mode で呼び出す場合、`structuredContent` の寸法だけを出力してもモデルには画像が届きません。`image(block)` が提供される環境では、返った画像パートを次のように転送します。実際のツール名は中継の接頭辞に合わせてください。
 
-- [OpenAI: Tool results](https://developers.openai.com/plugins/reference#tool-results): モデルに公開される結果フィールド。
-- [OpenAI: MCP server quickstart](https://developers.openai.com/plugins/build/app-quickstart): 変更後の接続定義の更新。
-- [sharp の出力仕様](https://sharp.pixelplumbing.com/api-output/): メタデータ除去と変換時間の制限。
+~~~js
+const result = await tools.immich_read_image({result_ref: completedResultRef});
+for (const block of result.content ?? []) {
+  if (block.type === "image") image(block);
+}
+~~~
 
-検証結果（2026-11-11）: 新規12件を含む関連50件が全件合格しました。生成・ビルド・仕様原本の照合と、本番依存関係だけでのネイティブ画像処理も合格しています。[検証記録](reports/image-content-verification-2026-11-11.json) を参照してください。全件回帰試験と実機での画像認識を示す記録ではありません。
+通常のツール呼び出しでホストが自動処理する場合は不要です。Base64 やツール結果全体をテキスト出力・ログに記録しないでください。
 
-接続済みポータルの状態照会では active を確認しましたが、新しい画像ツールは現在の一覧にありません。これは状態とツール一覧だけの確認で、写真データは参照していません。サーバーにこの修正を導入し、ポータル側を含む定義を更新してから画像認識を確認してください。
+管理者が取得済みの生応答を非公開ファイルで調べる場合:
+
+~~~sh
+pnpm build
+node dist/scripts/image-result-check.js /absolute/private/mcp-response.json
+~~~
+
+直接応答または JSON-RPC の `result` にある ImageContent をデコードし、画像数・寸法・MIME・バイト数・SHA-256 のみを出します。寸法だけの応答や UI 専用画像だけでは `ok: false` になります。写真、Base64、利用者、参照値を検査結果には出しません。生応答自体は非公開で扱ってください。Docker にも同じ検査スクリプトを含みます。
+
+サーバー直後と中継後で画像数・ハッシュを比較すると、失われた境界を絞れます。両方に画像があっても呼び出し側で転送しなければモデルの視認は成立しません。
+
+## 検証と公式資料
+
+実 HTTP と公式 SDK で画像と表示リソースの取得、実ブラウザーでプレビュー描画・説明操作・代替経路・古い画像の消去を検証します。所有権・期限・認証変更・画像制限の回帰試験に加え、公開パイプラインでは全件試験と実 Linux Docker の画像変換・表示画面読込を確認します。
+
+合成画像と模擬ホストによる検証は、実 ChatGPT の視認成功を証明しません。導入後の画像表示と画像認識を別々に確認してください。OCR の `projection_mismatch` は今回の対象外です。
+
+- [OpenAI: Tool results](https://developers.openai.com/plugins/reference#tool-results)
+- [OpenAI: ChatGPT UI](https://developers.openai.com/plugins/build/chatgpt-ui)
+- [OpenAI: Refresh metadata](https://developers.openai.com/plugins/deploy/connect-chatgpt#refresh-metadata)
+- [Cloudflare: MCP portals](https://developers.cloudflare.com/cloudflare-one/access-controls/ai-controls/mcp-portals/)
+- [MCP Apps: messages](https://apps.extensions.modelcontextprotocol.io/api/interfaces/app.McpUiMessageRequest.html)

@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src blob:; connect-src 'none'; base-uri 'none'; form-action 'none'">
+<title>Immich 画像プレビュー</title>
+<style>
+:root{color-scheme:light dark;font-family:system-ui,sans-serif;background:transparent;color:light-dark(#18212b,#eef2f6)}
+body{margin:0;padding:16px}figure{margin:0;display:grid;gap:12px}img{display:block;max-width:100%;max-height:560px;width:auto;height:auto;margin:auto;object-fit:contain;border-radius:8px}
+figcaption{font-size:13px;color:light-dark(#52606d,#b8c4d0)}#status{margin:0 0 12px;line-height:1.6}footer{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:16px}
+button,a{font:inherit;font-size:14px;border-radius:8px;padding:9px 14px}button{border:1px solid light-dark(#c7d0db,#52606d);background:light-dark(#f4f7fa,#25313e);color:inherit;cursor:pointer}button:disabled{opacity:.55;cursor:default}a{color:inherit}button:focus-visible,a:focus-visible{outline:3px solid #328bdf;outline-offset:3px}[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<p id="status" role="status" aria-live="polite">画像を受信しています…</p>
+<figure><img id="preview" alt="Immichの画像プレビュー" hidden><figcaption id="details"></figcaption></figure>
+<footer><button id="describe" disabled>この画像を説明</button><a id="save" hidden>画像を保存</a></footer>
+<script>
+"use strict";
+(function(){
+  const image=document.getElementById("preview"),status=document.getElementById("status"),details=document.getElementById("details");
+  const describe=document.getElementById("describe"),save=document.getElementById("save"),pending=new Map();
+  let nextId=0,ready=false,current=null,objectUrl=null,generation=0,disposed=false,busy=false;
+  function notify(method,params){window.parent.postMessage({jsonrpc:"2.0",method,params},"*");}
+  function request(method,params){
+    if(disposed||pending.size>=8)return Promise.reject(new Error("bridge unavailable"));
+    const id="immich-image-"+(++nextId);
+    return new Promise((resolve,reject)=>{
+      const timer=setTimeout(()=>{pending.delete(id);reject(new Error("host timeout"));},10000);
+      pending.set(id,{resolve,reject,timer});window.parent.postMessage({jsonrpc:"2.0",id,method,params},"*");
+    });
+  }
+  function resize(){notify("ui/notifications/size-changed",{height:document.documentElement.scrollHeight});}
+  function clear(){
+    current=null;generation++;describe.disabled=true;image.hidden=true;image.removeAttribute("src");save.hidden=true;save.removeAttribute("href");details.textContent="";
+    if(objectUrl){URL.revokeObjectURL(objectUrl);objectUrl=null;}
+  }
+  function envelope(value){
+    for(let i=0;i<4&&value&&typeof value==="object";i++){
+      if(Array.isArray(value.content)||value._meta?.image_content)return value;
+      value=value.mcp_tool_result??value.call_tool_result??value.result;
+    }
+    return null;
+  }
+  function render(raw,notification=false){
+    const result=envelope(raw);if(!result){if(notification){clear();status.textContent="画像本体が届いていません。画像を取得し直してください。";resize();}return;}
+    clear();
+    if(result.isError){status.textContent="画像を表示できませんでした。画像を取得し直してください。";resize();return;}
+    const part=result.content?.find(x=>x?.type==="image")??result._meta?.image_content;
+    if(!part){status.textContent="画像本体が届いていません。画像の取得後に、もう一度表示してください。";resize();return;}
+    try{
+      if(part.type!=="image"||!["image/jpeg","image/webp"].includes(part.mimeType)||typeof part.data!=="string"||part.data.length>1398104||!part.data.length||part.data.length%4||!/^[A-Za-z0-9+/]*={0,2}$/.test(part.data))throw new Error("invalid image");
+      const binary=atob(part.data);if(!binary.length||binary.length>1048576)throw new Error("image limit");
+      const bytes=Uint8Array.from(binary,c=>c.charCodeAt(0)),serial=generation;
+      objectUrl=URL.createObjectURL(new Blob([bytes],{type:part.mimeType}));
+      current={type:"image",data:part.data,mimeType:part.mimeType};
+      image.onload=function(){
+        if(serial!==generation||disposed)return;
+        if(!image.naturalWidth||!image.naturalHeight||image.naturalWidth>2048||image.naturalHeight>2048){clear();status.textContent="画像の寸法を確認できませんでした。";resize();return;}
+        image.hidden=false;status.textContent="画像を受信しました。";
+        details.textContent=image.naturalWidth+" × "+image.naturalHeight+" · "+(part.mimeType==="image/jpeg"?"JPEG":"WebP");
+        save.href=objectUrl;save.download="immich-preview."+(part.mimeType==="image/jpeg"?"jpg":"webp");save.hidden=false;
+        describe.disabled=!ready||busy;resize();
+      };
+      image.onerror=function(){if(serial!==generation||disposed)return;clear();status.textContent="画像を読み込めませんでした。";resize();};
+      image.src=objectUrl;
+    }catch{clear();status.textContent="表示できる画像データではありません。";resize();}
+  }
+  async function explain(){
+    if(!ready||!current||busy||disposed)return;
+    busy=true;describe.disabled=true;const part=current;
+    status.textContent="画像を渡しています…";
+    try{
+      let contextSent=false;
+      try{await request("ui/update-model-context",{content:[part]});contextSent=true;}catch{}
+      if(current!==part||disposed)return;
+      const text={type:"text",text:"この画像を実際に見て、写っている物体・色・配置を説明してください。画像が見えない場合は推測せずに伝えてください。"};
+      await request("ui/message",{role:"user",content:contextSent?[text]:[text,part]});
+      if(current===part&&!disposed)status.textContent="画像の説明を依頼しました。";
+    }catch{if(current===part&&!disposed)status.textContent="この環境では画像の説明を依頼できませんでした。画像の表示と保存は利用できます。";}
+    finally{busy=false;describe.disabled=!ready||!current||image.hidden||disposed;resize();}
+  }
+  describe.addEventListener("click",explain);
+  window.addEventListener("message",event=>{
+    if(event.source!==window.parent||!event.data||event.data.jsonrpc!=="2.0")return;
+    const message=event.data;
+    if(message.id!==undefined&&pending.has(message.id)){
+      const p=pending.get(message.id);pending.delete(message.id);clearTimeout(p.timer);
+      if(message.error)p.reject(new Error("host rejected request"));else p.resolve(message.result);return;
+    }
+    if(message.method==="ui/notifications/tool-result")render(message.params,true);
+    else if(message.method==="ui/notifications/tool-cancelled"){clear();status.textContent="画像の取得が中止されました。";resize();}
+    else if(message.method==="ui/resource-teardown"){
+      disposed=true;clear();for(const p of pending.values()){clearTimeout(p.timer);p.reject(new Error("closed"));}pending.clear();
+      if(message.id!==undefined)window.parent.postMessage({jsonrpc:"2.0",id:message.id,result:{}},"*");
+    }
+  });
+  request("ui/initialize",{appInfo:{name:"immich-image-preview",version:"1.0.0-beta.5"},appCapabilities:{},protocolVersion:"2026-01-26"}).then(()=>{
+    ready=true;notify("ui/notifications/initialized",{});describe.disabled=!current||image.hidden;resize();
+  }).catch(()=>{if(!current){status.textContent="画像を受信できませんでした。対応するChatGPTの接続で表示し直してください。";resize();}});
+  // Older ChatGPT UI hosts expose the full MCP envelope through this compatibility property.
+  function legacy(){const value=window.openai?.toolResponseMetadata;if(value)render(value);}
+  window.addEventListener("openai:set_globals",legacy);legacy();
+  window.addEventListener("pagehide",()=>{disposed=true;clear();});
+})();
+</script>
+</body>
+</html>

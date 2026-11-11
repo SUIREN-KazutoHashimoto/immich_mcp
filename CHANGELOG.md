@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.0-beta.5 — 2026-11-11
+
+- Add a private MCP Apps resource linked to `immich_read_image`, with responsive image preview, local save and an explicit image-to-model explanation action. Include the HTML in the production image.
+- Preserve MCP ImageContent and pass the same authorized preview in UI-only metadata. Explain Code Mode image forwarding; add a sanitized raw-response image inspector.
+- Test browser rendering, host image forwarding, metadata fallback, stale/invalid result clearing, legacy/modern MCP resources and the production Docker assets. Actual ChatGPT/portal acceptance remains separate; reports alone do not identify the failing layer. OCR remains deferred.
+
 ## 1.0.0-beta.4 — 2026-11-11
 
 - Publish the image-content extension as beta.4, with native production-image conversion smoke. OCR changes are deferred.

@@ -2,6 +2,7 @@ import { copyFile,mkdir } from "node:fs/promises";
 import { runtimeIntegrity } from "../src/runtime-integrity.js";
 const root=new URL("../",import.meta.url);
 const assets=[
+  "web/image-viewer.html",
   "src/generated/registry.json","src/generated/upload-script.json","src/generated/integrity.json",
   "contracts/sync-records.v3.3.5.json","contracts/synthetic-video.v1.json","immich_mcp_spec_v3.3.5/api/immich-openapi-v3.3.5.json",
   "immich_mcp_spec_v3.3.5/contracts/mcp-tool-contracts.json"

@@ -4,6 +4,7 @@ import { Vault } from "./vault.js";
 import { Control } from "./control.js";
 import { readDecoded } from "./content-encoding.js";
 import { BridgeError } from "./types.js";
+import { IMAGE_VIEWER_URI } from "./image-viewer.js";
 
 // Cache neither originals nor previews in libvips. All retained originals stay in the encrypted vault.
 sharp.cache(false);
@@ -22,7 +23,7 @@ export class ImageReadError extends BridgeError {
 }
 export const imageDescriptor={
   name:"immich_read_image",
-  description:"Use this when ChatGPT needs to see or describe an image already fetched by viewAsset or another image operation. Wait for the API job to complete, then pass its result_ref. Returns a model-visible MCP image content part, resized and stripped of metadata. immich_read_result preview is JSON metadata only. Does not fetch URLs or repeat upstream requests. JPEG, PNG and single-frame WebP inputs; JPEG (default) or WebP output. Read one image at a time when summarizing several photos.",
+  description:"Use this when ChatGPT needs to see or describe an image already fetched by viewAsset or another image operation. Wait for the API job to complete, then pass its result_ref. Returns a model-visible MCP image content part, resized and stripped of metadata. immich_read_result preview is JSON metadata only. Does not fetch URLs or repeat upstream requests. JPEG, PNG and single-frame WebP inputs; JPEG (default) or WebP output. Read one image at a time when summarizing several photos. In Code Mode, forward every returned image content block with image(block); inspecting structuredContent alone discards the pixels. The linked MCP App displays the private preview to the user.",
   inputSchema:{type:"object",properties:{
     result_ref:{type:"string",pattern:resultPattern.source,description:"Image result_ref returned by a completed Immich API call or job."},
     max_width:{type:"integer",minimum:1,maximum:MAX_DIMENSION,default:1600,description:"Maximum output width; aspect ratio is preserved and small images are not enlarged."},
@@ -35,7 +36,7 @@ export const imageDescriptor={
     metadata_removed:{type:"boolean",const:true},content_type:{type:"string",const:"image"}
   },required:["request_id","result_ref","mime_type","width","height","size_bytes","metadata_removed","content_type"],additionalProperties:false},
   annotations:{readOnlyHint:true,destructiveHint:false,idempotentHint:true,openWorldHint:false},
-  _meta:{}
+  _meta:{ui:{resourceUri:IMAGE_VIEWER_URI},"openai/outputTemplate":IMAGE_VIEWER_URI}
 };
 function signature(bytes:Buffer){
   if(bytes.length>=3&&bytes[0]===0xff&&bytes[1]===0xd8&&bytes[2]===0xff)return "jpeg";
@@ -126,7 +127,8 @@ export class Images {
       event.stage="return";event.code="ok";event.output_mime=mimeType;event.output_bytes=output.data.length;event.content_type="image";
       this.emit(event);
       return {content:[{type:"image" as const,data:output.data.toString("base64"),mimeType},
-        {type:"text" as const,text:JSON.stringify(meta)}],structuredContent:meta};
+        {type:"text" as const,text:JSON.stringify(meta)}],structuredContent:meta,
+        _meta:{image_content:{type:"image",data:output.data.toString("base64"),mimeType}}};
     }catch(error){
       const native=error instanceof Error?error.message:"";
       const normalized=error instanceof BridgeError?error:

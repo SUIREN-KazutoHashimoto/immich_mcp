@@ -23,7 +23,7 @@ export class ImageReadError extends BridgeError {
 }
 export const imageDescriptor={
   name:"immich_read_image",
-  description:"Use this when ChatGPT needs to see or describe an image already fetched by viewAsset or another image operation. Wait for the API job to complete, then pass its result_ref. Returns a model-visible MCP image content part, resized and stripped of metadata. immich_read_result preview is JSON metadata only. Does not fetch URLs or repeat upstream requests. JPEG, PNG and single-frame WebP inputs; JPEG (default) or WebP output. Read one image at a time when summarizing several photos. In Code Mode, forward every returned image content block with image(block); inspecting structuredContent alone discards the pixels. The linked MCP App displays the private preview to the user.",
+  description:"Use this when ChatGPT needs to see or describe an image already fetched by viewAsset or another image operation. Wait for the API job to complete, then pass its result_ref. Returns a model-visible MCP image content part, resized and stripped of metadata. immich_read_result preview is JSON metadata only. Does not fetch URLs or repeat upstream requests. JPEG, PNG and single-frame WebP inputs; JPEG (default) or WebP output. Read one image at a time when summarizing several photos. In Code Mode, forward every returned image content block with image(block); inspecting structuredContent alone discards the pixels. The linked MCP App attempts to display the private preview to the user. A successful tool result or HTTP200 only means the server prepared image bytes: display_status remains unconfirmed. Do not claim the image was displayed unless the component reports display_status displayed. The UI preview is not a native ChatGPT file attachment. A failed preview is not display success; model recognition is a separate check.",
   inputSchema:{type:"object",properties:{
     result_ref:{type:"string",pattern:resultPattern.source,description:"Image result_ref returned by a completed Immich API call or job."},
     max_width:{type:"integer",minimum:1,maximum:MAX_DIMENSION,default:1600,description:"Maximum output width; aspect ratio is preserved and small images are not enlarged."},
@@ -33,8 +33,8 @@ export const imageDescriptor={
   outputSchema:{type:"object",properties:{
     request_id:{type:"string"},result_ref:{type:"string"},mime_type:{type:"string",enum:["image/jpeg","image/webp"]},
     width:{type:"integer",minimum:1},height:{type:"integer",minimum:1},size_bytes:{type:"integer",minimum:1,maximum:MAX_OUTPUT_BYTES},
-    metadata_removed:{type:"boolean",const:true},content_type:{type:"string",const:"image"}
-  },required:["request_id","result_ref","mime_type","width","height","size_bytes","metadata_removed","content_type"],additionalProperties:false},
+    display_status:{type:"string",const:"unconfirmed"},metadata_removed:{type:"boolean",const:true},content_type:{type:"string",const:"image"}
+  },required:["request_id","result_ref","mime_type","width","height","size_bytes","metadata_removed","content_type","display_status"],additionalProperties:false},
   annotations:{readOnlyHint:true,destructiveHint:false,idempotentHint:true,openWorldHint:false},
   _meta:{ui:{resourceUri:IMAGE_VIEWER_URI},"openai/outputTemplate":IMAGE_VIEWER_URI}
 };
@@ -123,7 +123,7 @@ export class Images {
       this.vault.get(principal,result.raw.raw_ref,"raw");checkSignal();
       const mimeType=format==="webp"?"image/webp":"image/jpeg";
       const meta={request_id:requestId,result_ref:input.result_ref,mime_type:mimeType,width:output.info.width,height:output.info.height,
-        size_bytes:output.data.length,metadata_removed:true,content_type:"image"};
+        size_bytes:output.data.length,metadata_removed:true,content_type:"image",display_status:"unconfirmed"};
       event.stage="return";event.code="ok";event.output_mime=mimeType;event.output_bytes=output.data.length;event.content_type="image";
       this.emit(event);
       return {content:[{type:"image" as const,data:output.data.toString("base64"),mimeType},

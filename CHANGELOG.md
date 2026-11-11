@@ -1,7 +1,8 @@
 # Changelog
 
-## Unreleased — ChatGPT image content (2026-11-11)
+## 1.0.0-beta.4 — 2026-11-11
 
+- Publish the image-content extension as beta.4, with native production-image conversion smoke. OCR changes are deferred.
 - Add read-only `immich_read_image` returning top-level MCP ImageContent from a caller-owned completed image result. Preserve the nine existing tools and asynchronous result references.
 - Resize and orient JPEG/PNG/WebP, strip metadata, bound bytes/pixels/concurrency/conversion time and recheck authorization before returning images. Do not publish URLs or persist plaintext previews.
 - Add legacy and modern official-SDK tests over native HTTP, image/security regressions and a Japanese ChatGPT acceptance guide. Actual ChatGPT visual recognition remains an environment acceptance check.

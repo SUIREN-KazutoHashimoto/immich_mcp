@@ -1342,6 +1342,6 @@ The independent audit verifies279 operationId/method/path triples,193 paths,41 t
 
 This completes the requested implementation/local verification stage. Source packaging is guarded by the final report hash, final audit and exact190 source hashes. Actual Immich/all41 real category, Linux/container durability/deployment, Cloudflare and ChatGPT acceptance remains deferred/unverified; full_acceptance remainsfalse. Conditional OAuth, external library, maintenance, SMTP, physical deletion, ML and WASM effects are not established by local models.
 
-## ChatGPT image extension (unreleased, 2026-11-11)
+## ChatGPT image extension (beta.4, 2026-11-11)
 
 See CHATGPT_IMAGE_TEST.md for limits and ChatGPT acceptance steps. src/images.ts adds the tenth runtime tool without changing the pinned nine-tool source contract. Native HTTP tests cover legacy 2025-11-25 and official SDK 2.4.0 / 2026-07-28. These local checks do not establish that a ChatGPT connection has received or understood an image.

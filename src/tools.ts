@@ -104,7 +104,7 @@ export class ToolService {
     }
   }
   server(principal:string,signal?:AbortSignal) {
-    const server=new McpServer({name:"immich-mcp",version:"1.0.0-beta.3"});
+    const server=new McpServer({name:"immich-mcp",version:"1.0.0-beta.4"});
     for(const tool of descriptors){
       server.registerTool(tool.name,{description:tool.description+(tool.name==="immich_read_image"?"":" Large schema/result references can be read through immich_read_result using JSON Pointers.")+(tool.name==="immich_read_result"?" Preview returns metadata, not image pixels; use immich_read_image to see an image in ChatGPT.":""),
         inputSchema:fromJsonSchema<any>(tool.inputSchema as any),outputSchema:fromJsonSchema<any>(tool.outputSchema as any),

@@ -1,6 +1,6 @@
 # ChatGPT の画像解析連携を確認する
 
-この開発ソースには、beta.3 を基にした未リリースの画像連携修正が含まれます。公開済み beta.3 イメージにはまだ含まれません。対応 Immich は 3.3.5 / 3.3.6 です。
+beta.4 で ChatGPT 向け画像経路を公開します。対応 Immich は 3.3.5 / 3.3.6 です。公開イメージは `ghcr.io/suiren-kazutohashimoto/immich-mcp:1.0.0-beta.4`、更新チャンネルは `:beta` です。
 
 ## 修正した境界
 
@@ -10,7 +10,11 @@
 
 ## Docker で修正版を使う
 
-このソースのルートで新しいローカルタグを使ってビルドします。
+公開イメージを取得するか、このソースのルートでローカルビルドできます。
+
+~~~sh
+docker pull ghcr.io/suiren-kazutohashimoto/immich-mcp:beta
+~~~
 
 ~~~sh
 docker build -t immich-mcp:chatgpt-image-fix .
@@ -25,7 +29,7 @@ docker compose --env-file /absolute/private/beta.env -f compose.beta.yaml config
 docker compose --env-file /absolute/private/beta.env -f compose.beta.yaml up -d
 ~~~
 
-この修正は Windows/Node.js 24 で画像変換と MCP 通信を検証しています。修正後の Linux Docker 起動、実 Immich、Cloudflare、ChatGPT での最終確認は別途必要です。過去の Docker 検証を今回の検証として読み替えないでください。
+Windows/Node.js 24 の画像変換と MCP 通信を検証しています。公開パイプラインでも Linux Docker の起動・再起動と製品イメージ内の画像コンテンツ変換を確認してから公開します。実 Immich、Cloudflare、ChatGPT での画像認識は、導入後の接続先環境で確認してください。
 
 ## ChatGPT での呼び出し順
 

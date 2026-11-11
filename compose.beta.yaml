@@ -2,7 +2,7 @@
   "name": "immich-mcp-beta1",
   "services": {
     "mcp": {
-      "image": "${MCP_IMAGE:-immich-mcp:1.0.0-beta.3}",
+      "image": "${MCP_IMAGE:-immich-mcp:1.0.0-beta.4}",
       "build": {
         "context": ".",
         "dockerfile": "Dockerfile",

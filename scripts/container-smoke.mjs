@@ -1,5 +1,6 @@
 // Docker/Linux smoke only. The upstream fixture is synthetic, not real Immich.
 import assert from "node:assert/strict";
+import {version as containerVersion} from "./container-channels.ts";
 import {execFileSync,spawnSync} from "node:child_process";
 import {containerSmokeEnvironment} from "./container-smoke-config.ts";
 import {mkdtemp,writeFile,chmod,mkdir,rm} from "node:fs/promises";
@@ -45,7 +46,7 @@ try{
   // Synthetic test key; its host parent remains0700 and the container bind is read-only.
   await chmod(root,0o700);await chmod(key,0o644);
   const imageInfo=json(["image","inspect",image])[0],version=imageInfo.Config.Labels?.["org.opencontainers.image.version"];
-  assert.match(version,/^\d+\.\d+\.\d+-beta\.[1-9]\d*$/);
+  assert.ok(containerVersion(version),"Container label must be a stable or beta version");
   assert.equal(imageInfo.Config.User,"1000:1000");assert.equal(imageInfo.Os,"linux");
   assert.ok(imageInfo.Config.Healthcheck.Test.includes("dist/scripts/healthcheck.js"));
   docker(["network","create","--label",label+"="+id,plan("network",network)]);

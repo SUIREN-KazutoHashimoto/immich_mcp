@@ -1,0 +1,83 @@
+{
+  "name": "Refresh container release channels",
+  "on": {
+    "workflow_run": {
+      "workflows": [
+        "Publish container to GHCR"
+      ],
+      "types": [
+        "completed"
+      ]
+    },
+    "workflow_dispatch": {
+      "inputs": {
+        "dry_run": {
+          "description": "Validate candidates without publishing stable/beta tags",
+          "type": "boolean",
+          "default": false
+        }
+      }
+    }
+  },
+  "permissions": {
+    "contents": "read"
+  },
+  "concurrency": {
+    "group": "ghcr-release-channels",
+    "cancel-in-progress": false
+  },
+  "jobs": {
+    "channels": {
+      "if": "github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_repository.full_name == github.repository)",
+      "runs-on": "ubuntu-24.04",
+      "timeout-minutes": 10,
+      "permissions": {
+        "contents": "read",
+        "actions": "read",
+        "packages": "write"
+      },
+      "env": {
+        "IMAGE": "ghcr.io/suiren-kazutohashimoto/immich-mcp",
+        "GH_REPO": "${{ github.repository }}",
+        "GH_TOKEN": "${{ github.token }}",
+        "DRY_RUN": "${{ inputs.dry_run || false }}"
+      },
+      "steps": [
+        {
+          "name": "Check out trusted workflow code",
+          "uses": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "with": {
+            "ref": "${{ github.sha }}",
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Set up Node",
+          "uses": "actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1",
+          "with": {
+            "node-version": "24.22.2"
+          }
+        },
+        {
+          "name": "Install locked test dependencies",
+          "run": "npm install --global pnpm@11.25.0\npnpm install --frozen-lockfile --ignore-scripts"
+        },
+        {
+          "name": "Test channel selection and publication guards",
+          "run": "pnpm exec tsx --test tests/container-channels.test.ts tests/container-channel-workflow.test.ts"
+        },
+        {
+          "name": "Authenticate to GHCR",
+          "env": {
+            "GHCR_TOKEN": "${{ github.token }}"
+          },
+          "run": "printf '%s' \"$GHCR_TOKEN\" | docker login ghcr.io --username \"$GITHUB_ACTOR\" --password-stdin"
+        },
+        {
+          "name": "Refresh verified stable and beta tags",
+          "run": "node scripts/container-channels.ts refresh"
+        }
+      ]
+    }
+  }
+}

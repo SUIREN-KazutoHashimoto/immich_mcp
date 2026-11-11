@@ -9,7 +9,7 @@ import { Staging } from "./staging.js";
 import { Jobs } from "./jobs.js";
 import { Views } from "./views.js";
 import { Images,ImageReadError,imageDescriptor } from "./images.js";
-import { IMAGE_VIEWER_URI,IMAGE_VIEWER_MIME,imageViewerResource } from "./image-viewer.js";
+import { IMAGE_VIEWER_URI,LEGACY_IMAGE_VIEWER_URI,IMAGE_VIEWER_MIME,imageViewerResource } from "./image-viewer.js";
 import { APPLICATION_VERSION,ServerInfo,serverInfoDescriptor,type ServerStatus } from "./server-info.js";
 import { BridgeError,type ApiCall } from "./types.js";
 export interface Readiness {state:"ok"|"unreachable"|"version_mismatch";checked_at:string;}
@@ -109,7 +109,8 @@ export class ToolService {
   }
   server(principal:string,signal?:AbortSignal) {
     const server=new McpServer({name:"immich-mcp",version:APPLICATION_VERSION});
-    server.registerResource("immich_image_preview",IMAGE_VIEWER_URI,{mimeType:IMAGE_VIEWER_MIME,description:"Private Immich image preview"},async()=>({contents:[imageViewerResource()]}));
+    for(const uri of [IMAGE_VIEWER_URI,LEGACY_IMAGE_VIEWER_URI])
+      server.registerResource(uri===IMAGE_VIEWER_URI?"immich_image_preview":"immich_image_preview_legacy",uri,{mimeType:IMAGE_VIEWER_MIME,description:"Private Immich image preview"},async()=>({contents:[imageViewerResource(uri)]}));
     for(const tool of descriptors){
       server.registerTool(tool.name,{description:tool.description+(tool.name==="immich_get_connection"?" target_version is the fixed Immich API contract, not this MCP application version. Use immich_get_server_info to inspect the running MCP release.":"")+(tool.name==="immich_read_image"?"":" Large schema/result references can be read through immich_read_result using JSON Pointers.")+(tool.name==="immich_read_result"?" Preview returns metadata, not image pixels; use immich_read_image to see an image in ChatGPT.":""),
         inputSchema:fromJsonSchema<any>(tool.inputSchema as any),outputSchema:fromJsonSchema<any>(tool.outputSchema as any),

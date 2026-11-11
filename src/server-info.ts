@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import type { LocalReadiness } from "./readiness.js";
 import { supportedImmichVersions } from "./immich-version.js";
 
-export const APPLICATION_VERSION="1.0.0-beta.6";
+export const APPLICATION_VERSION="1.0.0-beta.7";
 function buildRevision():string|null {
   try{
     const value=JSON.parse(readFileSync(new URL("./build-info.json",import.meta.url),"utf8"));

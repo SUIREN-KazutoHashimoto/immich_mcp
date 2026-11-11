@@ -1,19 +1,20 @@
-# Immich MCP 1.0.0-beta.6
+# Immich MCP 1.0.0-beta.7
 
-ChatGPTから実際に稼働しているMCP本体の情報を取得できる、読み取り専用の `immich_get_server_info` を追加しました。
+画像取得がHTTP200でも、チャットの画面が「画像を読み込めませんでした」となる報告への修正です。Blob URLを必須としていた表示を、画像データの直接表示へ変更しました。
 
-- MCP本体のバージョン、ビルド元コミット、開始日時・稼働時間を返します。
-- キャッシュされた健全性、対応・確認済みImmichバージョン、利用可能な11ツールを返します。
-- ImmichのAPIキー未登録時や、上流・ローカル検査の失敗時も照会できます。MCP本人認証は必須です。
-- APIキー、認証トークン、写真、利用者情報、内部URLや保存場所は返しません。
-- MCP本体のバージョンと、固定API定義 `3.3.5` を明確に区別します。
+- 制約のある二重フレームでも表示できるよう、data URLを優先します。Blob URLだけを許可するホストには一度だけ切り替えます。外部通信・公開画像URLは追加しません。
+- サーバー応答は `display_status: unconfirmed` を返します。画面が画像を実際に読み込んだ後に `displayed`、失敗時に `failed` をモデルへ伝えます。HTTP200や画像メタデータだけを根拠に表示済みと判断しないよう定義を更新しました。
+- 表示リソースを `ui://immich/image-preview/v2.html` に更新して旧HTMLのキャッシュと区別します。旧v1の読込先も互換性のため残します。
+- 全読み込み方式が失敗した場合は画像を消して説明ボタンを無効にし、古い画像を残しません。状態報告だけでユーザーメッセージを自動送信することもありません。
 
-固定版: `ghcr.io/suiren-kazutohashimoto/immich-mcp:1.0.0-beta.6`
+固定版: `ghcr.io/suiren-kazutohashimoto/immich-mcp:1.0.0-beta.7`
+
 更新チャンネル: `ghcr.io/suiren-kazutohashimoto/immich-mcp:beta`
-Linux amd64 / Immich 3.3.5・3.3.6対応
 
-コンテナ更新後、Cloudflareの能力同期とChatGPTのツール定義更新を行い、新しい会話で「Immich MCPサーバーの情報を取得して」と依頼してください。
+データとマスター鍵を維持してコンテナを更新し、Cloudflareの能力同期・ChatGPTのツール定義更新と画面の再読み込みを行います。新しい会話で画像プレビューを試してください。
 
-[サーバー情報の項目・確認手順](https://github.com/SUIREN-KazutoHashimoto/immich_mcp/blob/v1.0.0-beta.6/SERVER_INFO.md)
+[画像表示・判定・更新の手順](https://github.com/SUIREN-KazutoHashimoto/immich_mcp/blob/v1.0.0-beta.7/CHATGPT_IMAGE_TEST.md)
 
-MCP通信の認証境界、キー未登録・障害時の取得、秘密情報の除外とバージョンの整合を検証します。公開パイプラインは全件回帰試験と実Linux Dockerでのサーバー情報取得・ビルド元照合・起動・再起動・画像処理を確認してから公開します。実ChatGPTでの確認は導入・定義更新後に行います。OCRは今回も変更していません。
+旧版では、data画像だけを許可する制約下で同じエラーを再現できました。修正版はモバイル幅・二重の隔離フレームで、dataのみ許可、Blobのみ許可、一時URL機能なし、両方式禁止時の正しい失敗処理を検証します。公開パイプラインでは全件回帰と実Linux Dockerの検証も行います。
+
+添付された実機のCSPやブラウザー内部のエラーは取得できていないため、実機で同じ制約が原因だったとまでは断定していません。Android/iOS実機での最終確認は反映後に必要です。OCRは変更していません。

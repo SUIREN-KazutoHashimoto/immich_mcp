@@ -66,12 +66,28 @@ test("a real browser decodes unique original MP4 and init-plus-fragments into ch
         });
         const loaded=event("loadeddata");video.src=url;video.load();await loaded;
         const canvas=document.createElement("canvas");canvas.width=320;canvas.height=180;const ctx=canvas.getContext("2d"),pixels=[];
-        for(const time of [0.2,2.5]){const seeked=event("seeked");video.currentTime=time;await seeked;ctx.drawImage(video,0,0);pixels.push([...ctx.getImageData(15,15,1,1).data]);}
-        results.push({width:video.videoWidth,height:video.videoHeight,duration:video.duration,pixels});
+        const sample_times=[];
+        for(const time of [0.2,2.5]){
+          // seeked does not guarantee that the requested decoded frame has been presented.
+          const presented=new Promise((accept,reject)=>{
+            let callback;
+            const timer=setTimeout(()=>{video.cancelVideoFrameCallback(callback);reject(Error("Video frame presentation timeout"));},10000);
+            const frame=(_now,metadata)=>{
+              if(Math.abs(metadata.mediaTime-time)>0.15){callback=video.requestVideoFrameCallback(frame);return;}
+              clearTimeout(timer);
+              try{ctx.drawImage(video,0,0);accept({pixel:[...ctx.getImageData(15,15,1,1).data],time:metadata.mediaTime});}catch(error){reject(error);}
+            };
+            callback=video.requestVideoFrameCallback(frame);
+          });
+          const seeked=event("seeked");video.currentTime=time;
+          const [,shown]=await Promise.all([seeked,presented]);pixels.push(shown.pixel);sample_times.push(shown.time);
+        }
+        results.push({width:video.videoWidth,height:video.videoHeight,duration:video.duration,pixels,sample_times});
         video.removeAttribute("src");video.load();video.remove();URL.revokeObjectURL(url);
       }return results;
-    })(`+JSON.stringify(sources)+")") as {width:number;height:number;duration:number;pixels:number[][]}[];
+    })(`+JSON.stringify(sources)+")") as {width:number;height:number;duration:number;pixels:number[][];sample_times:number[]}[];
     assert.equal(result.length,2);for(const item of result){assert.equal(item.width,320);assert.equal(item.height,180);assert.ok(Math.abs(item.duration-video.durationMs/1000)<0.01);
+      assert.ok(Math.abs(item.sample_times[0]!-0.2)<=0.15);assert.ok(Math.abs(item.sample_times[1]!-2.5)<=0.15);
       assert.ok(item.pixels[0]![0]!>item.pixels[0]![2]!+100);assert.ok(item.pixels[1]![2]!>item.pixels[1]![0]!+100);}
   }finally{await browser.close();}
 });

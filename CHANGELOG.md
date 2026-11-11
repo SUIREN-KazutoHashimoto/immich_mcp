@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.0-beta.7 — 2026-11-11
+
+- Remove the preview dependency on object URLs: prefer data images and use one bounded Blob fallback for hosts that require it. Preserve no-network private previews and version the resource URI to v2 while retaining the old v1 route.
+- Mark server results as display-unconfirmed. Report decoded/displayed or failed UI state to model context without automatic follow-up messages, image data or result references. Prevent duplicate legacy globals from causing rendering/status loops.
+- Reproduce the beta.6 load error under a restrictive host CSP; test data-only, blob-only, unavailable object URLs and all-image-blocked policies in nested opaque frames at mobile width. Actual device-policy attribution and final phone acceptance remain unverified until deployment. OCR remains deferred.
+
 ## 1.0.0-beta.6 — 2026-11-11
 
 - Add authenticated read-only `immich_get_server_info` for the running MCP application version/build revision, stable instance uptime, cached local/upstream health, observed/supported Immich versions and registered capabilities. Keep the fixed API contract version separate.

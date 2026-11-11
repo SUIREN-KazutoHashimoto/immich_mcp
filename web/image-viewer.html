@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src blob:; connect-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; connect-src 'none'; base-uri 'none'; form-action 'none'">
 <title>Immich 画像プレビュー</title>
 <style>
 :root{color-scheme:light dark;font-family:system-ui,sans-serif;background:transparent;color:light-dark(#18212b,#eef2f6)}
@@ -21,7 +21,7 @@ button,a{font:inherit;font-size:14px;border-radius:8px;padding:9px 14px}button{b
 (function(){
   const image=document.getElementById("preview"),status=document.getElementById("status"),details=document.getElementById("details");
   const describe=document.getElementById("describe"),save=document.getElementById("save"),pending=new Map();
-  let nextId=0,ready=false,current=null,objectUrl=null,generation=0,disposed=false,busy=false;
+  let nextId=0,ready=false,current=null,objectUrl=null,generation=0,disposed=false,busy=false,lastPayload=null,lastPreviewNotice=null,receivedToolResult=false;
   function notify(method,params){window.parent.postMessage({jsonrpc:"2.0",method,params},"*");}
   function request(method,params){
     if(disposed||pending.size>=8)return Promise.reject(new Error("bridge unavailable"));
@@ -31,9 +31,17 @@ button,a{font:inherit;font-size:14px;border-radius:8px;padding:9px 14px}button{b
       pending.set(id,{resolve,reject,timer});window.parent.postMessage({jsonrpc:"2.0",id,method,params},"*");
     });
   }
+  function sendPreviewContext(){
+    if(!ready||disposed||!lastPreviewNotice)return;
+    request("ui/update-model-context",{content:[{type:"text",text:JSON.stringify(lastPreviewNotice)}]}).catch(()=>{});
+  }
+  function previewContext(display_status,reason,request_id){
+    lastPreviewNotice={type:"immich_image_preview_status",request_id,display_status,...(reason?{reason}:{})};
+    sendPreviewContext();
+  }
   function resize(){notify("ui/notifications/size-changed",{height:document.documentElement.scrollHeight});}
   function clear(){
-    current=null;generation++;describe.disabled=true;image.hidden=true;image.removeAttribute("src");save.hidden=true;save.removeAttribute("href");details.textContent="";
+    current=null;generation++;image.onload=null;image.onerror=null;describe.disabled=true;image.hidden=true;image.removeAttribute("src");save.hidden=true;save.removeAttribute("href");details.textContent="";
     if(objectUrl){URL.revokeObjectURL(objectUrl);objectUrl=null;}
   }
   function envelope(value){
@@ -44,28 +52,44 @@ button,a{font:inherit;font-size:14px;border-radius:8px;padding:9px 14px}button{b
     return null;
   }
   function render(raw,notification=false){
-    const result=envelope(raw);if(!result){if(notification){clear();status.textContent="画像本体が届いていません。画像を取得し直してください。";resize();}return;}
-    clear();
-    if(result.isError){status.textContent="画像を表示できませんでした。画像を取得し直してください。";resize();return;}
+    const result=envelope(raw);
+    if(!result){if(notification){clear();lastPayload=null;status.textContent="画像本体が届いていません。画像を取得し直してください。";previewContext("failed","missing_image",null);resize();}return;}
     const part=result.content?.find(x=>x?.type==="image")??result._meta?.image_content;
-    if(!part){status.textContent="画像本体が届いていません。画像の取得後に、もう一度表示してください。";resize();return;}
+    const rawId=result.structuredContent?.request_id;
+    const requestId=typeof rawId==="string"&&/^img_[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(rawId)?rawId:null;
+    const payload={data:typeof part?.data==="string"?part.data:null,mime:part?.mimeType??null,requestId,error:!!result.isError};
+    if(!notification&&lastPayload&&Object.keys(payload).every(k=>payload[k]===lastPayload[k]))return;
+    clear();lastPayload=payload;
+    if(result.isError){status.textContent="画像を表示できませんでした。画像を取得し直してください。";previewContext("failed","tool_error",requestId);resize();return;}
+    if(!part){status.textContent="画像本体が届いていません。画像の取得後に、もう一度表示してください。";previewContext("failed","missing_image",requestId);resize();return;}
     try{
       if(part.type!=="image"||!["image/jpeg","image/webp"].includes(part.mimeType)||typeof part.data!=="string"||part.data.length>1398104||!part.data.length||part.data.length%4||!/^[A-Za-z0-9+/]*={0,2}$/.test(part.data))throw new Error("invalid image");
       const binary=atob(part.data);if(!binary.length||binary.length>1048576)throw new Error("image limit");
+      const expected=result.structuredContent?.size_bytes;
+      if(Number.isSafeInteger(expected)&&expected!==binary.length)throw new Error("incomplete image");
       const bytes=Uint8Array.from(binary,c=>c.charCodeAt(0)),serial=generation;
-      objectUrl=URL.createObjectURL(new Blob([bytes],{type:part.mimeType}));
+      let triedBlob=false;
       current={type:"image",data:part.data,mimeType:part.mimeType};
+      status.textContent="画像を読み込んでいます…";previewContext("loading",null,requestId);
       image.onload=function(){
         if(serial!==generation||disposed)return;
-        if(!image.naturalWidth||!image.naturalHeight||image.naturalWidth>2048||image.naturalHeight>2048){clear();status.textContent="画像の寸法を確認できませんでした。";resize();return;}
-        image.hidden=false;status.textContent="画像を受信しました。";
+        if(!image.naturalWidth||!image.naturalHeight||image.naturalWidth>2048||image.naturalHeight>2048){clear();status.textContent="画像の寸法を確認できませんでした。";previewContext("failed","invalid_dimensions",requestId);resize();return;}
+        image.hidden=false;status.textContent="画像を表示しました。";
         details.textContent=image.naturalWidth+" × "+image.naturalHeight+" · "+(part.mimeType==="image/jpeg"?"JPEG":"WebP");
-        save.href=objectUrl;save.download="immich-preview."+(part.mimeType==="image/jpeg"?"jpg":"webp");save.hidden=false;
-        describe.disabled=!ready||busy;resize();
+        save.href=image.src;save.download="immich-preview."+(part.mimeType==="image/jpeg"?"jpg":"webp");save.hidden=false;
+        describe.disabled=!ready||busy;previewContext("displayed",null,requestId);resize();
       };
-      image.onerror=function(){if(serial!==generation||disposed)return;clear();status.textContent="画像を読み込めませんでした。";resize();};
-      image.src=objectUrl;
-    }catch{clear();status.textContent="表示できる画像データではありません。";resize();}
+      image.onerror=function(){
+        if(serial!==generation||disposed)return;
+        if(!triedBlob){
+          triedBlob=true;
+          try{objectUrl=URL.createObjectURL(new Blob([bytes],{type:part.mimeType}));image.src=objectUrl;return;}catch{}
+        }
+        clear();status.textContent="画像を読み込めませんでした。画像を取得し直してください。";previewContext("failed","image_load_failed",requestId);resize();
+      };
+      // data URLs do not rely on an object-URL loader in a nested/mobile sandbox.
+      image.src="data:"+part.mimeType+";base64,"+part.data;
+    }catch{clear();status.textContent="表示できる画像データではありません。";previewContext("failed","invalid_image_data",requestId);resize();}
   }
   async function explain(){
     if(!ready||!current||busy||disposed)return;
@@ -89,20 +113,20 @@ button,a{font:inherit;font-size:14px;border-radius:8px;padding:9px 14px}button{b
       const p=pending.get(message.id);pending.delete(message.id);clearTimeout(p.timer);
       if(message.error)p.reject(new Error("host rejected request"));else p.resolve(message.result);return;
     }
-    if(message.method==="ui/notifications/tool-result")render(message.params,true);
-    else if(message.method==="ui/notifications/tool-cancelled"){clear();status.textContent="画像の取得が中止されました。";resize();}
+    if(message.method==="ui/notifications/tool-result"){receivedToolResult=true;render(message.params,true);}
+    else if(message.method==="ui/notifications/tool-cancelled"){clear();status.textContent="画像の取得が中止されました。";previewContext("failed","cancelled",lastPayload?.requestId??null);resize();}
     else if(message.method==="ui/resource-teardown"){
-      disposed=true;clear();for(const p of pending.values()){clearTimeout(p.timer);p.reject(new Error("closed"));}pending.clear();
+      disposed=true;clear();lastPayload=null;lastPreviewNotice=null;for(const p of pending.values()){clearTimeout(p.timer);p.reject(new Error("closed"));}pending.clear();
       if(message.id!==undefined)window.parent.postMessage({jsonrpc:"2.0",id:message.id,result:{}},"*");
     }
   });
-  request("ui/initialize",{appInfo:{name:"immich-image-preview",version:"1.0.0-beta.6"},appCapabilities:{},protocolVersion:"2026-01-26"}).then(()=>{
-    ready=true;notify("ui/notifications/initialized",{});describe.disabled=!current||image.hidden;resize();
+  request("ui/initialize",{appInfo:{name:"immich-image-preview",version:"1.0.0-beta.7"},appCapabilities:{},protocolVersion:"2026-01-26"}).then(()=>{
+    ready=true;notify("ui/notifications/initialized",{});describe.disabled=!current||image.hidden;sendPreviewContext();resize();
   }).catch(()=>{if(!current){status.textContent="画像を受信できませんでした。対応するChatGPTの接続で表示し直してください。";resize();}});
   // Older ChatGPT UI hosts expose the full MCP envelope through this compatibility property.
-  function legacy(){const value=window.openai?.toolResponseMetadata;if(value)render(value);}
+  function legacy(){if(receivedToolResult||disposed)return;const value=window.openai?.toolResponseMetadata;if(value)render(value);}
   window.addEventListener("openai:set_globals",legacy);legacy();
-  window.addEventListener("pagehide",()=>{disposed=true;clear();});
+  window.addEventListener("pagehide",()=>{disposed=true;clear();lastPayload=null;lastPreviewNotice=null;});
 })();
 </script>
 </body>

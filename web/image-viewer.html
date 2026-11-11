@@ -96,7 +96,7 @@ button,a{font:inherit;font-size:14px;border-radius:8px;padding:9px 14px}button{b
       if(message.id!==undefined)window.parent.postMessage({jsonrpc:"2.0",id:message.id,result:{}},"*");
     }
   });
-  request("ui/initialize",{appInfo:{name:"immich-image-preview",version:"1.0.0-beta.5"},appCapabilities:{},protocolVersion:"2026-01-26"}).then(()=>{
+  request("ui/initialize",{appInfo:{name:"immich-image-preview",version:"1.0.0-beta.6"},appCapabilities:{},protocolVersion:"2026-01-26"}).then(()=>{
     ready=true;notify("ui/notifications/initialized",{});describe.disabled=!current||image.hidden;resize();
   }).catch(()=>{if(!current){status.textContent="画像を受信できませんでした。対応するChatGPTの接続で表示し直してください。";resize();}});
   // Older ChatGPT UI hosts expose the full MCP envelope through this compatibility property.

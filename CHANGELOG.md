@@ -1,3 +1,8 @@
+# 1.0.0-beta.8
+
+- One-call image retrieval with native image-response preservation, explicit metadata-only diagnostics, pre-staged image context and reachable schema definitions.
+- Preserve image quality, authentication, encrypted storage and existing generic API/job routes; add synthetic comparative benchmark and stage timing.
+
 # Changelog
 
 ## 1.0.0-beta.7 — 2026-11-11

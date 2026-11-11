@@ -1,6 +1,6 @@
 import { McpServer,fromJsonSchema } from "@modelcontextprotocol/server";
 import source from "../immich_mcp_spec_v3.3.5/contracts/mcp-tool-contracts.json" with {type:"json"};
-import { registry,catalog,describe,operation } from "./registry.js";
+import { registry,catalog,describe,operation,referencedSchemas } from "./registry.js";
 import { Vault } from "./vault.js";
 import { Executor } from "./executor.js";
 import { Contexts } from "./contexts.js";
@@ -9,7 +9,9 @@ import { Staging } from "./staging.js";
 import { Jobs } from "./jobs.js";
 import { Views } from "./views.js";
 import { Images,ImageReadError,imageDescriptor } from "./images.js";
-import { IMAGE_VIEWER_URI,LEGACY_IMAGE_VIEWER_URI,IMAGE_VIEWER_MIME,imageViewerResource } from "./image-viewer.js";
+import { ImageFetch,imageFetchDescriptor } from "./image-fetch.js";
+import { imageToolNames,requireImageContent } from "./image-response.js";
+import { IMAGE_VIEWER_URI,PREVIOUS_IMAGE_VIEWER_URI,LEGACY_IMAGE_VIEWER_URI,IMAGE_VIEWER_MIME,imageViewerResource } from "./image-viewer.js";
 import { APPLICATION_VERSION,ServerInfo,serverInfoDescriptor,type ServerStatus } from "./server-info.js";
 import { BridgeError,type ApiCall } from "./types.js";
 export interface Readiness {state:"ok"|"unreachable"|"version_mismatch";checked_at:string;}
@@ -23,14 +25,15 @@ function extend(schema:any):any {
   }
   return result;
 }
-export const descriptors=[...source.tools.map(t=>({...structuredClone(t),outputSchema:extend(t.outputSchema)})),imageDescriptor,serverInfoDescriptor];
+export const descriptors=[...source.tools.map(t=>({...structuredClone(t),outputSchema:extend(t.outputSchema)})),imageDescriptor,imageFetchDescriptor,serverInfoDescriptor];
 const diagnostic=(d:any)=>d?{...d,source:d.source ?? (d.code==="upstream_error"?"upstream":"mcp_bridge")}:null;
 export class ToolService {
-  readonly views:Views;readonly images:Images;readonly serverInfo:ServerInfo;private gate?:()=>void;
+  readonly views:Views;readonly images:Images;readonly imageFetch:ImageFetch;readonly serverInfo:ServerInfo;private gate?:()=>void;
   constructor(readonly vault:Vault,readonly executor:Executor,readonly contexts:Contexts,readonly control:Control,
     readonly staging:Staging,readonly jobs:Jobs,readonly publicOrigin:string,readonly readiness:()=>Readiness,limits:{inlineBytes?:number;resultTtlMs?:number;gate?:()=>void;serverStatus?:()=>ServerStatus}={}) {
     this.serverInfo=new ServerInfo(descriptors.map(t=>t.name),readiness,limits.serverStatus);
     this.gate=limits.gate;this.views=new Views(vault,control,limits.inlineBytes,limits.resultTtlMs);this.images=new Images(vault,control);
+    this.imageFetch=new ImageFetch(executor,control,this.images,id=>this.permittedVersion(id));
   }
   private permittedVersion(id:string) {
     this.gate?.();
@@ -87,7 +90,7 @@ export class ToolService {
       case "immich_api_catalog":return catalog(input);
       case "immich_api_describe":{
         const operations=input.operation_ids.map((id:string)=>{const {components,...rest}=describe(id);return rest;});
-        const full={operations,definitions:registry.schemas,source_sha256:registry.sha256,result_ref:null,truncated:false};
+        const full={operations,definitions:referencedSchemas(operations),source_sha256:registry.sha256,result_ref:null,truncated:false};
         if(Buffer.byteLength(JSON.stringify(full))<=this.views.maxBytes)return full;
         const ref=this.views.store(principal,full);
         return {operations:operations.map((o:any)=>({operation_id:o.operation_id,method:o.method,path:o.path})),
@@ -102,6 +105,7 @@ export class ToolService {
       }
       case "immich_read_result":return this.views.read(principal,input);
       case "immich_read_image":this.gate?.();return this.images.read(principal,input,signal);
+      case "immich_get_image":this.gate?.();return this.imageFetch.get(principal,input,signal);
       case "immich_get_job":return this.job(principal,input.job_ref);
       case "immich_cancel_job":return this.job(principal,input.job_ref,true);
       default:throw new BridgeError("unknown_tool","Unknown MCP tool");
@@ -109,15 +113,15 @@ export class ToolService {
   }
   server(principal:string,signal?:AbortSignal) {
     const server=new McpServer({name:"immich-mcp",version:APPLICATION_VERSION});
-    for(const uri of [IMAGE_VIEWER_URI,LEGACY_IMAGE_VIEWER_URI])
-      server.registerResource(uri===IMAGE_VIEWER_URI?"immich_image_preview":"immich_image_preview_legacy",uri,{mimeType:IMAGE_VIEWER_MIME,description:"Private Immich image preview"},async()=>({contents:[imageViewerResource(uri)]}));
+    for(const [index,uri]of [IMAGE_VIEWER_URI,PREVIOUS_IMAGE_VIEWER_URI,LEGACY_IMAGE_VIEWER_URI].entries())
+      server.registerResource("immich_image_preview_"+index,uri,{mimeType:IMAGE_VIEWER_MIME,description:"Private Immich image preview"},async()=>({contents:[imageViewerResource(uri)]}));
     for(const tool of descriptors){
       server.registerTool(tool.name,{description:tool.description+(tool.name==="immich_get_connection"?" target_version is the fixed Immich API contract, not this MCP application version. Use immich_get_server_info to inspect the running MCP release.":"")+(tool.name==="immich_read_image"?"":" Large schema/result references can be read through immich_read_result using JSON Pointers.")+(tool.name==="immich_read_result"?" Preview returns metadata, not image pixels; use immich_read_image to see an image in ChatGPT.":""),
         inputSchema:fromJsonSchema<any>(tool.inputSchema as any),outputSchema:fromJsonSchema<any>(tool.outputSchema as any),
         annotations:tool.annotations,_meta:tool._meta},async(args:any)=>{
         try{
           const data=await this.invoke(principal,tool.name,args,signal);
-          if(tool.name==="immich_read_image")return data;
+          if(imageToolNames.has(tool.name))return requireImageContent(data);
           return {content:[{type:"text" as const,text:JSON.stringify(data)}],structuredContent:data,
             ...((tool.name==="immich_api_call"||tool.name==="immich_api_call_context")&&(data.state==="outcome_unknown"||data.state==="failed"||data.upstream?.status>=400)?{isError:true}:{})};
         }catch(error){

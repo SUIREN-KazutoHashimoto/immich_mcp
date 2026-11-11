@@ -21,7 +21,7 @@ button,a{font:inherit;font-size:14px;border-radius:8px;padding:9px 14px}button{b
 (function(){
   const image=document.getElementById("preview"),status=document.getElementById("status"),details=document.getElementById("details");
   const describe=document.getElementById("describe"),save=document.getElementById("save"),pending=new Map();
-  let nextId=0,ready=false,current=null,objectUrl=null,generation=0,disposed=false,busy=false,lastPayload=null,lastPreviewNotice=null,receivedToolResult=false;
+  let nextId=0,ready=false,current=null,objectUrl=null,generation=0,disposed=false,busy=false,lastPayload=null,lastPreviewNotice=null,receivedToolResult=false,imageContext=null;
   function notify(method,params){window.parent.postMessage({jsonrpc:"2.0",method,params},"*");}
   function request(method,params){
     if(disposed||pending.size>=8)return Promise.reject(new Error("bridge unavailable"));
@@ -33,7 +33,15 @@ button,a{font:inherit;font-size:14px;border-radius:8px;padding:9px 14px}button{b
   }
   function sendPreviewContext(){
     if(!ready||disposed||!lastPreviewNotice)return;
-    request("ui/update-model-context",{content:[{type:"text",text:JSON.stringify(lastPreviewNotice)}]}).catch(()=>{});
+    const notice=lastPreviewNotice,part=notice.display_status==="displayed"&&!image.hidden?current:null;
+    if(part&&imageContext?.part===part&&imageContext.generation===generation)return;
+    const content=[...(part?[part]:[]),{type:"text",text:JSON.stringify(notice)}];
+    const record={part,generation,promise:null};
+    record.promise=request("ui/update-model-context",{content}).then(()=>true).catch(()=>{
+      if(part&&lastPreviewNotice===notice&&!disposed)request("ui/update-model-context",{content:[{type:"text",text:JSON.stringify(notice)}]}).catch(()=>{});
+      return false;
+    });
+    if(part)imageContext=record;
   }
   function previewContext(display_status,reason,request_id){
     lastPreviewNotice={type:"immich_image_preview_status",request_id,display_status,...(reason?{reason}:{})};
@@ -41,7 +49,7 @@ button,a{font:inherit;font-size:14px;border-radius:8px;padding:9px 14px}button{b
   }
   function resize(){notify("ui/notifications/size-changed",{height:document.documentElement.scrollHeight});}
   function clear(){
-    current=null;generation++;image.onload=null;image.onerror=null;describe.disabled=true;image.hidden=true;image.removeAttribute("src");save.hidden=true;save.removeAttribute("href");details.textContent="";
+    current=null;imageContext=null;generation++;image.onload=null;image.onerror=null;describe.disabled=true;image.hidden=true;image.removeAttribute("src");save.hidden=true;save.removeAttribute("href");details.textContent="";
     if(objectUrl){URL.revokeObjectURL(objectUrl);objectUrl=null;}
   }
   function envelope(value){
@@ -58,19 +66,20 @@ button,a{font:inherit;font-size:14px;border-radius:8px;padding:9px 14px}button{b
     const rawId=result.structuredContent?.request_id;
     const requestId=typeof rawId==="string"&&/^img_[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(rawId)?rawId:null;
     const payload={data:typeof part?.data==="string"?part.data:null,mime:part?.mimeType??null,requestId,error:!!result.isError};
-    if(!notification&&lastPayload&&Object.keys(payload).every(k=>payload[k]===lastPayload[k]))return;
+    if(lastPayload&&Object.keys(payload).every(k=>payload[k]===lastPayload[k]))return;
     clear();lastPayload=payload;
     if(result.isError){status.textContent="画像を表示できませんでした。画像を取得し直してください。";previewContext("failed","tool_error",requestId);resize();return;}
     if(!part){status.textContent="画像本体が届いていません。画像の取得後に、もう一度表示してください。";previewContext("failed","missing_image",requestId);resize();return;}
     try{
       if(part.type!=="image"||!["image/jpeg","image/webp"].includes(part.mimeType)||typeof part.data!=="string"||part.data.length>1398104||!part.data.length||part.data.length%4||!/^[A-Za-z0-9+/]*={0,2}$/.test(part.data))throw new Error("invalid image");
-      const binary=atob(part.data);if(!binary.length||binary.length>1048576)throw new Error("image limit");
+      const byteLength=part.data.length/4*3-(part.data.endsWith("==")?2:part.data.endsWith("=")?1:0);
+      if(!byteLength||byteLength>1048576)throw new Error("image limit");
       const expected=result.structuredContent?.size_bytes;
-      if(Number.isSafeInteger(expected)&&expected!==binary.length)throw new Error("incomplete image");
-      const bytes=Uint8Array.from(binary,c=>c.charCodeAt(0)),serial=generation;
+      if(Number.isSafeInteger(expected)&&expected!==byteLength)throw new Error("incomplete image");
+      const serial=generation,renderStarted=performance.now();
       let triedBlob=false;
       current={type:"image",data:part.data,mimeType:part.mimeType};
-      status.textContent="画像を読み込んでいます…";previewContext("loading",null,requestId);
+      status.textContent="画像を読み込んでいます…";
       image.onload=function(){
         if(serial!==generation||disposed)return;
         if(!image.naturalWidth||!image.naturalHeight||image.naturalWidth>2048||image.naturalHeight>2048){clear();status.textContent="画像の寸法を確認できませんでした。";previewContext("failed","invalid_dimensions",requestId);resize();return;}
@@ -78,12 +87,13 @@ button,a{font:inherit;font-size:14px;border-radius:8px;padding:9px 14px}button{b
         details.textContent=image.naturalWidth+" × "+image.naturalHeight+" · "+(part.mimeType==="image/jpeg"?"JPEG":"WebP");
         save.href=image.src;save.download="immich-preview."+(part.mimeType==="image/jpeg"?"jpg":"webp");save.hidden=false;
         describe.disabled=!ready||busy;previewContext("displayed",null,requestId);resize();
+        try{performance.measure("immich-preview-draw",{start:renderStarted});}catch{}
       };
       image.onerror=function(){
         if(serial!==generation||disposed)return;
         if(!triedBlob){
           triedBlob=true;
-          try{objectUrl=URL.createObjectURL(new Blob([bytes],{type:part.mimeType}));image.src=objectUrl;return;}catch{}
+          try{const bytes=Uint8Array.from(atob(part.data),c=>c.charCodeAt(0));objectUrl=URL.createObjectURL(new Blob([bytes],{type:part.mimeType}));image.src=objectUrl;return;}catch{}
         }
         clear();status.textContent="画像を読み込めませんでした。画像を取得し直してください。";previewContext("failed","image_load_failed",requestId);resize();
       };
@@ -93,14 +103,16 @@ button,a{font:inherit;font-size:14px;border-radius:8px;padding:9px 14px}button{b
   }
   async function explain(){
     if(!ready||!current||busy||disposed)return;
-    busy=true;describe.disabled=true;const part=current;
+    busy=true;describe.disabled=true;const part=current,explainStarted=performance.now();
     status.textContent="画像を渡しています…";
     try{
       let contextSent=false;
-      try{await request("ui/update-model-context",{content:[part]});contextSent=true;}catch{}
+      sendPreviewContext();
+      if(imageContext?.part===part)contextSent=await imageContext.promise;
       if(current!==part||disposed)return;
       const text={type:"text",text:"この画像を実際に見て、写っている物体・色・配置を説明してください。画像が見えない場合は推測せずに伝えてください。"};
       await request("ui/message",{role:"user",content:contextSent?[text]:[text,part]});
+      try{performance.measure("immich-explain-dispatch",{start:explainStarted});}catch{}
       if(current===part&&!disposed)status.textContent="画像の説明を依頼しました。";
     }catch{if(current===part&&!disposed)status.textContent="この環境では画像の説明を依頼できませんでした。画像の表示と保存は利用できます。";}
     finally{busy=false;describe.disabled=!ready||!current||image.hidden||disposed;resize();}
@@ -120,7 +132,7 @@ button,a{font:inherit;font-size:14px;border-radius:8px;padding:9px 14px}button{b
       if(message.id!==undefined)window.parent.postMessage({jsonrpc:"2.0",id:message.id,result:{}},"*");
     }
   });
-  request("ui/initialize",{appInfo:{name:"immich-image-preview",version:"1.0.0-beta.7"},appCapabilities:{},protocolVersion:"2026-01-26"}).then(()=>{
+  request("ui/initialize",{appInfo:{name:"immich-image-preview",version:"1.0.0-beta.8"},appCapabilities:{},protocolVersion:"2026-01-26"}).then(()=>{
     ready=true;notify("ui/notifications/initialized",{});describe.disabled=!current||image.hidden;sendPreviewContext();resize();
   }).catch(()=>{if(!current){status.textContent="画像を受信できませんでした。対応するChatGPTの接続で表示し直してください。";resize();}});
   // Older ChatGPT UI hosts expose the full MCP envelope through this compatibility property.

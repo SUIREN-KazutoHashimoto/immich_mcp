@@ -1,4 +1,6 @@
-# Immich MCP 1.0.0-beta.7
+# Immich MCP 1.0.0-beta.8
+
+beta.8は1枚の取得・表示・説明を軽量化します。`immich_get_image`でランダム選択または画像IDから通常1回の呼び出しで画像を返し、描画後に説明用の画像を準備します。既定の画質・既存API経路・認証は維持します。[取得・説明・Code Modeの切り分け](IMAGE_FLOW.md) を参照してください。Immichのツールは12です。
 
 beta.7は制約のある埋め込み画面で画像が読み込めない問題を修正します。画像データを直接表示し、実際の画面での読み込み結果と、サーバーの取得成功を区別します。画面キャッシュの識別子も更新するため、導入後は接続定義を更新して新しい会話で確認してください。
 
@@ -12,7 +14,7 @@ beta.3は接続画面の標準フォームが`Origin: null`になり、キー登
 
 Immich **3.3.5 / 3.3.6** に対応します。公式OpenAPIを比較した結果、3.3.6の差分は `info.version` のみで、全279操作・スキーマとサーバーのAPI実装に変更はありませんでした。固定API定義は3.3.5の原本を維持し、未検証のパッチ版・マイナー版・プレリリースは拒否します。比較元のコミットとハッシュは [互換性記録](reports/immich-3.3.6-compatibility.json) にあります。
 
-TrueNASのCustom App GUIでは `ghcr.io/suiren-kazutohashimoto/immich-mcp:beta`（固定版は`1.0.0-beta.7`） を指定します。利用者ごとのキー、暗号化データ、別マウントのマスター鍵、Cloudflare Access認証の仕組みは共通です。以下のbeta.1に関する記録とアーカイブ手順は初回ベータの履歴です。
+TrueNASのCustom App GUIでは `ghcr.io/suiren-kazutohashimoto/immich-mcp:beta`（固定版は`1.0.0-beta.8`） を指定します。利用者ごとのキー、暗号化データ、別マウントのマスター鍵、Cloudflare Access認証の仕組みは共通です。以下のbeta.1に関する記録とアーカイブ手順は初回ベータの履歴です。
 
 **1.0.0の最初のベータです。対応APIはImmich 3.3.5です。** Dockerの実機確認は [BETA_DOCKER_TEST.md](BETA_DOCKER_TEST.md) を参照してください。GitHubのプレリリースにソースとlinux/amd64のDocker配布物をまとめます。
 

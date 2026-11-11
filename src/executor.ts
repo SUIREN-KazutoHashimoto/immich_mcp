@@ -13,7 +13,7 @@ import type { JsonProjectionMeta } from "./json-tree.js";
 import { Upstream,UpstreamError,sendUpstream,releaseUpstream,type UpstreamOptions } from "./upstream.js";
 import { decodeContent,decodedResponse,normalizeEncoding,encodingView } from "./content-encoding.js";
 
-export interface ExecutionOptions {signal?:AbortSignal;requestId?:string;beforeSend?:()=>void;onBindingTransition?:(result:any)=>void;}
+export interface ExecutionOptions {signal?:AbortSignal;requestId?:string;beforeSend?:()=>void;onBindingTransition?:(result:any)=>void;maxResponseBytes?:number;}
 export interface ContextLease {
   displayKind?:string;notice:string;kind:"session"|"shared_link"|"public"|"maintenance";revision:number;contextRef:string;generation:number;
   validate():void;apply(request:Prepared):void;beforeSend?():void;
@@ -69,6 +69,7 @@ export class Executor {
   }
   private async perform(principal:string,input:ApiCall,prepared:Prepared,credential:{revision:number;keyId:string},
     kind:string,options:ExecutionOptions,lease?:ContextLease) {
+    if(options.maxResponseBytes!==undefined&&(!Number.isSafeInteger(options.maxResponseBytes)||options.maxResponseBytes<1))throw new BridgeError("invalid_limit","Invalid internal response bound");
     const json=prepared.operation.operationId==="getSyncStream"||Object.values<any>(prepared.operation.definition.responses).some(r=>r.content?.["application/json"]);
     const allocation="execution_"+randomUUID(),bytes=json?2*this.inlineBytes+4*128*1024+65536:196608;
     this.vault.storage.reserve(principal,allocation,bytes,"execution",Date.now()+Math.max(this.resultTtlMs,120000));
@@ -131,7 +132,7 @@ export class Executor {
     let inspected=0,decodedComplete=false,previewSkipped=false,inspectionError:BridgeError|undefined;
     const encoding=normalizeEncoding(response.headers.get("content-encoding"));
     let raw:{raw_ref:string;size:number;sha256:string;interrupted:boolean;interruption_code?:string;content_encoding?:string};
-    try { raw=await this.vault.capture(principal,response.body ?? (async function*(){})(),this.maxBytes,
+    try { raw=await this.vault.capture(principal,response.body ?? (async function*(){})(),Math.min(this.maxBytes,options.maxResponseBytes??this.maxBytes),
       undefined,resultExpires,true,{metadataReservation:allocation}); } catch(error) {
       try{sync?.pages.discard();json?.discard();}catch{/* The result remains unavailable. */}
       return {schema_version:"1",operation_id:input.operation_id,request_id:requestId,state:"outcome_unknown",

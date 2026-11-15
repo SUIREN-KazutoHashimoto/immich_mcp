@@ -82,7 +82,7 @@ try{
   docker(["restart",mcp]);await ready();
   result={format:"immich-mcp-container-smoke",version,observed_at:new Date().toISOString(),source_commit:process.env.GITHUB_SHA??null,
     image:{tag:image,id:imageInfo.Id,os:imageInfo.Os,architecture:imageInfo.Architecture},
-    one_call_image:true,mcp_server_info:true,build_revision:imageContent.build_revision,tool_count:imageContent.tool_count,private_image_viewer:true,model_image_content:true,image_content_mime:imageContent.mime,compose_beta_rendered:true,nonroot_readonly_runtime:true,liveness:true,readiness:true,readiness_after_same_volume_restart:true,owned_resources_cleaned:false,
+    minimal_runtime_environment:Object.keys(env).length===4,runtime_environment_count:Object.keys(env).length,one_call_image:true,mcp_server_info:true,build_revision:imageContent.build_revision,tool_count:imageContent.tool_count,private_image_viewer:true,model_image_content:true,image_content_mime:imageContent.mime,compose_beta_rendered:true,nonroot_readonly_runtime:true,liveness:true,readiness:true,readiness_after_same_volume_restart:true,owned_resources_cleaned:false,
     evidence_scope:"Real Linux Docker image/startup/storage-key/assets/readiness/restart with synthetic upstream and image fixtures only",
     actual_immich_verified:false,cloudflare_verified:false,chatgpt_verified:false,full_acceptance:false};
 }catch(error){

@@ -56,3 +56,14 @@ test("legacy expected-version settings do not block reviewed or unverified upstr
   for(const version of ["3.3.5","3.3.6","3.4.0","3.4.1","4.0.0","3.4.2-rc.1"])await config({...env,IMMICH_EXPECTED_VERSION:version});
 
 }));
+
+
+test("the trusted key endpoint is derived from the issuer and legacy explicit settings remain usable",()=>fixture(async(env)=>{
+  const {ACCESS_JWKS_URL,...minimal}=env;
+  const settings=await config({...minimal,ACCESS_ISSUER:env.ACCESS_ISSUER+"/"});
+  assert.equal(settings.issuer,env.ACCESS_ISSUER);assert.equal(settings.jwksUrl,ACCESS_JWKS_URL);
+  const old=await config(env);assert.equal(old.jwksUrl,ACCESS_JWKS_URL);assert.equal(old.masterKeyFile,env.VAULT_MASTER_KEY_FILE);
+  for(const issuer of ["http://team.cloudflareaccess.com","https://user:secret@team.cloudflareaccess.com","https://team.cloudflareaccess.com/wrong","https://team.cloudflareaccess.com?token=secret"])
+    await assert.rejects(config({...minimal,ACCESS_ISSUER:issuer}),/HTTPS origin/);
+  settings.masterKey.fill(0);old.masterKey.fill(0);
+}));

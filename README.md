@@ -1,4 +1,6 @@
-# Immich MCP 1.0.0-beta.10
+# Immich MCP 1.0.0-beta.11
+
+beta.11は通常のDocker導入のアプリ設定を4項目に整理し、接続設定を日本語のカード型UIに変更しました。[最小構成・移行方法・画面例](CONFIGURATION.md) を参照してください。
 
 beta.10はImmich 3.4.1に対応し、未検証版でも処理を継続してChatGPTへの応答に注意を添えます。[対応範囲・注意の形式・更新手順](IMMICH_COMPATIBILITY.md) を参照してください。
 
@@ -18,7 +20,7 @@ beta.3は接続画面の標準フォームが`Origin: null`になり、キー登
 
 Immich **3.3.5 / 3.3.6 / 3.4.0 / 3.4.1** を対象に既存279操作へ対応します。固定API原本は3.3.5を維持し、最新版の返却項目・列挙値を検査した互換拡張を加えます。未検証版・プレリリースでも接続を拒否せず、ChatGPTへの応答に注意を返します。根拠と対象外の機能は [互換性の説明](IMMICH_COMPATIBILITY.md) にあります。
 
-TrueNASのCustom App GUIでは `ghcr.io/suiren-kazutohashimoto/immich-mcp:beta`（固定版は`1.0.0-beta.10`） を指定します。利用者ごとのキー、暗号化データ、別マウントのマスター鍵、Cloudflare Access認証の仕組みは共通です。以下のbeta.1に関する記録とアーカイブ手順は初回ベータの履歴です。
+TrueNASのCustom App GUIでは `ghcr.io/suiren-kazutohashimoto/immich-mcp:beta`（固定版は`1.0.0-beta.11`） を指定します。利用者ごとのキー、暗号化データ、別マウントのマスター鍵、Cloudflare Access認証の仕組みは共通です。以下のbeta.1に関する記録とアーカイブ手順は初回ベータの履歴です。
 
 **1.0.0の最初のベータです。対応APIはImmich 3.3.5です。** Dockerの実機確認は [BETA_DOCKER_TEST.md](BETA_DOCKER_TEST.md) を参照してください。GitHubのプレリリースにソースとlinux/amd64のDocker配布物をまとめます。
 

@@ -1,3 +1,4 @@
+import { controlPage as html,controlSecurity as security,connectionView,referenceReceipt,controlError,statusLabel,formatBytes } from "./control-ui.js";
 import { createHmac } from "node:crypto";
 import { AccessAuth, Csrf } from "./access.js";
 import { Executor } from "./executor.js";
@@ -15,15 +16,6 @@ import type { Contexts } from "./contexts.js";
 import { encodingView,normalizeEncoding } from "./content-encoding.js";
 
 const escape=(value:any)=>String(value).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]!));
-const security={
-  "cache-control":"no-store","x-content-type-options":"nosniff",
-  "content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; script-src 'self'; connect-src 'self'; form-action 'self'; frame-ancestors 'none'",
-  "referrer-policy":"no-referrer"
-};
-const html=(body:string,cookie?:string)=>new Response("<!doctype html><html lang=\"en\"><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width\"><title>Immich connection</title><style>body{font:16px system-ui;max-width:760px;margin:40px auto;padding:0 20px}label{display:block;margin:12px 0}input,textarea,button{font:inherit;padding:8px}code{overflow-wrap:anywhere}</style><main>"+body+"</main></html>",
-  // Native HTML form POSTs serialize Origin as null under no-referrer.
-  // Keep their same-origin Origin while suppressing cross-origin referrers.
-  {headers:{...security,"referrer-policy":"same-origin","content-type":"text/html; charset=utf-8",...(cookie?{"set-cookie":cookie}:{})}});
 export class Control {
   private csrf:Csrf;
   private contextControl?:ContextControl;
@@ -54,29 +46,11 @@ export class Control {
         const recentJobs=this.jobs?.recent(principal) ?? [];
         const restored=this.vault.db.prepare("SELECT 1 FROM records WHERE principal='__system' AND id='restore_notice' AND kind='restore_notice'").get();
         const recent=this.vault.db.prepare("SELECT id,expires FROM records WHERE principal=? AND kind='result' ORDER BY rowid DESC LIMIT 10").all(principal) as any[];
-        return html('<h1>Immich connection</h1><p>Status: '+escape(binding?.state ?? "unregistered")+'</p>'+
-          (restored?'<p role="status">Recovered from an offline backup. Jobs pending in that backup are held for review because effects since the backup are unknown. Additional authentication contexts must be connected again.</p>':"")+
-          '<p>Connection label: <code>'+escape(principal.slice(0,12))+'</code></p>'+
-          '<p>Storage including reservations: '+storage.used_bytes+' / '+storage.quota_bytes+' bytes. Expired data is reclaimed automatically.</p>'+
-          '<form method="post" action="/connect/key">'+this.form(token,revision)+
-          '<label>Your Immich API key <input type="password" name="key" required autocomplete="off"></label><button>Validate and save key</button></form>'+
-          '<form method="post" action="/connect/disconnect">'+this.form(token,revision)+'<button>Disconnect saved key</button></form>'+
-          (this.contextControl?.render(principal,token) ?? "")+
-          '<h2>Secret input</h2><p>Create a reference here for a password, PIN or other sensitive API input. Never paste the value in chat.</p>'+
-          '<form method="post" action="/connect/secret">'+this.form(token)+
-          '<label>Operation ID <input name="operation_id" required></label><label>Body JSON Pointer <input name="pointer" required placeholder="/password"></label>'+
-          (this.contexts?'<label>Context reference (optional, for additional workflows) <input name="context_ref"></label>':"")+
-          '<label>Secret value <input type="password" name="value" autocomplete="off"></label><p>Leave this blank when the selected API permits an empty value.</p><button>Create secret reference</button></form>'+
-          (this.uploads?'<h2>Upload a file</h2><p>Interrupted transfers can resume after selecting the same file again.</p>'+
-            '<input type="file" id="upload-file"><label>Expected SHA-256 (optional) <input id="upload-sha256" autocomplete="off"></label>'+
-            '<button id="upload-button" type="button">Upload or resume</button> <button id="upload-discard" type="button">Discard interrupted upload</button>'+
-            '<pre id="upload-status" role="status" data-connection="'+escape(principal)+'"></pre><script src="/connect/upload.js" defer></script>':"")+
-          '<h2>Recent jobs</h2><p>If an acknowledgement was lost, check existing jobs here before repeating a change.</p>'+
-          recentJobs.map(job=>'<section><p><code>'+escape(job.job_ref)+'</code> '+escape(job.state)+' Request: <code>'+escape(job.request_id)+'</code></p>'+
-            (["queued","running","cancel_requested"].includes(job.state)?'<form method="post" action="/connect/job/cancel">'+this.form(token)+
-              '<input type="hidden" name="job_ref" value="'+escape(job.job_ref)+'"><button>Request cancellation</button></form>':"")+'</section>').join("")+
-          '<h2>Recent results</h2><p>Retrieve originals in this authenticated browser. Downloads may contain credentials.</p>'+
-          recent.filter(r=>r.expires>Date.now()).map(r=>this.resultForm(principal,r.id,token)).join(""),
+        const jobs=recentJobs.map(job=>'<section class="record"><p><span class="badge '+(job.state==="completed"?"good":["failed","outcome_unknown"].includes(job.state)?"warning":"")+'">'+escape(statusLabel(job.state))+'</span></p><p><code>'+escape(job.job_ref)+'</code></p><p class="record-meta">リクエスト <code>'+escape(job.request_id)+'</code></p>'+
+          (["queued","running","cancel_requested"].includes(job.state)?'<form method="post" action="/connect/job/cancel">'+this.form(token)+'<input type="hidden" name="job_ref" value="'+escape(job.job_ref)+'"><button class="secondary">停止を依頼</button></form>':"")+'</section>').join("");
+        return html(connectionView({state:binding?.state??"unregistered",label:principal.slice(0,12),used:storage.used_bytes,quota:storage.quota_bytes,
+          keyHidden:this.form(token,revision),secretHidden:this.form(token),contexts:this.contextControl?.render(principal,token)??"",
+          uploads:!!this.uploads,principal,jobs,results:recent.filter(r=>r.expires>Date.now()).map(r=>this.resultForm(principal,r.id,token)).join(""),restore:!!restored}),
           "__Host-immich-csrf="+token+"; Path=/; Secure; HttpOnly; SameSite=Strict");
       }
       if(request.method!=="POST" || !["/connect/key","/connect/disconnect","/connect/secret","/connect/raw","/connect/job/cancel","/connect/context/register","/connect/context/revoke","/connect/context/revalidate","/connect/context/mode","/connect/context/oauth"].includes(path))
@@ -117,7 +91,7 @@ export class Control {
         const revision=context?this.vault.resourceRevision(principal):this.vault.credential(principal).revision;
         const ref=this.vault.put(principal,"secret",{value,revision,operation_id:id,pointer:path,location:"body",
           ...(context?{context_ref:scope,context_generation:context.generation}:{})});
-        return html('<h1>Secret reference created</h1><p>Use this reference for the selected operation and body pointer:</p><code>'+escape(ref)+'</code><p><a href="/connect">Return to connection settings</a></p>');
+        return html(referenceReceipt("秘密情報の参照IDを発行しました","指定した操作と入力先で、この参照IDを利用できます。",ref));
       }
       if(path==="/connect/raw"){
         const result=this.vault.get(principal,required("result_ref"),"result");
@@ -149,12 +123,12 @@ export class Control {
     try{
       const result=this.vault.get(principal,id,"result");this.assertResult(principal,result);
       const {metadata,completeness,encoding}=this.originalStatus(principal,result);
-      const label=completeness==="complete"?"Original transfer complete.":
-        completeness==="incomplete"?"Incomplete transfer: only received bytes are available. This is not a complete file.":
-        "Transfer completeness was not recorded. Verify this file before use.";
-      return '<section><p>'+escape(label)+' Received bytes: '+escape(metadata.size)+'</p>'+(encoding!=="identity"?'<p>Original HTTP content encoding: '+escape(encoding)+'. Download contains encoded wire bytes.</p>':"")+
+      const label=completeness==="complete"?"原本の受信が完了しています。":
+        completeness==="incomplete"?"受信が未完了です。取得できた部分のみで、完全なファイルではありません。":
+        "受信の完了状態が記録されていません。利用前にファイルを確認してください。";
+      return '<section class="record"><p>'+escape(label)+' 受信サイズ: '+escape(formatBytes(metadata.size))+'</p>'+(encoding!=="identity"?'<p class="muted">元のHTTP転送形式: '+escape(encoding)+'。ダウンロードされるデータは、転送時の形式のままです。</p>':"")+
         '<form method="post" action="/connect/raw">'+this.form(token)+
-        '<input type="hidden" name="result_ref" value="'+escape(id)+'"><button>Download '+escape(id)+'</button></form></section>';
+        '<input type="hidden" name="result_ref" value="'+escape(id)+'"><button class="secondary">原本をダウンロード</button><p class="record-meta"><code>'+escape(id)+'</code></p></form></section>';
     }catch{return "";}
   }
   private async upload(request:Request,principal:string,url:URL) {
@@ -218,7 +192,4 @@ export class Control {
     return pointer(result.display,path);
   }
 }
-function htmlError(code:string,status:number) {
-  return new Response("<!doctype html><title>Connection request failed</title><p>"+escape(code)+"</p>",
-    {status,headers:{...security,"content-type":"text/html; charset=utf-8"}});
-}
+function htmlError(code:string,status:number){return controlError(code,status);}

@@ -87,7 +87,7 @@ test("control UI authenticates, applies Origin/CSRF, and scopes secrets and resu
     const partial=await v.capture(principal,(async function*(){yield Buffer.from("PARTIAL-CANARY");throw Error("synthetic interruption");})(),1000,undefined,undefined,true);
     const partialRef=v.put(principal,"result",{revision:1,display:{state:"outcome_unknown",data:null},raw:partial});
     const partialHtml=await (await get()).text();
-    assert.ok(partialHtml.includes("Incomplete transfer: only received bytes"));
+    assert.ok(partialHtml.includes("受信が未完了です。取得できた部分のみ"));
     assert.ok(!partialHtml.includes("PARTIAL-CANARY"));
     const partialDownload=await post("/connect/raw",{result_ref:partialRef});
     assert.equal(partialDownload.headers.get("content-disposition"),'attachment; filename="immich-original.partial.bin"');
@@ -98,7 +98,7 @@ test("control UI authenticates, applies Origin/CSRF, and scopes secrets and resu
     assert.equal((await post("/connect/raw",{result_ref:partialRef},config.publicOrigin,otherAssertion)).status,403);
     const legacy=v.get(principal,raw.raw_ref,"raw");delete legacy.transfer_complete;
     v.put(principal,"raw",legacy,undefined,raw.raw_ref);
-    assert.ok((await (await get()).text()).includes("Transfer completeness was not recorded"));
+    assert.ok((await (await get()).text()).includes("受信の完了状態が記録されていません"));
     const legacyDownload=await post("/connect/raw",{result_ref:resultRef});
     assert.equal(legacyDownload.headers.get("content-disposition"),'attachment; filename="immich-original.unverified.bin"');
     assert.equal(legacyDownload.headers.get("x-immich-original-completeness"),"unknown");
@@ -106,7 +106,7 @@ test("control UI authenticates, applies Origin/CSRF, and scopes secrets and resu
     const encodedBytes=gzipSync(Buffer.from("ENCODED-RAW-CANARY"));
     const packed=await v.capture(principal,(async function*(){yield encodedBytes;})(),1000);
     const packedRef=v.put(principal,"result",{revision:1,display:{data:null},raw:{...packed,content_encoding:"gzip"}});
-    const packedHtml=await (await get()).text();assert.ok(packedHtml.includes("Original HTTP content encoding: gzip"));
+    const packedHtml=await (await get()).text();assert.ok(packedHtml.includes("元のHTTP転送形式: gzip"));
     assert.ok(!packedHtml.includes("ENCODED-RAW-CANARY"));
     const packedDownload=await post("/connect/raw",{result_ref:packedRef});
     assert.equal(packedDownload.headers.get("content-disposition"),'attachment; filename="immich-original.encoded.bin"');

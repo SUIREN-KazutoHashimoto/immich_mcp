@@ -46,6 +46,7 @@ async function fixture(browser:Browser,drop:"chunk"|"complete",run:(page:Page,v:
       await route.fulfill({status:response.status,headers:Object.fromEntries(response.headers),body:reply});
     });
     await page.goto(config.publicOrigin+"/connect");
+    await page.locator("#upload-panel > summary").click();
     assert.ok(!(await page.evaluate(()=>document.cookie)).includes("__Host-immich-csrf"));
     await page.locator("#upload-file").setInputFiles(filePath);
     await run(page,v,s,principal,counts);
@@ -53,11 +54,11 @@ async function fixture(browser:Browser,drop:"chunk"|"complete",run:(page:Page,v:
 }
 const clickAndWaitForFailure=async(page:Page)=>{
   await page.locator("#upload-button").click();
-  await page.waitForFunction(()=>document.getElementById("upload-status")!.textContent!.includes("retry to resume"));
+  await page.waitForFunction(()=>document.getElementById("upload-status")!.dataset.state==="failed");
 };
 const waitForFile=async(page:Page)=>{
-  await page.waitForFunction(()=>document.getElementById("upload-status")!.textContent!.includes('"file_ref"'));
-  return JSON.parse((await page.locator("#upload-status").textContent())!);
+  await page.waitForFunction(()=>document.getElementById("upload-status")!.dataset.state==="completed");
+  return JSON.parse((await page.locator("#upload-status").getAttribute("data-file"))!);
 };
 test("real browser resumes interrupted transfers and verifies reselected file content",{timeout:180000},async t=>{
   const launchedAt=Date.now();
@@ -70,7 +71,7 @@ test("real browser resumes interrupted transfers and verifies reselected file co
         return r.status;
       });
       assert.equal(denied,403);assert.equal(counts.start,0);
-      await clickAndWaitForFailure(page);await page.reload();await page.locator("#upload-file").setInputFiles(counts.filePath);await page.locator("#upload-button").click();
+      await clickAndWaitForFailure(page);await page.reload();await page.locator("#upload-panel > summary").click();await page.locator("#upload-file").setInputFiles(counts.filePath);await page.locator("#upload-button").click();
       const file=await waitForFile(page);
       assert.equal(counts.start,1);assert.equal(counts.chunk,3);
       assert.equal(file.sha256,createHash("sha256").update(bytes).digest("hex"));
@@ -93,7 +94,7 @@ test("real browser resumes interrupted transfers and verifies reselected file co
         input.files=data.files;
       });
       await page.locator("#upload-button").click();
-      await page.waitForFunction(()=>document.getElementById("upload-status")!.textContent!.includes("Selected file differs"));
+      await page.waitForFunction(()=>document.getElementById("upload-status")!.textContent!.includes("選択したファイルの内容が"));
       assert.equal(counts.start,1);assert.equal(counts.chunk,1);
       assert.equal((v.db.prepare("SELECT COUNT(*) n FROM records WHERE kind='staged_file'").get() as any).n,0);
     }));
@@ -101,10 +102,10 @@ test("real browser resumes interrupted transfers and verifies reselected file co
       await clickAndWaitForFailure(page);
       await page.locator("#upload-file").setInputFiles({name:"different.bin",mimeType:"application/octet-stream",buffer:bytes});
       await page.locator("#upload-button").click();
-      await page.waitForFunction(()=>document.getElementById("upload-status")!.textContent!.includes("An interrupted upload exists"));
+      await page.waitForFunction(()=>document.getElementById("upload-status")!.textContent!.includes("中断したアップロードがあります"));
       assert.equal(counts.start,1);
       await page.locator("#upload-discard").click();
-      await page.waitForFunction(()=>document.getElementById("upload-status")!.textContent==="Interrupted upload discarded");
+      await page.waitForFunction(()=>document.getElementById("upload-status")!.textContent==="中断データを破棄しました");
       assert.equal((v.db.prepare("SELECT COUNT(*) n FROM staging_usage").get() as any).n,0);
       await page.locator("#upload-button").click();await waitForFile(page);assert.equal(counts.start,2);
     }));

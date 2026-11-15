@@ -22,6 +22,8 @@ export async function config(env:NodeJS.ProcessEnv=process.env):Promise<Config>{
   const publicUrl=new URL(required("MCP_PUBLIC_BASE_URL"));
   if(publicUrl.protocol!=="https:"||publicUrl.username||publicUrl.password||publicUrl.search||publicUrl.hash||publicUrl.pathname!=="/")
     throw Error("MCP_PUBLIC_BASE_URL must be an HTTPS origin");
+  const issuer=new URL(required("ACCESS_ISSUER"));
+  if(issuer.protocol!=="https:"||issuer.username||issuer.password||issuer.search||issuer.hash||issuer.pathname!=="/")throw Error("ACCESS_ISSUER must be an HTTPS origin");
   const prospective=async(path:string):Promise<string>=>{
     try{return await realpath(path);}catch(error){
       if((error as NodeJS.ErrnoException).code!=="ENOENT"||dirname(path)===path)throw error;
@@ -33,7 +35,7 @@ export async function config(env:NodeJS.ProcessEnv=process.env):Promise<Config>{
   const maxResultBytes=integer("MAX_RESULT_BYTES",1073741824),inlineResultMaxBytes=integer("INLINE_RESULT_MAX_BYTES",131072);
   if(inlineResultMaxBytes>maxResultBytes)throw Error("INLINE_RESULT_MAX_BYTES exceeds MAX_RESULT_BYTES");
   const settings={upstream:upstream.toString().replace(/\/$/,""),publicOrigin:publicUrl.origin,
-    issuer:required("ACCESS_ISSUER"),audience:required("ACCESS_AUDIENCE"),jwksUrl:required("ACCESS_JWKS_URL"),
+    issuer:issuer.origin,audience:required("ACCESS_AUDIENCE"),jwksUrl:env.ACCESS_JWKS_URL??new URL("/cdn-cgi/access/certs",issuer).href,
     directory,databasePath:await prospective(resolve(env.DATABASE_PATH ?? join(directory,"vault.sqlite"))),
     fileSourceHosts:(env.FILE_SOURCE_ALLOWED_HOSTS ?? "").split(",").map(s=>s.trim()).filter(Boolean),
     maxUploadBytes:integer("MAX_UPLOAD_BYTES",1073741824),storageQuotaBytes:integer("STORAGE_QUOTA_BYTES",3221225472),globalStorageQuotaBytes:integer("GLOBAL_STORAGE_QUOTA_BYTES",12884901888),
@@ -47,7 +49,7 @@ export async function config(env:NodeJS.ProcessEnv=process.env):Promise<Config>{
     cleanupIntervalMs:integer("CLEANUP_INTERVAL_SECONDS",60,Math.floor(Number.MAX_SAFE_INTEGER/1000))*1000,
     maxJobsPerPrincipal:integer("MAX_JOBS_PER_PRINCIPAL",50),
     host:env.MCP_LISTEN_HOST ?? "127.0.0.1",port:integer("MCP_LISTEN_PORT",3000,65535)};
-  const masterKeyFile=await realpath(required("VAULT_MASTER_KEY_FILE")),rel=relative(directory,masterKeyFile);
+  const masterKeyFile=await realpath(env.VAULT_MASTER_KEY_FILE??"/run/secrets/vault_master_key"),rel=relative(directory,masterKeyFile);
   if(rel===""||rel!==".."&&!rel.startsWith(".."+sep)&&!isAbsolute(rel))throw Error("Master key must be separate from the storage directory");
   const info=await lstat(masterKeyFile);if(!info.isFile()||info.size!==32)throw Error("Master key file must contain exactly 32 raw bytes");
   const masterKey=await readFile(masterKeyFile);if(masterKey.length!==32){masterKey.fill(0);throw Error("Master key file must contain exactly 32 raw bytes");}

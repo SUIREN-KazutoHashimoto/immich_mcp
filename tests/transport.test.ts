@@ -179,10 +179,10 @@ test("native HTTP serves twelve SDK tools, principal isolation, files, context j
       assert.ok(modernRequests.some(r=>r.body.method==="server/discover"));
       assert.ok(modernRequests.filter(r=>r.body.method==="tools/call").every(r=>r.headers["mcp-protocol-version"]==="2026-07-28"&&r.headers["mcp-method"]==="tools/call"));
     }finally{await client.close();}
-    version={major:3,minor:4,patch:0,prerelease:null};await app.checkVersion();
-    assert.equal((await request("/health/ready",undefined)).status,503);
-    assert.equal(toolData(await call("immich_get_connection",{})).binding_state,"version_mismatch");
-    assert.equal((await call("immich_api_call",{operation_id:"getServerVersion"})).result.isError,true);
+    version={major:4,minor:0,patch:0,prerelease:null};await app.checkVersion();
+    assert.equal((await request("/health/ready",undefined)).status,200);
+    assert.equal(toolData(await call("immich_get_connection",{})).binding_state,"active");
+    assert.equal((await call("immich_api_call",{operation_id:"getServerVersion"})).result.isError,undefined);
     versionStatus=503;await app.checkVersion();assert.equal(app.health.state,"unreachable");
     assert.equal(toolData(await call("immich_api_call",{operation_id:"getServerVersion",execution_mode:"sync"})).upstream.status,503);
     const incompleteSeen=new Promise<void>(resolve=>http.server.once("request",()=>resolve()));

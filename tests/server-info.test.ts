@@ -42,7 +42,7 @@ test("authenticated MCP server information distinguishes application/API version
     assert.equal(reply.error,undefined);assert.equal(reply.result.isError,undefined);
     const info=reply.result.structuredContent;validator(serverInfoDescriptor.outputSchema,{})(info);
     assert.equal(info.server.version,APPLICATION_VERSION);assert.equal(info.server.build_revision,null);
-    assert.equal(info.immich.api_contract_version,"3.3.5");assert.deepEqual(info.immich.supported_versions,["3.3.5","3.3.6"]);
+    assert.equal(info.immich.api_contract_version,"3.3.5");assert.deepEqual(info.immich.supported_versions,["3.3.5","3.3.6","3.4.0","3.4.1"]);
     assert.equal(info.immich.observed_version,"3.3.6");assert.equal(info.immich.state,"ok");
     assert.equal(info.readiness.ready,true);assert.equal(info.readiness.local_checks.database,"ok");
     assert.equal(info.capabilities.tool_count,12);assert.deepEqual(info.capabilities.tools,descriptors.map(t=>t.name));
@@ -60,7 +60,7 @@ test("authenticated MCP server information distinguishes application/API version
     assert.ok(invalid.error||invalid.result?.isError);
     version={major:4,minor:0,patch:0,prerelease:null};await app.checkVersion();
     let degraded=await app.tools.invoke(principal,"immich_get_server_info",{});
-    assert.equal(degraded.immich.observed_version,"4.0.0");assert.equal(degraded.immich.state,"version_mismatch");assert.equal(degraded.readiness.ready,false);
+    assert.equal(degraded.immich.observed_version,"4.0.0");assert.equal(degraded.immich.state,"version_mismatch");assert.equal(degraded.readiness.ready,true);
     version=null;await app.checkVersion();app.localHealth={...app.localHealth,storage:"error",private_path:"PRIVATE-PATH-CANARY"} as any;app.cleanupState="error";
     degraded=await app.tools.invoke(principal,"immich_get_server_info",{});
     assert.equal(degraded.immich.observed_version,null);assert.equal(degraded.immich.state,"unreachable");
@@ -79,6 +79,7 @@ test("authenticated MCP server information distinguishes application/API version
 test("observed upstream versions are bounded semver data and cannot expose arbitrary upstream strings",()=>{
   assert.equal(observedImmichVersion({major:3,minor:3,patch:6,prerelease:null}),"3.3.6");
   assert.equal(observedImmichVersion({major:3,minor:3,patch:7,prerelease:"beta.1"}),"3.3.7-beta.1");
+  assert.equal(observedImmichVersion({major:3,minor:4,patch:2,prerelease:1}),"3.4.2-1");
   for(const prerelease of ["https://private.example/token","secret\nvalue","a".repeat(65),{},true])
     assert.equal(observedImmichVersion({major:3,minor:3,patch:7,prerelease}),null);
   assert.equal(observedImmichVersion({major:-1,minor:3,patch:7,prerelease:null}),null);

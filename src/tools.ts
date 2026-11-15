@@ -1,3 +1,4 @@
+import { compatibilityWarnings,upstreamAvailable } from "./immich-version.js";
 import { McpServer,fromJsonSchema } from "@modelcontextprotocol/server";
 import source from "../immich_mcp_spec_v3.3.5/contracts/mcp-tool-contracts.json" with {type:"json"};
 import { registry,catalog,describe,operation,referencedSchemas } from "./registry.js";
@@ -14,7 +15,7 @@ import { imageToolNames,requireImageContent } from "./image-response.js";
 import { IMAGE_VIEWER_URI,BETA8_IMAGE_VIEWER_URI,PREVIOUS_IMAGE_VIEWER_URI,LEGACY_IMAGE_VIEWER_URI,IMAGE_VIEWER_MIME,imageViewerResource } from "./image-viewer.js";
 import { APPLICATION_VERSION,ServerInfo,serverInfoDescriptor,type ServerStatus } from "./server-info.js";
 import { BridgeError,type ApiCall } from "./types.js";
-export interface Readiness {state:"ok"|"unreachable"|"version_mismatch";checked_at:string;}
+export interface Readiness {state:"ok"|"unreachable"|"version_mismatch";checked_at:string;observed_version?:string|null;}
 function extend(schema:any):any {
   if(!schema || typeof schema!=="object")return schema;
   if(Array.isArray(schema))return schema.map(extend);
@@ -25,7 +26,12 @@ function extend(schema:any):any {
   }
   return result;
 }
-export const descriptors=[...source.tools.map(t=>({...structuredClone(t),outputSchema:extend(t.outputSchema)})),imageDescriptor,imageFetchDescriptor,serverInfoDescriptor];
+const warningSchema={type:"object",properties:{
+  code:{type:"string",const:"unverified_immich_version"},observed_version:{type:["string","null"]},
+  reviewed_versions:{type:"array",items:{type:"string"}},api_contract_version:{type:"string",const:"3.3.5"},message:{type:"string"}
+},required:["code","observed_version","reviewed_versions","api_contract_version","message"],additionalProperties:false};
+export const descriptors=[...source.tools.map(t=>({...structuredClone(t),outputSchema:extend(t.outputSchema)})),imageDescriptor,imageFetchDescriptor,serverInfoDescriptor]
+  .map(tool=>({...tool,outputSchema:{...tool.outputSchema,properties:{...tool.outputSchema.properties,compatibility_warnings:{type:"array",items:warningSchema}}}}));
 const diagnostic=(d:any)=>d?{...d,source:d.source ?? (d.code==="upstream_error"?"upstream":"mcp_bridge")}:null;
 export class ToolService {
   readonly views:Views;readonly images:Images;readonly imageFetch:ImageFetch;readonly serverInfo:ServerInfo;private gate?:()=>void;
@@ -38,7 +44,7 @@ export class ToolService {
   private permittedVersion(id:string) {
     this.gate?.();
     const state=this.readiness().state;
-    if(state==="version_mismatch" || state!=="ok"&&!["getServerVersion","getMaintenanceStatus","maintenanceLogin"].includes(id))
+    if(!upstreamAvailable(state)&&!["getServerVersion","getMaintenanceStatus","maintenanceLogin"].includes(id))
       throw new BridgeError(state,"Upstream version contract is not ready; inspect connection diagnostics");
   }
   private envelope(result:any) {
@@ -83,9 +89,9 @@ export class ToolService {
       case "immich_get_server_info":return this.serverInfo.read();
       case "immich_get_connection":{
         const binding=this.vault.binding(principal),health=this.readiness();
-        return {target_version:"3.3.5",openapi_sha256:registry.sha256,binding_state:health.state==="ok"?(binding?.state ?? "unregistered"):health.state,
+        return {target_version:"3.3.5",openapi_sha256:registry.sha256,binding_state:upstreamAvailable(health.state)?(binding?.state ?? "unregistered"):health.state,
           connection_label:principal.slice(0,12),connect_url:this.publicOrigin+"/connect",credential_revision:binding?.revision ?? null,
-          diagnostic:health.state==="ok"?null:{code:health.state,message:"Version check unavailable or mismatched",source:"mcp_bridge",details:{checked_at:health.checked_at}}};
+          diagnostic:health.state==="ok"?null:{code:health.state,message:health.state==="version_mismatch"?"Unverified Immich version; requests remain enabled":"Version check unavailable",source:"mcp_bridge",details:{checked_at:health.checked_at}}};
       }
       case "immich_api_catalog":return catalog(input);
       case "immich_api_describe":{
@@ -116,19 +122,29 @@ export class ToolService {
     for(const [index,uri]of [IMAGE_VIEWER_URI,BETA8_IMAGE_VIEWER_URI,PREVIOUS_IMAGE_VIEWER_URI,LEGACY_IMAGE_VIEWER_URI].entries())
       server.registerResource("immich_image_preview_"+index,uri,{mimeType:IMAGE_VIEWER_MIME,description:"Private Immich image preview"},async()=>({contents:[imageViewerResource(uri)]}));
     for(const tool of descriptors){
-      server.registerTool(tool.name,{description:tool.description+(tool.name==="immich_get_connection"?" target_version is the fixed Immich API contract, not this MCP application version. Use immich_get_server_info to inspect the running MCP release.":"")+(tool.name==="immich_read_image"?"":" Large schema/result references can be read through immich_read_result using JSON Pointers.")+(tool.name==="immich_read_result"?" Preview returns metadata, not image pixels; use immich_read_image to see an image in ChatGPT.":""),
+      server.registerTool(tool.name,{description:tool.description+" Unreviewed Immich versions remain usable; relay compatibility_warnings to the user and do not retry solely because of a warning."+(tool.name==="immich_get_connection"?" target_version is the fixed Immich API contract, not this MCP application version. Use immich_get_server_info to inspect the running MCP release.":"")+(tool.name==="immich_read_image"?"":" Large schema/result references can be read through immich_read_result using JSON Pointers.")+(tool.name==="immich_read_result"?" Preview returns metadata, not image pixels; use immich_read_image to see an image in ChatGPT.":""),
         inputSchema:fromJsonSchema<any>(tool.inputSchema as any),
         // Advertise native image content, rather than a metadata-only structured result.
         ...(imageToolNames.has(tool.name)?{}:{outputSchema:fromJsonSchema<any>(tool.outputSchema as any)}),
         annotations:tool.annotations,_meta:tool._meta},async(args:any)=>{
+        const initialWarnings=compatibilityWarnings(this.readiness());
+        const warn=(result:any)=>{
+          const warnings=[...new Map([...initialWarnings,...compatibilityWarnings(this.readiness())].map(w=>[w.observed_version,w])).values()];
+          if(!warnings.length)return result;
+          const value=result.structuredContent?{...result.structuredContent,compatibility_warnings:warnings}:undefined;
+          return {...result,...(value?{structuredContent:value}:{}),content:[
+            ...(value?[{type:"text"as const,text:JSON.stringify(value)}]:result.content),
+            ...warnings.map(w=>({type:"text"as const,text:"Immich compatibility warning: "+JSON.stringify(w)}))
+          ]};
+        };
         try{
           const data=await this.invoke(principal,tool.name,args,signal);
-          if(imageToolNames.has(tool.name))return requireImageContent(data);
-          return {content:[{type:"text" as const,text:JSON.stringify(data)}],structuredContent:data,
-            ...((tool.name==="immich_api_call"||tool.name==="immich_api_call_context")&&(data.state==="outcome_unknown"||data.state==="failed"||data.upstream?.status>=400)?{isError:true}:{})};
+          if(imageToolNames.has(tool.name))return warn(requireImageContent(data));
+          return warn({content:[{type:"text" as const,text:JSON.stringify(data)}],structuredContent:data,
+            ...((tool.name==="immich_api_call"||tool.name==="immich_api_call_context")&&(data.state==="outcome_unknown"||data.state==="failed"||data.upstream?.status>=400)?{isError:true}:{})});
         }catch(error){
           const code=error instanceof BridgeError?error.code:"tool_failed";
-          return {isError:true,content:[{type:"text" as const,text:JSON.stringify({code,message:error instanceof BridgeError?error.message:"Request failed; inspect authenticated diagnostics",source:"mcp_bridge",...(error instanceof ImageReadError?{request_id:error.requestId}:{})})}]};
+          return warn({isError:true,content:[{type:"text" as const,text:JSON.stringify({code,message:error instanceof BridgeError?error.message:"Request failed; inspect authenticated diagnostics",source:"mcp_bridge",...(error instanceof ImageReadError?{request_id:error.requestId}:{})})}]});
         }
       });
     }

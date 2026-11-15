@@ -2653,7 +2653,21 @@
         "setup_only": false,
         "api_permission_mode": "explicit",
         "effective_api_key_permission": "clusterGroup.read",
-        "excluded_from_openapi": false
+        "excluded_from_openapi": false,
+        "version_overrides": [
+          {
+            "immich_versions": [
+              "3.4.0",
+              "3.4.1"
+            ],
+            "api_permission_mode": "explicit",
+            "effective_api_key_permission": "clusterGroup.admin",
+            "admin_only": false,
+            "auth_decorator": "@Authenticated({ permission: Permission.ClusterGroupAdmin })",
+            "source_url": "https://github.com/immich-app/immich/blob/22b95194c80a2f2e6201093916b6c8c3d6d271dd/server/src/controllers/cluster-group.controller.ts",
+            "method_line": 105
+          }
+        ]
       }
     },
     {
@@ -3553,7 +3567,21 @@
         "setup_only": false,
         "api_permission_mode": "default_all",
         "effective_api_key_permission": "all",
-        "excluded_from_openapi": false
+        "excluded_from_openapi": false,
+        "version_overrides": [
+          {
+            "immich_versions": [
+              "3.4.0",
+              "3.4.1"
+            ],
+            "api_permission_mode": "explicit",
+            "effective_api_key_permission": "notification.create",
+            "admin_only": true,
+            "auth_decorator": "@Authenticated({ permission: Permission.NotificationCreate, admin: true })",
+            "source_url": "https://github.com/immich-app/immich/blob/22b95194c80a2f2e6201093916b6c8c3d6d271dd/server/src/controllers/notification-admin.controller.ts",
+            "method_line": 30
+          }
+        ]
       }
     },
     {
@@ -14102,7 +14130,21 @@
         "setup_only": false,
         "api_permission_mode": "default_all",
         "effective_api_key_permission": "all",
-        "excluded_from_openapi": false
+        "excluded_from_openapi": false,
+        "version_overrides": [
+          {
+            "immich_versions": [
+              "3.4.0",
+              "3.4.1"
+            ],
+            "api_permission_mode": "explicit",
+            "effective_api_key_permission": "notification.create",
+            "admin_only": true,
+            "auth_decorator": "@Authenticated({ permission: Permission.NotificationCreate, admin: true })",
+            "source_url": "https://github.com/immich-app/immich/blob/22b95194c80a2f2e6201093916b6c8c3d6d271dd/server/src/controllers/notification-admin.controller.ts",
+            "method_line": 54
+          }
+        ]
       }
     },
     {
@@ -27700,7 +27742,21 @@
         "setup_only": false,
         "api_permission_mode": "default_all",
         "effective_api_key_permission": "all",
-        "excluded_from_openapi": false
+        "excluded_from_openapi": false,
+        "version_overrides": [
+          {
+            "immich_versions": [
+              "3.4.0",
+              "3.4.1"
+            ],
+            "api_permission_mode": "explicit",
+            "effective_api_key_permission": "notification.create",
+            "admin_only": true,
+            "auth_decorator": "@Authenticated({ permission: Permission.NotificationCreate, admin: true })",
+            "source_url": "https://github.com/immich-app/immich/blob/22b95194c80a2f2e6201093916b6c8c3d6d271dd/server/src/controllers/notification-admin.controller.ts",
+            "method_line": 42
+          }
+        ]
       },
       "override": {
         "operation_id": "sendTestEmailAdmin",
@@ -32797,6 +32853,10 @@
       "properties": {
         "database": {
           "$ref": "#/components/schemas/AdminConfigDatabaseBackupDto"
+        },
+        "beta": {
+          "description": "Whether the backups feature is enabled",
+          "type": "boolean"
         }
       },
       "required": [
@@ -32913,6 +32973,9 @@
         },
         "user": {
           "$ref": "#/components/schemas/AdminConfigUserDto"
+        },
+        "passkey": {
+          "$ref": "#/components/schemas/AdminConfigPasskeyDto"
         }
       },
       "required": [
@@ -36956,6 +37019,7 @@
       "description": "Image format",
       "enum": [
         "jpeg",
+        "jxl",
         "webp"
       ],
       "type": "string"
@@ -37061,6 +37125,7 @@
         "AssetGenerateThumbnailsQueueAll",
         "AssetGenerateThumbnails",
         "AuditTableCleanup",
+        "AuthChallengeCleanup",
         "DatabaseBackup",
         "FacialRecognitionQueueAll",
         "FacialRecognition",
@@ -37351,7 +37416,8 @@
         "start",
         "end",
         "select_database_restore",
-        "restore_database"
+        "restore_database",
+        "rollback"
       ],
       "type": "string"
     },
@@ -37435,6 +37501,10 @@
           "type": "integer"
         },
         "task": {
+          "type": "string"
+        },
+        "futoBackupsJobId": {
+          "description": "FUTO Backups job ID",
           "type": "string"
         }
       },
@@ -39511,6 +39581,7 @@
         "backup.delete",
         "clusterGroup.read",
         "clusterGroup.leave",
+        "clusterGroup.admin",
         "clusterGroupRequest.create",
         "clusterGroupRequest.read",
         "clusterGroupRequest.delete",
@@ -39551,6 +39622,9 @@
         "partner.read",
         "partner.update",
         "partner.delete",
+        "passkey.read",
+        "passkey.update",
+        "passkey.delete",
         "person.create",
         "person.read",
         "person.update",
@@ -40236,13 +40310,21 @@
         },
         "theme": {
           "$ref": "#/components/schemas/PublicConfigThemeDto"
+        },
+        "ffmpeg": {
+          "$ref": "#/components/schemas/PublicConfigFFmpegDto"
+        },
+        "map": {
+          "$ref": "#/components/schemas/PublicConfigMapDto"
+        },
+        "passkey": {
+          "$ref": "#/components/schemas/PublicConfigPasskeyDto"
         }
       },
       "required": [
         "oauth",
         "passwordLogin",
-        "server",
-        "theme"
+        "server"
       ],
       "type": "object"
     },
@@ -40510,7 +40592,23 @@
           "description": "Number of paused jobs",
           "maximum": 9007199254740991,
           "minimum": -9007199254740991,
-          "type": "integer"
+          "type": "integer",
+          "x-immich-history": [
+            {
+              "version": "v2.0.0",
+              "state": "Added"
+            },
+            {
+              "version": "v4.0.0",
+              "state": "Updated",
+              "description": "A paused queue will now also shows its job as `waiting`"
+            },
+            {
+              "version": "v4.0.0",
+              "state": "Deprecated"
+            }
+          ],
+          "x-immich-state": "Deprecated"
         },
         "waiting": {
           "description": "Number of waiting jobs",
@@ -42155,6 +42253,10 @@
         "trash": {
           "description": "Whether trash feature is enabled",
           "type": "boolean"
+        },
+        "backups": {
+          "description": "Whether the backups feature is enabled",
+          "type": "boolean"
         }
       },
       "required": [
@@ -42378,6 +42480,18 @@
               "state": "Added"
             }
           ]
+        },
+        "featureLevel": {
+          "description": "Highest feature level supported by the server, which increments independently of the release version",
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer",
+          "x-immich-history": [
+            {
+              "version": "v4.0.0",
+              "state": "Added"
+            }
+          ]
         }
       },
       "required": [
@@ -42552,6 +42666,14 @@
         },
         "restoreBackupFilename": {
           "description": "Restore backup filename",
+          "type": "string"
+        },
+        "rollbackRepositoryId": {
+          "description": "Rollback repository ID",
+          "type": "string"
+        },
+        "rollbackSnapshotId": {
+          "description": "Rollback snapshot ID",
           "type": "string"
         }
       },
@@ -47381,6 +47503,12 @@
         },
         "user": {
           "$ref": "#/components/schemas/UserConfigUserDto"
+        },
+        "notifications": {
+          "$ref": "#/components/schemas/UserConfigNotificationsDto"
+        },
+        "passkey": {
+          "$ref": "#/components/schemas/UserConfigPasskeyDto"
         }
       },
       "required": [
@@ -47392,7 +47520,6 @@
         "passwordLogin",
         "reverseGeocoding",
         "server",
-        "theme",
         "trash",
         "user"
       ],
@@ -47578,6 +47705,11 @@
         "enabled": {
           "description": "Enabled",
           "type": "boolean"
+        },
+        "accountManagementUrl": {
+          "default": "",
+          "description": "Account management URL",
+          "type": "string"
         }
       },
       "required": [
@@ -48247,6 +48379,7 @@
       "enum": [
         "AssetCreate",
         "AssetMetadataExtraction",
+        "AssetOcrExtraction",
         "AssetTagged"
       ],
       "type": "string"
@@ -48309,6 +48442,128 @@
           "description": "Workflow trigger type"
         }
       },
+      "type": "object"
+    },
+    "AdminConfigPasskeyDto": {
+      "properties": {
+        "additionalDomains": {
+          "description": "Additional domains",
+          "items": {
+            "format": "uri",
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "domain": {
+          "description": "Passkey domain",
+          "format": "uri",
+          "nullable": true,
+          "type": "string"
+        },
+        "enabled": {
+          "description": "Enabled",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "additionalDomains",
+        "domain",
+        "enabled"
+      ],
+      "type": "object"
+    },
+    "PublicConfigFFmpegDto": {
+      "properties": {
+        "realtime": {
+          "$ref": "#/components/schemas/PublicConfigFFmpegRealtimeDto"
+        }
+      },
+      "required": [
+        "realtime"
+      ],
+      "type": "object"
+    },
+    "PublicConfigFFmpegRealtimeDto": {
+      "properties": {
+        "enabled": {
+          "description": "Enable real-time HLS transcoding (alpha)",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "enabled"
+      ],
+      "type": "object"
+    },
+    "PublicConfigMapDto": {
+      "properties": {
+        "darkStyle": {
+          "description": "Dark map style URL",
+          "format": "uri",
+          "type": "string"
+        },
+        "enabled": {
+          "description": "Enabled",
+          "type": "boolean"
+        },
+        "lightStyle": {
+          "description": "Light map style URL",
+          "format": "uri",
+          "type": "string"
+        }
+      },
+      "required": [
+        "darkStyle",
+        "enabled",
+        "lightStyle"
+      ],
+      "type": "object"
+    },
+    "PublicConfigPasskeyDto": {
+      "properties": {
+        "enabled": {
+          "description": "Enabled",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "enabled"
+      ],
+      "type": "object"
+    },
+    "UserConfigNotificationsDto": {
+      "properties": {
+        "smtp": {
+          "$ref": "#/components/schemas/UserConfigSmtpDto"
+        }
+      },
+      "required": [
+        "smtp"
+      ],
+      "type": "object"
+    },
+    "UserConfigSmtpDto": {
+      "properties": {
+        "enabled": {
+          "description": "Whether SMTP email notifications are enabled",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "enabled"
+      ],
+      "type": "object"
+    },
+    "UserConfigPasskeyDto": {
+      "properties": {
+        "enabled": {
+          "description": "Enabled",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "enabled"
+      ],
       "type": "object"
     }
   },

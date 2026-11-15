@@ -1,18 +1,18 @@
-# Immich MCP 1.0.0-beta.9
+# Immich MCP 1.0.0-beta.10
 
-beta.8の実ChatGPT検証で「画像は表示されるが、初回の呼び出し側にはメタデータしか見えない」ことを確認しました。説明ボタン経由では画像内容を説明できたため、初回の応答形式を変更します。
+Immichの既存279操作を最新版3.4.1に対応させ、未検証のバージョンでも注意を返しながら利用できるようにしました。
 
-- `immich_read_image` と `immich_get_image` はネイティブの画像コンテンツを返します。画像ツールからJSONのstructuredContent/outputSchemaを外し、診断メタデータはUI専用の `_meta.image_info` に移します。結果参照は短い通常テキストにも残します。
-- 画像ツールの引数、既定の画質、認証、画像バイトの制限は維持します。既存9件の汎用API・ジョブ契約も変更しません。
-- beta.8の1回取得・必要なスキーマのみの返却・説明用コンテキスト準備を維持します。
-- 画像UIはv4へ更新し、v1〜v3の互換読込先と旧メタデータ形式を残します。
+- 対応一覧: Immich 3.3.5 / 3.3.6 / 3.4.0 / 3.4.1。
+- 公式3.4.1のAPI定義を固定コミットとハッシュで検査し、追加の設定・機能・featureLevelや列挙値を反映します。旧版の応答も維持します。
+- API権限4件の変更は、API説明に版ごとの情報として記録します。
+- 未検証版でもAPIキー登録・同期処理・ジョブ・画像取得を停止しません。通常の結果では `compatibility_warnings` とテキスト、画像とエラーではテキストに注意を添えます。
+- バージョン相違による準備未完了を解消します。上流への到達失敗、ローカル保存領域・鍵の異常、認証・権限エラーは従来どおり扱います。
+- 旧設定 `IMMICH_EXPECTED_VERSION` による起動拒否を廃止します。
 
-画像ツールの `structuredContent` に依存したbetaクライアントは移行が必要です。MCPの `content` から画像を扱い、UI専用情報は `_meta.image_info` を利用してください。
+新しいパスキー関連8操作とJXLプレビューは対象外です。OCRとbeta.9の画像経路は変更していません。実Immichで全操作を検証したという主張ではありません。
 
-固定版: `ghcr.io/suiren-kazutohashimoto/immich-mcp:1.0.0-beta.9`
+固定版: `ghcr.io/suiren-kazutohashimoto/immich-mcp:1.0.0-beta.10`
 
 更新チャンネル: `ghcr.io/suiren-kazutohashimoto/immich-mcp:beta`
 
-[取得・説明・Code Mode・更新手順](https://github.com/SUIREN-KazutoHashimoto/immich_mcp/blob/v1.0.0-beta.9/IMAGE_FLOW.md)
-
-公開前は合成画像でMCPの生応答、SDK、UIを検証します。公開後、同じ実写真でChatGPTの初回説明を比較します。サーバーの送出・UIの表示・モデルの視覚認識は別々の合格条件です。実環境での確認前にホスト固有の欠落が解消したとは断定しません。OCRは変更していません。
+[対応範囲・注意の形式・更新手順](https://github.com/SUIREN-KazutoHashimoto/immich_mcp/blob/v1.0.0-beta.10/IMMICH_COMPATIBILITY.md)

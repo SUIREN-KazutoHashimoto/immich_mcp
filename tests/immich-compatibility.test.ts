@@ -72,6 +72,7 @@ async function fixture(run:(f:any)=>Promise<void>){
         if(path==="/api/users/me"&&refuse)return Response.json({message:"denied"},{status:403});
         if(path==="/api/server/features")return Response.json(sample(latest.components.schemas.ServerFeaturesDto));
         if(path==="/api/config")return Response.json(sample(latest.components.schemas.UserConfigDto));
+        if(path==="/api/public/config")return Response.json(sample(latest.components.schemas.PublicConfigDto));
         if(path==="/api/search/random")return Response.json([{...sample({$ref:"#/components/schemas/AssetResponseDto"}),id:uuid,type:"IMAGE"}]);
         const schema=path==="/api/api-keys/me"?operation("getMyApiKey").definition.responses["200"].content["application/json"].schema:
           operation("getMyUser").definition.responses["200"].content["application/json"].schema;
@@ -112,6 +113,9 @@ test("latest Immich feature levels, new feature/config fields and previous revie
   assert.equal(features.isError,undefined);assert.equal(features.structuredContent.data.backups,false);
   const config=await call("immich_api_call",{operation_id:"getUserConfig",execution_mode:"sync"});
   assert.equal(config.isError,undefined);assert.deepEqual(config.structuredContent.data.passkey,{enabled:false});
+  const publicConfig=await call("immich_api_call",{operation_id:"getPublicConfig",execution_mode:"sync"});
+  assert.equal(publicConfig.isError,undefined);assert.deepEqual(publicConfig.structuredContent.data.passkey,{enabled:false});
+  assert.equal(Object.hasOwn(publicConfig.structuredContent.data,"theme"),false);
   assert.equal((await app.fetch(new Request(origin+"/health/ready"))).status,200);
 }));
 test("unreviewed stable and prerelease servers remain ready with warnings in native JSON, queued jobs, errors and SDK results",()=>fixture(async(f:any)=>{

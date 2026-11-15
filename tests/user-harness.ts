@@ -13,7 +13,8 @@ export async function userBackend(){
   const base=fixtureBackend(),{backend}=base,oracle=JSON.parse(await readFile(join(process.cwd(),"tests","profile-image-oracle.json"),"utf8"));
   const model={users:new Map<string,UserState>(),profileUploads:0,extraCreates:0,format:"jpeg" as "jpeg"|"webp",
     existingProfile:false,loseUserCreate:false,profileCorrupt:false,profileWrongOwner:false,preferencesNoPersist:false,adminUpdateNoPersist:false,restoreNoEffect:false,publicConfigWrong:false,leakPreferences:false};
-  const config:any=sample(registry.schemas.UserConfigDto!);config.server.publicUsers=true;config.user.deleteDelay=7;
+  // This backend advertises Immich 3.3.5, whose user/public config includes theme.
+  const config:any={...sample(registry.schemas.UserConfigDto!),theme:sample(registry.schemas.UserConfigThemeDto!)};config.server.publicUsers=true;config.user.deleteDelay=7;
   const publicConfig=()=>({oauth:{...config.oauth},passwordLogin:{...config.passwordLogin},server:{loginPageMessage:config.server.loginPageMessage},theme:{...config.theme}});
   function state(user:any):UserState{
     let value=model.users.get(user.id);

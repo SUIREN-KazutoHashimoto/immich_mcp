@@ -26,10 +26,14 @@ const extraEmail=(run:IntegrationRun)=>"mcp-user-"+run.context.lab.state.id+"@ex
 function publicConfig(user:any){
   const project=(value:any,schema:any):any=>{
     if(schema.$ref)return project(value,registry.schemas[schema.$ref.split("/").at(-1)!]);
-    if(schema.type==="object")return Object.fromEntries(Object.entries<any>(schema.properties).map(([key,child])=>[key,project(value[key],child)]));
+    if(schema.type==="object")return Object.fromEntries(Object.entries<any>(schema.properties).filter(([key])=>Object.hasOwn(value,key)).map(([key,child])=>[key,project(value[key],child)]));
     return structuredClone(value);
   };
-  return project(user,registry.schemas.PublicConfigDto);
+  const schema=registry.schemas.PublicConfigDto!;
+  // Before 3.4, public config exposed theme but not ffmpeg/map/passkey.
+  // The reviewed 3.4 generation removes theme and exposes the new public fields.
+  const names=Object.hasOwn(user,"theme")?["oauth","passwordLogin","server","theme"]:Object.keys(schema.properties).filter(key=>key!=="theme");
+  return project(user,{...schema,properties:Object.fromEntries(names.map(key=>[key,schema.properties[key]]))});
 }
 async function preflight(run:IntegrationRun){
   const d=run.state.data;d.baseline={users:{},preferences:{},onboarding:{}};d.extra={};d.profiles={};run.save();

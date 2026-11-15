@@ -5,7 +5,10 @@
       "image": "${MCP_IMAGE:-immich-mcp:1.0.0-beta.11}",
       "build": {
         "context": ".",
-        "dockerfile": "Dockerfile"
+        "dockerfile": "Dockerfile",
+        "args": {
+          "NODE_IMAGE": "${NODE_IMAGE:-node:24.22.2-bookworm-slim}"
+        }
       },
       "init": true,
       "user": "1000:1000",

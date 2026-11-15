@@ -9,6 +9,8 @@
 !scripts/**
 !contracts/
 !contracts/**
+!compatibility/
+!compatibility/immich-openapi-v3.4.1.json
 !web/
 !web/upload.js
 !immich_mcp_spec_v3.3.5/

@@ -15,14 +15,14 @@ import { Control } from "./control.js";
 import { Jobs } from "./jobs.js";
 import { ToolService,type Readiness } from "./tools.js";
 import { BridgeError } from "./types.js";
-import { operation,registry } from "./registry.js";
+import { registry } from "./registry.js";
 import { validator } from "./schema.js";
 import { decodedResponse } from "./content-encoding.js";
 import { UpstreamError } from "./upstream.js";
 import { runtimeIntegrity } from "./runtime-integrity.js";
 import { inspectLocal,localReady,type LocalReadiness } from "./readiness.js";
 import { observedImmichVersion } from "./server-info.js";
-import { supportsImmichVersion } from "./immich-version.js";
+import { supportsImmichVersion,upstreamAvailable } from "./immich-version.js";
 export interface AppOptions {http?:typeof fetch;jwks?:JWTVerifyGetKey;downloads?:DownloadPolicy;databasePath?:string;versionIntervalMs?:number;cleanupIntervalMs?:number;localIntervalMs?:number;runtimeIntegrity?:()=>Promise<"ok"|"error">;}
 const noStore={"cache-control":"no-store","x-content-type-options":"nosniff"};
 export class Application {
@@ -52,7 +52,7 @@ export class Application {
     this.jobs=new Jobs(this.vault,this.executor,(p,o,c)=>control.resolver(p,o,c),
       {autoStart:false,maxPendingPerPrincipal:config.maxJobsPerPrincipal,gate:id=>this.assertVersion(id)},this.contexts);
     this.control=control=new Control(this.access,this.vault,this.executor,config.masterKey,this.staging,this.jobs,this.uploads,this.contexts);
-    this.tools=new ToolService(this.vault,this.executor,this.contexts,this.control,this.staging,this.jobs,config.publicOrigin,()=>this.health,{inlineBytes:config.inlineResultMaxBytes,resultTtlMs:config.resultTtlMs,gate:()=>this.assertLocalReady(),serverStatus:()=>({ready:!this.stopping&&this.health.state==="ok"&&this.cleanupState==="ok"&&localReady(this.localHealth),local:this.localHealth,cleanup:this.cleanupState,observedVersion:this.observedVersion})});
+    this.tools=new ToolService(this.vault,this.executor,this.contexts,this.control,this.staging,this.jobs,config.publicOrigin,()=>this.health,{inlineBytes:config.inlineResultMaxBytes,resultTtlMs:config.resultTtlMs,gate:()=>this.assertLocalReady(),serverStatus:()=>({ready:!this.stopping&&upstreamAvailable(this.health.state)&&this.cleanupState==="ok"&&localReady(this.localHealth),local:this.localHealth,cleanup:this.cleanupState,observedVersion:this.observedVersion})});
     this.mcp=createMcpHandler(ctx=>{
       const principal=ctx.authInfo?.extra?.principal;
       if(typeof principal!=="string" || !principal)throw new Error("Verified principal is required");
@@ -93,7 +93,7 @@ export class Application {
   }
   assertVersion(operationId:string) {
     this.assertLocalReady();
-    if(this.health.state==="version_mismatch" || this.health.state!=="ok"&&!["getServerVersion","getMaintenanceStatus","maintenanceLogin"].includes(operationId))
+    if(!upstreamAvailable(this.health.state)&&!["getServerVersion","getMaintenanceStatus","maintenanceLogin"].includes(operationId))
       throw new BridgeError(this.health.state,"Upstream version contract is not ready");
   }
   async checkVersion() {
@@ -106,8 +106,12 @@ export class Application {
         if(response.status===200){
           const bytes=await decodedResponse(response,16384);
           const value=JSON.parse(new TextDecoder("utf-8",{fatal:true}).decode(bytes));
-          validator(operation("getServerVersion").definition.responses["200"].content["application/json"].schema,registry.schemas)(value);
+          const schema=registry.schemas.ServerVersionResponseDto!;
+          // Permit a bounded semver prerelease label in the health probe as well
+          // as Immich's numeric prerelease field. Never echo arbitrary upstream text.
+          validator({...schema,properties:{...schema.properties,prerelease:{anyOf:[schema.properties.prerelease,{type:"string",maxLength:64,pattern:"^[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*$"}]}}},registry.schemas)(value);
           observed=observedImmichVersion(value);
+          if(observed===null)throw new BridgeError("invalid_version","Unrecognized upstream version response");
           state=supportsImmichVersion(value)?"ok":"version_mismatch";
         }else await response.body?.cancel();
       }catch(error){
@@ -115,7 +119,7 @@ export class Application {
         if(!this.stopping&&error instanceof BridgeError&&!(error instanceof UpstreamError)&&["upstream_cancelled","upstream_busy"].includes(error.code))return;
       }
       this.observedVersion=observed;
-      this.health={state,checked_at:new Date().toISOString()};
+      this.health={state,checked_at:new Date().toISOString(),observed_version:observed};
     })();
     try{await this.checking;}finally{this.checking=undefined;}
   }
@@ -129,7 +133,7 @@ export class Application {
     if(url.pathname==="/health/live")return Response.json({live:!this.stopping},{status:this.stopping?503:200,headers:noStore});
     if(url.pathname==="/health/ready"){
       await this.checkLocal();
-      const ready=!this.stopping&&this.health.state==="ok"&&this.cleanupState==="ok"&&localReady(this.localHealth);
+      const ready=!this.stopping&&upstreamAvailable(this.health.state)&&this.cleanupState==="ok"&&localReady(this.localHealth);
       return Response.json({ready,version_state:this.health.state,storage_cleanup:this.cleanupState,checks:this.localHealth},{status:ready?200:503,headers:noStore});
     }
     if(url.pathname==="/.well-known/oauth-protected-resource")
@@ -145,8 +149,6 @@ export class Application {
       }
       if(url.pathname.startsWith("/connect")){
         if(request.method==="POST")this.assertLocalReady();
-        if(this.health.state==="version_mismatch" && ["/connect/key","/connect/context/register","/connect/context/revalidate","/connect/context/oauth"].includes(url.pathname))
-          throw new BridgeError("version_mismatch","Upstream version does not match the pinned contract");
         return await this.control.fetch(request);
       }
       return new Response("Not found",{status:404,headers:noStore});

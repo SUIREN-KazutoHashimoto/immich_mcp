@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import type { LocalReadiness } from "./readiness.js";
 import { supportedImmichVersions } from "./immich-version.js";
 
-export const APPLICATION_VERSION="1.0.0-beta.9";
+export const APPLICATION_VERSION="1.0.0-beta.10";
 function buildRevision():string|null {
   try{
     const value=JSON.parse(readFileSync(new URL("./build-info.json",import.meta.url),"utf8"));
@@ -11,14 +11,14 @@ function buildRevision():string|null {
   }catch(error){if((error as NodeJS.ErrnoException).code==="ENOENT")return null;throw error;}
 }
 const revision=buildRevision();
-export interface UpstreamReadiness {state:"ok"|"unreachable"|"version_mismatch";checked_at:string;}
+export interface UpstreamReadiness {state:"ok"|"unreachable"|"version_mismatch";checked_at:string;observed_version?:string|null;}
 export interface ServerStatus {ready:boolean;local:LocalReadiness;cleanup:"ok"|"error";observedVersion:string|null;}
 const object=(properties:Record<string,any>)=>({type:"object",properties,required:Object.keys(properties),additionalProperties:false});
 const check={type:"string",enum:["ok","error"]},nullableString={type:["string","null"]};
 const localSchema=object({database:check,migration:check,master_key:check,storage:check,registry:check,checked_at:{type:"string",format:"date-time"}});
 export const serverInfoDescriptor={
   name:"immich_get_server_info",
-  description:"Read this MCP server's application version, build revision, instance start time/uptime, cached health checks, supported and observed Immich versions, and available tools. Use this to verify which MCP release is actually running. The MCP application version is separate from the fixed Immich API contract version. Requires the authenticated MCP connection but no registered Immich API key. Does not contact Immich or refresh health checks; inspect checked_at. Does not expose secrets, configuration URLs/paths, photos, user identifiers or other users' data.",
+  description:"Read this MCP server's application version, build revision, instance start time/uptime, cached health checks, reviewed and observed Immich versions, and available tools. Unreviewed versions remain usable and return compatibility warnings; version_mismatch is advisory. Use this to verify which MCP release is actually running. The MCP application version is separate from the fixed Immich API contract version. Requires the authenticated MCP connection but no registered Immich API key. Does not contact Immich or refresh health checks; inspect checked_at. Does not expose secrets, configuration URLs/paths, photos, user identifiers or other users' data.",
   inputSchema:{type:"object",properties:{},additionalProperties:false},
   outputSchema:object({
     schema_version:{type:"string",const:"1"},
@@ -50,7 +50,7 @@ export class ServerInfo {
 }
 export function observedImmichVersion(value:{major:number;minor:number;patch:number;prerelease:unknown}):string|null {
   if(![value.major,value.minor,value.patch].every(n=>Number.isSafeInteger(n)&&n>=0&&n<=2147483647))return null;
-  const suffix=value.prerelease===null?"":typeof value.prerelease==="string"&&/^[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*$/.test(value.prerelease)?"-"+value.prerelease:null;
+  const suffix=value.prerelease===null?"":typeof value.prerelease==="number"&&Number.isSafeInteger(value.prerelease)&&value.prerelease>=0&&value.prerelease<=2147483647?"-"+value.prerelease:typeof value.prerelease==="string"&&/^[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*$/.test(value.prerelease)?"-"+value.prerelease:null;
   if(suffix===null)return null;
   const text=`${value.major}.${value.minor}.${value.patch}${suffix}`;
   return text.length<=64?text:null;

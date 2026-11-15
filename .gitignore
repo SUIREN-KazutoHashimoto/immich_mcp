@@ -55,3 +55,4 @@ coverage/
 !/reports/immich-3.3.6-compatibility.json
 !/reports/image-flow-benchmark-beta.8.json
 !/reports/image-flow-benchmark-beta.9.json
+!/reports/immich-3.4.1-compatibility.json

@@ -1,0 +1,80 @@
+{
+  "verified_on": "2026-11-16",
+  "api_contract_version": "3.3.5",
+  "compatibility_extension": "3.4.1",
+  "reviewed_server_versions": [
+    "3.3.5",
+    "3.3.6",
+    "3.4.0",
+    "3.4.1"
+  ],
+  "base_openapi_sha256": "632700b84590f6b197fe6ef9a8486db19d08a31a03cf10bc780925e8a32b6bb9",
+  "latest_source": {
+    "version": "3.4.1",
+    "source_commit": "22b95194c80a2f2e6201093916b6c8c3d6d271dd",
+    "source_url": "https://raw.githubusercontent.com/immich-app/immich/22b95194c80a2f2e6201093916b6c8c3d6d271dd/open-api/immich-openapi-specs.json",
+    "sha256": "e98acf387b5ffe2c239cb6619a82ef8ce7092447baab22c1f223744aad79858e"
+  },
+  "v3.4.0_source": {
+    "commit": "0715bcf8dab4b91118d6184479e2be2767ef8294",
+    "sha256": "b5e5f82dda2e378d53dd5ff852aa8f5d081ffefecae5564f42beab5589a3ed1a",
+    "url": "https://raw.githubusercontent.com/immich-app/immich/0715bcf8dab4b91118d6184479e2be2767ef8294/open-api/immich-openapi-specs.json"
+  },
+  "v3.4.0_equals_v3.4.1_after_normalizing_info_version": true,
+  "existing_operation_count": 279,
+  "latest_operation_count": 287,
+  "removed_existing_operations": [],
+  "existing_operation_wire_contracts_equal": true,
+  "changed_schema_count": 15,
+  "retained_old_schemas": [
+    "PublicConfigThemeDto",
+    "UserConfigThemeDto"
+  ],
+  "new_passkey_operation_ids_not_added": [
+    "deletePasskey",
+    "finishAuthentication",
+    "finishRegistration",
+    "getPasskey",
+    "searchPasskeys",
+    "startAuthentication",
+    "startRegistration",
+    "updatePasskey"
+  ],
+  "permission_deltas": {
+    "clusterGroupRegeneratePeople": {
+      "old": "clusterGroup.read",
+      "new": "clusterGroup.admin"
+    },
+    "createNotification": {
+      "old": "all",
+      "new": "notification.create"
+    },
+    "getNotificationTemplateAdmin": {
+      "old": "all",
+      "new": "notification.create"
+    },
+    "sendTestEmailAdmin": {
+      "old": "all",
+      "new": "notification.create"
+    }
+  },
+  "decision": "Extend the existing 279 operations with reviewed response/request schemas; preserve pinned originals, response corrections, authentication adapters and secret rules. Record version-specific permission overrides. Unreviewed upstream versions are allowed with model-visible compatibility warnings; unreachable upstream/local storage failures still block protected execution.",
+  "limits": "API contract and synthetic execution coverage, not a claim of all operations tested against a production Immich 3.4.1 instance. New passkey registration/authentication/management operations are outside this compatibility update. Existing preview decoders remain JPEG, PNG and WebP; JXL previews are not added.",
+  "changed_schemas": [
+    "AdminConfigBackupsDto",
+    "AdminConfigDto",
+    "ImageFormat",
+    "JobName",
+    "MaintenanceAction",
+    "MaintenanceStatusResponseDto",
+    "Permission",
+    "PublicConfigDto",
+    "QueueStatisticsDto",
+    "ServerFeaturesDto",
+    "ServerVersionResponseDto",
+    "SetMaintenanceModeDto",
+    "UserConfigDto",
+    "UserConfigOAuthDto",
+    "WorkflowTrigger"
+  ]
+}

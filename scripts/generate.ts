@@ -1,3 +1,4 @@
+import { applyImmich341Compatibility } from "./immich-compatibility.js";
 import { applyPluginMethodSchemaCorrection } from "./plugin-method-response-correction.js";
 import { applyWorkflowLogIndexCorrection } from "./workflow-log-response-correction.js";
 import { applyTimelineStatusCorrection } from "./timeline-response-correction.js";
@@ -97,8 +98,9 @@ const workflowLogIndexCorrection=JSON.parse(await readFile(new URL("../contracts
 const workflowLogCorrectedOperations=applyWorkflowLogIndexCorrection(timelineCorrectedOperations,api.components.schemas,workflowLogIndexCorrection,{version:manifest.version,commit:manifest.commit_sha,sha256});
 const pluginMethodResponseCorrection=JSON.parse(await readFile(new URL("../contracts/plugin-method-response-correction.v3.3.5.json",import.meta.url),"utf8"));
 const correctedOperations=applyPluginMethodSchemaCorrection(workflowLogCorrectedOperations,api.components.schemas,pluginMethodResponseCorrection,{version:manifest.version,commit:manifest.commit_sha,sha256});
+const compatibility=applyImmich341Compatibility(correctedOperations,api.components.schemas,api,await readFile(new URL("../compatibility/immich-openapi-v3.4.1.json",import.meta.url)));
 const registry: Registry = {authContexts,version: manifest.version, commit: manifest.commit_sha, sha256,
-  operations:correctedOperations, schemas: api.components.schemas, secretRules: overrides.secret_field_rules};
+  operations:compatibility.operations, schemas: compatibility.schemas, secretRules: overrides.secret_field_rules};
 await mkdir(new URL("../src/generated/", import.meta.url), { recursive: true });
 await writeFile(new URL("../src/generated/registry.json", import.meta.url), JSON.stringify(registry, null, 2) + "\n");
 console.log(JSON.stringify({version: registry.version, operations: operations.length, missing:[], unexpected:[], duplicate:[], sha256}));

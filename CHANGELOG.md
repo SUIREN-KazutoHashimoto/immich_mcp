@@ -10,6 +10,13 @@
 
 # Changelog
 
+## 1.0.0-beta.10
+
+- Support existing 279 operations on reviewed Immich 3.4.0/3.4.1 with a fingerprinted schema extension while preserving 3.3.5/3.3.6 responses.
+- Record four version-specific permission changes; keep the original auth adapters, secret rules and response corrections.
+- Allow unreviewed stable and prerelease versions with model-visible compatibility warnings in JSON, image, job and error results. Version mismatch no longer blocks readiness or API-key connection.
+- Retain unreachable-upstream and local-storage protections; ignore the legacy expected-version startup gate. New passkey operations and JXL previews remain outside this update.
+
 ## 1.0.0-beta.7 — 2026-11-11
 
 - Remove the preview dependency on object URLs: prefer data images and use one bounded Blob fallback for hosts that require it. Preserve no-network private previews and version the resource URI to v2 while retaining the old v1 route.

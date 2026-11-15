@@ -12,6 +12,7 @@ COPY tsconfig.json ./
 COPY src ./src
 COPY scripts ./scripts
 COPY contracts ./contracts
+COPY compatibility ./compatibility
 COPY web ./web
 COPY immich_mcp_spec_v3.3.5 ./immich_mcp_spec_v3.3.5
 ARG MCP_BUILD_REVISION
@@ -19,8 +20,8 @@ RUN pnpm generate && pnpm build
 
 FROM ${NODE_IMAGE} AS runtime
 LABEL org.opencontainers.image.title="Immich MCP" \
-      org.opencontainers.image.version="1.0.0-beta.9" \
-      org.opencontainers.image.description="MCP bridge for Immich 3.3.5 and 3.3.6"
+      org.opencontainers.image.version="1.0.0-beta.10" \
+      org.opencontainers.image.description="MCP bridge for reviewed Immich versions through 3.4.1; unverified versions are advisory"
 ENV NODE_ENV=production MCP_LISTEN_HOST=0.0.0.0 MCP_LISTEN_PORT=3000 STORAGE_PATH=/data DATABASE_PATH=/data/vault.sqlite
 WORKDIR /app
 COPY package.json ./

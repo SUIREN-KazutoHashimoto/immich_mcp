@@ -10,6 +10,13 @@
 
 # Changelog
 
+## 1.0.0-beta.11
+
+- Reduce normal Docker runtime configuration to four deployment-specific values. Derive trusted JWKS and default the separate master-key file path; keep legacy overrides.
+- Use image defaults for data, database and listener settings instead of repeating them in Compose and example files. Real Docker smoke uses only four app environment values.
+- Redesign connection settings in Japanese with responsive cards, progressive disclosure and localized credentials, receipts, errors, upload progress and history.
+- Preserve secret isolation, explicit authentication-context consent, signed Access authentication, Origin/CSRF validation and interrupted-upload recovery.
+
 ## 1.0.0-beta.10
 
 - Support existing 279 operations on reviewed Immich 3.4.0/3.4.1 with a fingerprinted schema extension while preserving 3.3.5/3.3.6 responses.

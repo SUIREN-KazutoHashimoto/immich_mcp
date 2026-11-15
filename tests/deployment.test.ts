@@ -23,7 +23,7 @@ test("deployment configuration isolates origin traffic, writable paths and secre
   assert.ok(mcp.networks.includes("immich"));assert.ok(!connector.networks.includes("immich"));
   assert.ok(mcp.networks.includes("mcp_egress"));assert.ok(connector.networks.includes("connector_egress"));
   assert.equal(connector.depends_on.mcp.condition,"service_healthy");assert.ok(connector.command.includes("--token-file"));
-  assert.equal(mcp.environment.VAULT_MASTER_KEY_FILE,"/run/secrets/vault_master_key");assert.equal(mcp.environment.STORAGE_PATH,"/data");
+  assert.equal(mcp.environment,undefined);
   assert.ok(!JSON.stringify(mcp).includes("tunnel_token"));assert.ok(!JSON.stringify(connector).includes("vault_master_key"));
   assert.ok(!JSON.stringify(compose).includes("docker.sock"));
   const dockerfile=await readFile("Dockerfile","utf8"),runtime=dockerfile.split("AS runtime")[1]!;

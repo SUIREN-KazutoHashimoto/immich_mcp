@@ -42,24 +42,24 @@ test("native browser key forms preserve same-origin Origin and still enforce CSR
       await route.fulfill({status:response.status,headers:Object.fromEntries(response.headers),body:Buffer.from(await response.arrayBuffer())});
     });
     await page.goto(config.publicOrigin+"/connect");
-    await page.getByLabel("Your Immich API key").fill(canary);
+    await page.getByLabel("APIキー",{exact:true}).fill(canary);
     const savedResponse=page.waitForResponse(response=>response.request().method()==="POST"&&new URL(response.url()).pathname==="/connect/key");
-    await page.getByRole("button",{name:"Validate and save key",exact:true}).click();
+    await page.getByRole("button",{name:"確認して保存",exact:true}).click();
     assert.equal((await savedResponse).status(),303,"Native form Origin: "+origins[0]);
     // Redirects bypass Playwright routing and would reach the fixture's fake
     // hostname. Close that navigation before inspecting the saved binding.
     await page.close();page=await context.newPage();
     await page.goto(config.publicOrigin+"/connect");
-    await page.getByText("Status: active",{exact:true}).waitFor();
+    await page.getByText("登録済み",{exact:true}).waitFor();
     assert.deepEqual(origins,[config.publicOrigin]);assert.equal(registrations,1);
     assert.equal(vault.credential(principal).key,canary);
-    assert.equal(await page.getByLabel("Your Immich API key").inputValue(),"");
+    assert.equal(await page.getByLabel("APIキー",{exact:true}).inputValue(),"");
     assert.ok(!(await page.content()).includes(canary));
     assert.ok(!(await page.evaluate(()=>document.cookie)).includes("__Host-immich-csrf"));
-    await page.getByLabel("Your Immich API key").fill(canary);
+    await page.getByLabel("APIキー",{exact:true}).fill(canary);
     await page.evaluate(()=>{document.querySelector<HTMLInputElement>('form[action="/connect/key"] input[name="csrf"]')!.value="invalid";});
     const deniedResponse=page.waitForResponse(response=>response.request().method()==="POST"&&new URL(response.url()).pathname==="/connect/key");
-    await page.getByRole("button",{name:"Validate and save key",exact:true}).click();
+    await page.getByRole("button",{name:"確認して保存",exact:true}).click();
     const denied=await deniedResponse;assert.equal(denied.status(),403);assert.match(await denied.text(),/csrf/);
     assert.deepEqual(origins,[config.publicOrigin,config.publicOrigin]);assert.equal(registrations,1);
   }finally{await context.close();await browser.close();await executor.close();vault.close();await rm(directory,{recursive:true,force:true});}

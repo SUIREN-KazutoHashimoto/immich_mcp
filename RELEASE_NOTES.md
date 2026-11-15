@@ -1,18 +1,17 @@
-# Immich MCP 1.0.0-beta.10
+# Immich MCP 1.0.0-beta.11
 
-Immichの既存279操作を最新版3.4.1に対応させ、未検証のバージョンでも注意を返しながら利用できるようにしました。
+通常のDocker / TrueNAS導入で指定するアプリ環境変数を4項目に整理し、接続設定画面を日本語化・再設計しました。
 
-- 対応一覧: Immich 3.3.5 / 3.3.6 / 3.4.0 / 3.4.1。
-- 公式3.4.1のAPI定義を固定コミットとハッシュで検査し、追加の設定・機能・featureLevelや列挙値を反映します。旧版の応答も維持します。
-- API権限4件の変更は、API説明に版ごとの情報として記録します。
-- 未検証版でもAPIキー登録・同期処理・ジョブ・画像取得を停止しません。通常の結果では `compatibility_warnings` とテキスト、画像とエラーではテキストに注意を添えます。
-- バージョン相違による準備未完了を解消します。上流への到達失敗、ローカル保存領域・鍵の異常、認証・権限エラーは従来どおり扱います。
-- 旧設定 `IMMICH_EXPECTED_VERSION` による起動拒否を廃止します。
+- 必須の入力は `IMMICH_BASE_URL`、`MCP_PUBLIC_BASE_URL`、`ACCESS_ISSUER`、`ACCESS_AUDIENCE` の4つです。
+- 公開鍵URLを認証元から自動設定し、標準の鍵読込先を既定値にします。既存の上書き設定は利用できます。
+- APIキー登録を中心にしたカード型の画面に変更し、追加認証・トークン入力・履歴を開閉できます。スマートフォンの表示と操作にも対応します。
+- 登録、完了、エラー、追加認証、アップロードの案内を日本語化しました。
+- 秘密値の非表示、暗号化保存、署名・AUD・Origin・CSRFの確認、追加認証への明示的な同意を維持します。
 
-新しいパスキー関連8操作とJXLプレビューは対象外です。OCRとbeta.9の画像経路は変更していません。実Immichで全操作を検証したという主張ではありません。
+データは `/data`、既存の32バイトのマスター鍵は `/run/secrets/vault_master_key` にマウントします。独自パスを使用している既存環境では、その設定を残してください。旧イメージから先に環境変数だけを削除しないでください。
 
-固定版: `ghcr.io/suiren-kazutohashimoto/immich-mcp:1.0.0-beta.10`
+固定版: `ghcr.io/suiren-kazutohashimoto/immich-mcp:1.0.0-beta.11`
 
 更新チャンネル: `ghcr.io/suiren-kazutohashimoto/immich-mcp:beta`
 
-[対応範囲・注意の形式・更新手順](https://github.com/SUIREN-KazutoHashimoto/immich_mcp/blob/v1.0.0-beta.10/IMMICH_COMPATIBILITY.md)
+[最小構成・既存環境の整理・画面例](https://github.com/SUIREN-KazutoHashimoto/immich_mcp/blob/v1.0.0-beta.11/CONFIGURATION.md)

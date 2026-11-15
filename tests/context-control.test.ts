@@ -42,7 +42,7 @@ async function fixture(run:(f:{v:Vault;c:Contexts;control:Control;p:string;asser
 const ref=(text:string,prefix:string)=>text.match(new RegExp("<code>("+prefix+"_[^<]+)</code>"))![1]!;
 test("control UI connects explicit contexts, scopes secrets and originals, and separately enables general session mode",()=>fixture(async({v,c,control,p,post,get})=>{
   const page=await (await get()).text();
-  assert.ok(page.includes("API-key permissions do not apply"));assert.ok(page.includes('id="upload-button"'));
+  assert.ok(page.includes("APIキーの権限制限は適用されません"));assert.ok(page.includes('id="upload-button"'));
   assert.equal((await post("/connect/context/register",{kind:"public",ttl_seconds:"3600",acknowledge:"1"},"https://evil.example")).status,403);
   assert.equal((await post("/connect/context/register",{kind:"public",ttl_seconds:"3600"})).status,400);
   const registered=await post("/connect/context/register",{kind:"public",ttl_seconds:"3600",acknowledge:"1"});

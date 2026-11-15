@@ -1,5 +1,7 @@
 # 1.0.0-beta.1 Docker実機確認
 
+この文書はbeta.1の初回検証の記録です。beta.11以降の最小設定と既存環境の整理は [CONFIGURATION.md](CONFIGURATION.md) を参照してください。
+
 MCPアプリの最初のベータです。対応するImmich APIは **3.3.5** のままです。
 以下はLinux Docker Engine + Docker Compose v2.24以降での手順です。
 コンテナの起動確認と、実Immich・Cloudflare・ChatGPTを使う確認を分けて記録してください。

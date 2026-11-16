@@ -2,7 +2,7 @@
 
 # ChatGPT の画像解析連携を確認する
 
-beta.5 は ChatGPT 向け画像経路に表示画面を追加します。対応 Immich は 3.3.5 / 3.3.6 / 3.4.0 / 3.4.1 です。公開イメージは `ghcr.io/suiren-kazutohashimoto/immich-mcp:1.0.0-beta.11`、更新チャンネルは `:beta` です。
+beta.5 は ChatGPT 向け画像経路に表示画面を追加します。対応 Immich は 3.3.5 / 3.3.6 / 3.4.0 / 3.4.1 です。公開イメージは `ghcr.io/suiren-kazutohashimoto/immich-mcp:1.0.0-beta.12`、更新チャンネルは `:beta` です。
 
 ## 修正した境界
 
@@ -41,7 +41,7 @@ beta.4 より前は画像を暗号化保存しても、MCP に返すのは JSON 
 
 ## 更新後の操作
 
-1. TrueNAS の Custom App を更新します。`:beta` は常に取得する設定を確認し、取り違えが疑われる場合は固定版 `:1.0.0-beta.11` を指定します。データとマスター鍵を維持してください。
+1. TrueNAS の Custom App を更新します。`:beta` は常に取得する設定を確認し、取り違えが疑われる場合は固定版 `:1.0.0-beta.12` を指定します。データとマスター鍵を維持してください。
 2. Cloudflare で MCP サーバーの能力を再同期し、ポータルの画像ツールが有効か確認します。表示用リソースの要求も通る必要があります。
 3. ChatGPT の SUIREN MCP 管理画面でツール定義を更新し、**新しい会話**で接続を選び直します。サーバー情報ツールを含め12ツールです。UIを含む新しい定義が必要です。
 4. 新しい画像結果を取得し、画面表示と「この画像を説明」での物体・色・配置の説明を個別に確認します。
@@ -151,3 +151,11 @@ node dist/scripts/image-result-check.js /absolute/private/mcp-response.json
 - [OpenAI: Refresh metadata](https://developers.openai.com/plugins/deploy/connect-chatgpt#refresh-metadata)
 - [Cloudflare: MCP portals](https://developers.cloudflare.com/cloudflare-one/access-controls/ai-controls/mcp-portals/)
 - [MCP Apps: messages](https://apps.extensions.modelcontextprotocol.io/api/interfaces/app.McpUiMessageRequest.html)
+
+## beta.12: 個別画像の引数と成功判定
+
+- ChatGPTに見える `immich_get_image` の引数に `asset_id`、`max_width`、`max_height`、`format` が含まれることを確認します。`source` だけの定義なら、Cloudflareで同期し、ChatGPTでツール情報を更新します。
+- `source="asset"` では対象の `asset_id` を指定します。`source="random"` ではIDを付けません。サイズ・形式は省略できます。
+- JavaScriptの例外がなくても、返却値の `isError` が真なら失敗です。`Parameters failed connector schema validation` と `asset_id` の欠落が返る場合、画像取得に到達したとは判断しません。
+- 画像返却の確認では、`content` に `type: "image"` があるかを確認し、Code Modeではそのブロックを `image(block)` で転送します。文字列化したJSON、取得メタデータ、HTTP 200だけでは視覚入力の成功としません。
+- プレビュー表示とモデルの視覚認識は別々に確認します。画像本体を受け取れない場合は内容を推測せず、エラーと返却ブロックの種類を記録してください。

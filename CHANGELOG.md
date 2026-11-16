@@ -10,6 +10,12 @@
 
 # Changelog
 
+## 1.0.0-beta.12
+
+- Flatten the one-call image input schema so model-tool converters retain asset_id, output bounds and format for specific-photo requests. Keep source-specific validation before upstream access.
+- Add legacy/modern MCP wire checks for all advertised image parameters and missing/ambiguous asset rejection. Preserve native ImageContent, private previews, metadata removal and existing authorization.
+- Clarify that a completed tool call can still carry isError and must not be treated as successful image delivery.
+
 ## 1.0.0-beta.11
 
 - Reduce normal Docker runtime configuration to four deployment-specific values. Derive trusted JWKS and default the separate master-key file path; keep legacy overrides.

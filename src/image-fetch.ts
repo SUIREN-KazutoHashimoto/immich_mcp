@@ -10,9 +10,12 @@ const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}
 export const imageFetchDescriptor={
   name:"immich_get_image",
   description:"Use this first to display or describe one Immich photo: choose source random, or source asset with an asset_id. Fetches and returns the actual model-visible image in one call without catalog, schema lookup or job polling. For an existing completed result_ref use immich_read_image instead. Do not fetch the photo again to explain it: use the returned ImageContent. Returns native image content rather than JSON structuredContent; diagnostics are private image_info. In Code Mode forward image content blocks with image(block); a metadata-only wrapper is not image input: stop and report image_content_missing instead of repeating requests or guessing. Server display_status is unconfirmed; UI display and visual recognition are separate checks.",
-  inputSchema:{type:"object",properties:{source:{type:"string",enum:["random","asset"]},asset_id:{type:"string",pattern:uuid.source},
+  // Keep parameters flat: some model-tool adapters drop shared properties when converting root oneOf branches.
+  // Source-specific requirements remain enforced by get() before any upstream request.
+  inputSchema:{type:"object",properties:{source:{type:"string",enum:["random","asset"],description:"Choose asset to fetch asset_id, or random to select one accessible image."},
+    asset_id:{type:"string",pattern:uuid.source,description:"Required when source is asset. Omit when source is random."},
     max_width:imageDescriptor.inputSchema.properties.max_width,max_height:imageDescriptor.inputSchema.properties.max_height,format:imageDescriptor.inputSchema.properties.format},
-    required:["source"],additionalProperties:false,oneOf:[{properties:{source:{const:"asset"}},required:["asset_id"]},{properties:{source:{const:"random"}},not:{required:["asset_id"]}}]},
+    required:["source"],additionalProperties:false},
   outputSchema:{...imageDescriptor.outputSchema,properties:{...imageDescriptor.outputSchema.properties,asset_id:{type:"string",pattern:uuid.source}},required:[...imageDescriptor.outputSchema.required,"asset_id"]},
   annotations:{readOnlyHint:true,destructiveHint:false,idempotentHint:false,openWorldHint:false},_meta:imageDescriptor._meta
 };
@@ -25,7 +28,7 @@ export class ImageFetch {
     if(!input||typeof input!=="object"||Array.isArray(input)||Object.keys(input).some(k=>!["source","asset_id","max_width","max_height","format"].includes(k))||
       !["random","asset"].includes(input.source)||input.source==="asset"&&(typeof input.asset_id!=="string"||!uuid.test(input.asset_id))||input.source==="random"&&input.asset_id!==undefined||
       [input.max_width,input.max_height].some(n=>n!==undefined&&(!Number.isSafeInteger(n)||n<1||n>2048))||input.format!==undefined&&!["jpeg","webp"].includes(input.format))
-      throw new BridgeError("invalid_image_options","Choose random or one asset UUID with image bounds 1 to 2048");
+      throw new BridgeError("invalid_image_options","For source=asset provide asset_id; for source=random omit asset_id. Image bounds must be 1 to 2048 and format must be jpeg or webp");
     const deadline=AbortSignal.timeout(30000),signal=AbortSignal.any([deadline,...(outerSignal?[outerSignal]:[])]);
     const revision=this.executor.vault.credential(principal).revision;
     const check=()=>{

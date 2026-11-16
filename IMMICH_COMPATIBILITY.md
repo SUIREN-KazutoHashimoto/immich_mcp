@@ -36,7 +36,7 @@ ChatGPTは「このImmichバージョンは未検証のため、一部機能が�
 
 ## 更新と確認
 
-1. TrueNAS等で `ghcr.io/suiren-kazutohashimoto/immich-mcp:beta` を再取得して更新します。固定版は `1.0.0-beta.11` です。
+1. TrueNAS等で `ghcr.io/suiren-kazutohashimoto/immich-mcp:beta` を再取得して更新します。固定版は `1.0.0-beta.12` です。
 2. CloudflareでImmich MCPの能力を同期します。ツール数は12件のままです。
 3. ChatGPTの接続設定でツール定義を更新し、新しい会話を開きます。共通ポータルの3件を含めると15件です。
 4. `immich_get_server_info` でMCP版beta.10、接続先の版、準備状態を確認します。

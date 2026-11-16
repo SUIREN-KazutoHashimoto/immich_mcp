@@ -86,7 +86,14 @@ test("image artifacts reach legacy MCP and the official modern client as ImageCo
     assert.equal(forbidden.result.isError,true);assert.ok(forbidden.result.content.every((c:any)=>c.type==="text"));
     assert.equal((await localFetch(new Request(publicOrigin+"/mcp",{method:"POST",body:"{}"}))).status,401);
     const tools=(await rpc("tools/list",{})).result.tools;
-    assert.equal(tools.find((t:any)=>t.name==="immich_get_image")?.outputSchema,undefined);
+    const fetchDescriptor=tools.find((t:any)=>t.name==="immich_get_image");
+    assert.ok(fetchDescriptor);
+    // Model-tool adapters must see every image argument at the object root.
+    assert.deepEqual(Object.keys(fetchDescriptor.inputSchema.properties).sort(),["asset_id","format","max_height","max_width","source"]);
+    assert.deepEqual(fetchDescriptor.inputSchema.required,["source"]);
+    for(const keyword of ["oneOf","anyOf","allOf","not","if","then","else"])
+      assert.equal(fetchDescriptor.inputSchema[keyword],undefined,"Image arguments must survive flat client tool-schema conversion: "+keyword);
+    assert.equal(fetchDescriptor.outputSchema,undefined);
     assert.ok(tools.find((t:any)=>t.name==="immich_get_server_info")?.outputSchema,"Generic JSON tools retain their schema");
     const descriptor=tools.find((t:any)=>t.name==="immich_read_image");assert.ok(descriptor);assert.equal(descriptor.outputSchema,undefined);
     assert.equal(descriptor.annotations.readOnlyHint,true);assert.equal(descriptor.annotations.destructiveHint,false);
@@ -115,6 +122,12 @@ test("image artifacts reach legacy MCP and the official modern client as ImageCo
     assert.equal(fast.isError,undefined);assert.equal(fast.structuredContent,undefined);assert.equal(imageMetadata(fast).asset_id,uuid);
     assert.deepEqual(fast.content.find((c:any)=>c.type==="image"),content,"The one-call image must survive the MCP transport with identical pixels");
     assert.equal(viewHits,2);
+    for(const args of [{source:"asset"},{source:"random",asset_id:uuid}]){
+      const rejected:any=await client.callTool({name:"immich_get_image",arguments:args});
+      assert.equal(rejected.isError,true);
+      assert.equal(JSON.parse(rejected.content.find((c:any)=>c.type==="text").text).code,"invalid_image_options");
+    }
+    assert.equal(viewHits,2,"Source-specific validation still rejects missing or ambiguous IDs before fetching pixels");
     assert.ok(!wire.join("").includes("IMAGE-KEY-CANARY"));assert.ok(!wire.join("").includes("PRIVATE-EXIF-CANARY"));
     const original=app.vault.get(principal,ref,"result");const chunks:Buffer[]=[];
     for await(const chunk of app.vault.rawStream(principal,original.raw.raw_ref))chunks.push(Buffer.from(chunk));

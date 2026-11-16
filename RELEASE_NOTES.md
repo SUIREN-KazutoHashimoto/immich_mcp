@@ -1,17 +1,16 @@
-# Immich MCP 1.0.0-beta.11
+# Immich MCP 1.0.0-beta.12
 
-通常のDocker / TrueNAS導入で指定するアプリ環境変数を4項目に整理し、接続設定画面を日本語化・再設計しました。
+特定の写真を `asset_id` で指定したとき、一部のChatGPTツール変換で引数が欠ける問題を修正しました。
 
-- 必須の入力は `IMMICH_BASE_URL`、`MCP_PUBLIC_BASE_URL`、`ACCESS_ISSUER`、`ACCESS_AUDIENCE` の4つです。
-- 公開鍵URLを認証元から自動設定し、標準の鍵読込先を既定値にします。既存の上書き設定は利用できます。
-- APIキー登録を中心にしたカード型の画面に変更し、追加認証・トークン入力・履歴を開閉できます。スマートフォンの表示と操作にも対応します。
-- 登録、完了、エラー、追加認証、アップロードの案内を日本語化しました。
-- 秘密値の非表示、暗号化保存、署名・AUD・Origin・CSRFの確認、追加認証への明示的な同意を維持します。
+- 画像取得ツールの入力定義を単純化し、`source`、`asset_id`、サイズ、形式を同じ階層で公開します。
+- 個別指定ではID必須、ランダム指定ではID禁止という検証は、上流への通信前に維持します。
+- ネイティブ画像、非公開プレビュー、メタデータ除去、暗号化保存、利用者ごとの認証を維持します。
+- 呼び出しが完了しても `isError: true` なら成功ではありません。画像ブロックとエラー内容を確認する手順を追記しました。
 
-データは `/data`、既存の32バイトのマスター鍵は `/run/secrets/vault_master_key` にマウントします。独自パスを使用している既存環境では、その設定を残してください。旧イメージから先に環境変数だけを削除しないでください。
+コンテナ更新後、CloudflareのMCPツール情報を同期し、ChatGPTのプラグイン設定で「ツールを更新」を実行してください。古い定義のままでは `asset_id` が利用できません。データと既存のマスター鍵を維持してください。
 
-固定版: `ghcr.io/suiren-kazutohashimoto/immich-mcp:1.0.0-beta.11`
+固定版: `ghcr.io/suiren-kazutohashimoto/immich-mcp:1.0.0-beta.12`
 
 更新チャンネル: `ghcr.io/suiren-kazutohashimoto/immich-mcp:beta`
 
-[最小構成・既存環境の整理・画面例](https://github.com/SUIREN-KazutoHashimoto/immich_mcp/blob/v1.0.0-beta.11/CONFIGURATION.md)
+OCRの変更は含みません。

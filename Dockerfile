@@ -20,7 +20,7 @@ RUN pnpm generate && pnpm build
 
 FROM ${NODE_IMAGE} AS runtime
 LABEL org.opencontainers.image.title="Immich MCP" \
-      org.opencontainers.image.version="1.0.0-beta.11" \
+      org.opencontainers.image.version="1.0.0-beta.12" \
       org.opencontainers.image.description="MCP bridge for reviewed Immich versions through 3.4.1; unverified versions are advisory"
 ENV NODE_ENV=production MCP_LISTEN_HOST=0.0.0.0 STORAGE_PATH=/data
 WORKDIR /app
